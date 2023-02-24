@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Name List</title>
+  </head>
+  <body>
+      {% if names %}
+            {% for name in names %}
+            <p>Hello {{name.name}}</p>
+            {% endfor %}
+        {% endif %}
+  </body>
+</html>
