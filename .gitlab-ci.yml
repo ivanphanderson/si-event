@@ -1,6 +1,26 @@
 stages:
+  - test
   - sonarqube
   - deploy
+
+
+Test:
+  image: python:3.10.6
+  stage: test
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  before_script:
+    - pip install -r requirements.txt
+    - python manage.py migrate
+    - python manage.py collectstatic --no-input
+  when: on_success
+  script:
+    - coverage run --include="./*/*" --omit="./manage.py" manage.py test
+    - coverage report -m
+    - coverage xml -i
+  artifacts:
+    paths:
+      - coverage.xml
+
 
 sonarqube_prod:
   stage: sonarqube
