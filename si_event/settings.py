@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-iva@g$r#jof8-m!kzppodser7gudj02kn))^!h(kd&*1cw#q++'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,23 +78,36 @@ WSGI_APPLICATION = 'si_event.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-DATABASES = {
+if os.environ.get('ENVIRONMENT') == 'PRODUCTION':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('NAME_PROD'),
+            'USER': os.environ.get('USER_PROD'),
+            'PASSWORD': os.environ.get('PASSWORD_PROD'),
+            'HOST': os.environ.get('HOST_PROD'),
+            'PORT': '5432',
+        }
+    }
+elif os.environ.get('ENVIRONMENT') == 'STAGING':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('NAME_STAGING'),
+            'USER': os.environ.get('USER_STAGING'),
+            'PASSWORD': os.environ.get('PASSWORD_STAGING'),
+            'HOST': os.environ.get('HOST_STAGING'),
+            'PORT': '5432',
+        }
+    }
+else:
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '34j3UVW8c1NHOdcV',
-        'HOST': 'db.idkgrzcdepdjeuojtaue.supabase.co',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 

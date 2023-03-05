@@ -4,17 +4,19 @@ stages:
   - deploy
 
 
-Test:
-  image: python:3.10.6
+test:
+  image: python:3.8.8
   stage: test
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   before_script:
+    - if [[ $CI_COMMIT_REF_NAME == master ]]; then ENVIRONMENT="PRODUCTION"; fi
+    - if [[ $CI_COMMIT_REF_NAME == staging ]]; then ENVIRONMENT="STAGING"; else ENVIRONMENT="DEVELOPMENT"; fi
     - pip install -r requirements.txt
     - python manage.py migrate
     - python manage.py collectstatic --no-input
   when: on_success
   script:
-    - coverage run --include="./*/*" --omit="./manage.py" manage.py test
+    - coverage run --include="./*/*" --omit="./manage.py,./si_event/settings.py" manage.py test
     - coverage report -m
     - coverage xml -i
   artifacts:
@@ -22,7 +24,7 @@ Test:
       - coverage.xml
 
 
-sonarqube_prod:
+sonarqube:
   stage: sonarqube
   only:
     - staging
@@ -42,7 +44,7 @@ sonarqube_prod:
     - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=$SONAR_PROJECT_KEY
   allow_failure: true
 
-Deployment:
+deployment_production:
   image: ruby:latest
   stage: deploy
   before_script:
@@ -53,5 +55,18 @@ Deployment:
     name: master
     url: $HEROKU_APP_HOST
   only:
-    - staging
     - master
+
+deployment_staging:
+  image: ruby:latest
+  stage: deploy
+  before_script:
+    - gem install dpl
+  script:
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME_STAGING --api-key=$HEROKU_API_KEY_STAGING
+  environment:
+    name: staging
+    url: $HEROKU_APP_HOST_STAGING
+  only:
+    - staging
+  allow_failure: true
