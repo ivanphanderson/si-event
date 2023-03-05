@@ -1,19 +1,24 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <title>Template</title>
+	<title>
+    {% block title %}
+    {% endblock %}
+  </title>
   {% block meta %}
   {% endblock meta %}
+	<link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-
 <body>
-  {% block content %}
-  {% endblock content %}
+	<header>
+		<div class="logo">
+      <img src="{% static 'img/horizontal-white-id.png' %}" alt="Logo">
+		</div>
+		<div class="title">
+			<h1>Sistem Informasi Manajemen <br> Panitia Event</h1>
+		</div>
+	</header>
+	{% block content %}{% endblock content %}
 </body>
-
 </html>
