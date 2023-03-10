@@ -16,7 +16,7 @@ test:
     - python manage.py collectstatic --no-input
   when: on_success
   script:
-    - coverage run --include="./*/*" --omit="./manage.py,./si_event/settings.py" manage.py test
+    - coverage run --include="./*/*" --omit="./manage.py,./si_event/settings.py,./utils/*" manage.py test
     - coverage report -m
     - coverage xml -i
   artifacts:
@@ -41,7 +41,7 @@ sonarqube:
     paths:
       - .sonar/cache
   script: 
-    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=$SONAR_PROJECT_KEY
+    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.projectKey=$SONAR_PROJECT_KEY
   allow_failure: true
 
 deployment_production:
