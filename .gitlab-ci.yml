@@ -16,7 +16,7 @@ test:
     - python manage.py collectstatic --no-input
   when: on_success
   script:
-    - coverage run --include="./*/*" --omit="./manage.py,./si_event/settings.py" manage.py test
+    - coverage run --include="./*/*" --omit="./manage.py,./si_event/settings.py,./utils/*" manage.py test
     - coverage report -m
     - coverage xml -i
   artifacts:
