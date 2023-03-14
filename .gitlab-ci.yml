@@ -30,6 +30,7 @@ sonarqube:
     - staging
     - merge_requests
     - master
+    - fix-sonarqube
   image: 
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [ "" ]
@@ -41,7 +42,7 @@ sonarqube:
     paths:
       - .sonar/cache
   script: 
-    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.projectKey=$SONAR_PROJECT_KEY
+    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.language=py
   allow_failure: true
 
 deployment_production:
