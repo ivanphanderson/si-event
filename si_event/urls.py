@@ -20,5 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('authentication.urls')),
     path('account/', include('account.urls')),
-    path('home/', include('home.urls'))
+    path('pegawai/', include('pegawai.urls')),
+    path('log/', include('log.urls')),
+    path('home/', include('home.urls')),
 ]

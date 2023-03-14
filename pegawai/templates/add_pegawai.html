@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Tambah Data Pegawai
+{% endblock %}
+
+{% block content %}
+<div class="container w-75 my-5">
+    <div class="row align-items-center">
+        <div class="col align-self-center">
+            <div class="card">
+                <h1 class="card-title text-center mt-4">Add Data Pegawai</h1>
+                <h4 class="card-subtitle mb-2 text-muted text-center">File berupa .csv/.xlsx/.xls</h4>
+                <div class="card-body align-self-center">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'pegawai:save_pegawai' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label" for="fileSelect">File Data Pegawai</label>
+                            <input required class="form-control-file border" id="fileSelect" name="file" type="file"
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                            <input class="mt-4 btn btn-primary" type="submit" value="Submit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
