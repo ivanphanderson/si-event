@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Data Pegawai</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+
+{% load static %}
+{% endblock meta %}
+
+{% block content %}
+<style>
+  .btn-warning {
+    font-size: 13px;
+    letter-spacing: 1px;
+    line-height: 15px;
+    border: 2px solid rgba(240, 173, 78, 0.75);
+    border-radius: 40px;
+    transition: all 0.3s ease 0s;
+  }
+
+  .btn-warning:hover {
+    background: rgb(240, 173, 78, 0.75);
+    border: 2px solid rgba(240, 173, 78, 0.75);
+  }
+</style>
+<br>
+<div style="margin: 20px;">
+
+  <h4 style="text-align: center;">Data Pegawai</h4>
+
+  {% if isNotEmpty %}
+  <div style="text-align: center;">
+    <br><br>
+    <a href="update/" role="button" class="btn btn-warning">Update Data Pegawai</a>
+    <br><br><br>
+  </div>
+
+  <table class="table table-striped" id="sortTable">
+    
+    <caption>Table to show Employee List</caption>
+    
+    <thead style="background-color: #2A3990; color: white;">
+      <tr>
+        <th scope="col">Employee No.</th>
+        <th scope="col">Employee Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Job Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emp in data %}
+      <tr>
+        <td>{{emp.employee_no}}</td>
+        <td>{{emp.employee_name}}</td>
+        <td>{{emp.email}}</td>
+        <td>{{emp.get_job_status_display}}</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="text-align: center;">
+    <img src={% static "img/search.jpg" %} class="img-fluid" alt="Search image">
+    <h5>Belum Ada Data Pegawai.</h5>
+    <a href="add/" role="button" class="btn btn-warning">Masukkan Data Pegawai</a>
+    <br><br>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+  $('#sortTable').DataTable();
+</script>
+
+{% endblock content %}

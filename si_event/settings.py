@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'account',
+    'pegawai',
+    'log',
     'home',
 ]
 
