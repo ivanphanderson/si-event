@@ -1,18 +1,15 @@
-from django.shortcuts import render
 from .models import Account, User
-from .forms import AccountForm, UserCreationForm
-from django.shortcuts import redirect
+from .forms import AccountForm, UserCreationForm, UbahPasswordForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import F
-from django.shortcuts import render
-from django.shortcuts import redirect
-from .models import Account
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
+from django.contrib.auth.hashers import check_password
 
 UNEXPECTED_HTML = 'unexpected.html'
 AKUN_TIDAK_DITEMUKAN = 'Akun Tidak Ditemukan'
+HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
 
 @login_required(login_url='/login')
 def register_account(request):
@@ -57,6 +54,29 @@ def register_account(request):
         messages.info(request,'Anda tidak memiliki akses untuk membuat akun')
         return redirect('/home')
     return render(request, 'register_account.html', context)
+
+@require_GET
+@login_required(login_url='/login')
+def ubah_password(request):
+    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML)
+
+@require_POST
+@login_required(login_url='/login')
+def submit_ubah_password(request):
+    form = UbahPasswordForm(request.POST)
+    if form.is_valid():
+        current_password = form.cleaned_data['current_password']
+        if check_password(current_password, request.user.password):
+            user = request.user
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            account = Account.objects.get(user=user)
+            account.is_first_login = False
+            account.save()
+            messages.info(request,'Password berhasil diubah, silakan login ulang')
+            return redirect('/login')
+        return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Current password tidak sesuai']})
+    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Password baru berbeda dengan konfirmasi password baru']})
 
 @require_GET
 @login_required(login_url='/login')

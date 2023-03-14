@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
 from .models import Account, User
-from .views import register_account, read_akun, update_akun
+from .views import register_account, read_akun, update_akun, ubah_password
 import environ
 
 env = environ.Env()
@@ -19,8 +19,13 @@ TEST_SK_EMAIL = 'test.sk@gmail.com'
 
 ACCOUNT_URL = '/account/'
 GANTI_STATUS_AKUN_URL = '/account/ganti-status-akun'
+UBAH_PASSWORD_URL = '/account/ubah-password'
+UBAH_PASSWORD_SUBMIT_URL = '/account/ubah-password/submit'
 UNEXPECTED_HTML = 'unexpected.html'
+HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
 PASSWORD_UNTUK_TEST = env('PASSWORD_UNTUK_TEST')
+PASSWORD_UNTUK_TEST_GANTI = env('PASSWORD_UNTUK_TEST_GANTI')
+PASSWORD_UNTUK_TEST_GANTI_BEDA = env('PASSWORD_UNTUK_TEST_GANTI_BEDA')
 
 def create_test_users():
     '''Create test users and accounts'''
@@ -168,22 +173,22 @@ class RegisterAccountViewTest(TestCase):
 
 def set_up_login(self, role):
     self.client = Client()
-    USERNAME = 'tesname'
-    PASSWORD = PASSWORD_UNTUK_TEST
+    self.USERNAME2 = 'tesname'
+    self.PASSWORD2 = PASSWORD_UNTUK_TEST
     user: User = User.objects.create()
-    user.username = USERNAME
-    user.set_password(PASSWORD)
+    user.username = self.USERNAME2
+    user.set_password(self.PASSWORD2)
     account = Account(
         user = user,
-        username = USERNAME, 
+        username = self.USERNAME2, 
         email = 'tes@gmail.com',
         role = role
     )
-    account.user.username=USERNAME
+    account.user.username=self.USERNAME2
     user.save()
     account.save()
 
-    login = self.client.login(username=USERNAME, password=PASSWORD)
+    login = self.client.login(username=self.USERNAME2, password=self.PASSWORD2)
     self.assertTrue(login)
 
 def set_up_akun_dummy(self):
@@ -206,7 +211,63 @@ def set_up_akun_dummy(self):
     self.user_dummy = user
     self.account_dummy = account
 
+class UbahPasswordSudahLoginTest(TestCase):
+    def setUp(self) -> None:
+        set_up_login(self, 'Admin')
+
+    def test_ubah_password_get_is_exist(self):
+        response = self.client.get(UBAH_PASSWORD_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML)
+
+    def test_using_ubah_password_func(self):
+        found = resolve(UBAH_PASSWORD_URL)
+        self.assertEqual(found.func, ubah_password)
+
+    def test_ubah_password_post_is_functional(self):
+        data = {
+            'current_password': PASSWORD_UNTUK_TEST,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI
+        }
+        response = self.client.post(UBAH_PASSWORD_SUBMIT_URL, data)
+        updated_user = User.objects.get(username=self.USERNAME2)
+        self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST_GANTI))
+        self.assertRedirects(response, '/login', status_code=302, target_status_code=200)
+
+    def test_ubah_password_post_password_lama_beda(self):
+        data = {
+            'current_password': PASSWORD_UNTUK_TEST_GANTI_BEDA,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI
+        }
+        response = self.client.post(UBAH_PASSWORD_SUBMIT_URL, data)
+        updated_user = User.objects.get(username=self.USERNAME2)
+
+        self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST)) # Password masih sama dengan password lama
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML)
+
+    def test_ubah_password_post_password_ganti_beda_dengan_konfirmasi(self):
+        data = {
+            'current_password': PASSWORD_UNTUK_TEST,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI_BEDA
+        }
+        response = self.client.post(UBAH_PASSWORD_SUBMIT_URL, data)
+        updated_user = User.objects.get(username=self.USERNAME2)
+
+        self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST)) # Password masih sama dengan password lama
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML)
+
+
 class AccountTidakLoginTest(TestCase):
+    def test_ubah_password_is_exist(self):
+        response = Client().get(UBAH_PASSWORD_URL)
+        # karena belum login, diarahkan ke halaman login
+        self.assertRedirects(response, f'/login?next=/account/ubah-password', status_code=302, target_status_code=200)
+
     def test_read_akun_is_exist(self):
         response = Client().get(ACCOUNT_URL)
         # karena belum login, diarahkan ke halaman login
