@@ -1,9 +1,10 @@
-from django.test import TestCase
-from django.test import Client
-from django.urls import resolve
+from django.test import TestCase, Client
+from django.urls import reverse, resolve
+from django.contrib.auth.models import User
+from account.models import Account, User
+from django.contrib.messages import get_messages
 from .views import forget_password, ubah_password, handle_otp
 from .models import PasswordOTP
-from account.models import User, Account
 import environ
 
 env = environ.Env()
@@ -28,6 +29,142 @@ PASSWORD_UNTUK_TEST = env('PASSWORD_UNTUK_TEST')
 PASSWORD_UNTUK_TEST_GANTI = env('PASSWORD_UNTUK_TEST_GANTI')
 PASSWORD_UNTUK_TEST_GANTI_BEDA = env('PASSWORD_UNTUK_TEST_GANTI_BEDA')
 
+REVERSE_AUTH_LOGIN = 'authentication:login'
+REVERSE_HOME_HOME = 'home:home'
+LOGIN_HTML = 'login.html'
+USERNAME_ATAU_PW_SALAH = 'Username atau Password salah!'
+
+class LoginLogoutTest(TestCase):
+    '''Test Module for Authentication Login and Logout Test'''
+
+    def setUp(self):
+        '''Create object to test based on models'''
+        self.client = Client()
+
+        self.ADMIN_USERNAME = 'test_admin'
+        self.ADMIN_PASSWORD = 'testadmin123'
+        self.ADMIN_EMAIL = 'test.admin@gmail.com'
+
+        self.USER_USERNAME = 'test_user'
+        self.USER_PASSWORD = 'testuser123'
+        self.USER_EMAIL = 'test.user@gmail.com'
+
+        self.STAFF_KEUANGAN_USERNAME = 'test_sk'
+        self.STAFF_KEUANGAN_PASSWORD = 'testsk123'
+        self.STAFF_KEUANGAN_EMAIL = 'test.sk@gmail.com'
+        
+        user_admin = User.objects.create()
+        user_admin.username = self.ADMIN_USERNAME
+        user_admin.email = self.ADMIN_EMAIL
+        user_admin.set_password(self.ADMIN_PASSWORD)
+        admin_acc = Account(
+            user = user_admin,
+            username = self.ADMIN_USERNAME,
+            email = self.ADMIN_EMAIL,
+            role = 'Admin'
+        )
+        admin_acc.user.username = self.ADMIN_USERNAME
+        admin_acc.save()
+        user_admin.save()
+
+        user_user = User.objects.create()
+        user_user.username = self.USER_USERNAME
+        user_user.email = self.USER_EMAIL
+        user_user.set_password(self.USER_PASSWORD)
+        user_acc = Account(
+            user = user_user,
+            username = self.USER_USERNAME,
+            email = self.USER_EMAIL,
+            role = 'User'
+        )
+        user_acc.user.username = self.USER_USERNAME
+        user_acc.save()
+        user_user.save()
+        
+        user_sk = User.objects.create()
+        user_sk.username = self.STAFF_KEUANGAN_USERNAME
+        user_sk.email = self.STAFF_KEUANGAN_EMAIL
+        user_sk.set_password(self.STAFF_KEUANGAN_PASSWORD)
+        sk_acc = Account(
+            user = user_sk,
+            username = self.STAFF_KEUANGAN_USERNAME,
+            email = self.STAFF_KEUANGAN_EMAIL,
+            role = 'Staff Keuangan'
+        )
+        sk_acc.user.username = self.STAFF_KEUANGAN_USERNAME
+        sk_acc.save()
+        user_sk.save()
+
+    def test_login_admin_success(self):
+        logged_in = self.client.login(username=self.ADMIN_USERNAME, password=self.ADMIN_PASSWORD)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.ADMIN_USERNAME, 'password':self.ADMIN_PASSWORD}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)
+    
+    def test_login_admin_failed(self):
+        url = reverse(REVERSE_AUTH_LOGIN)
+        response = self.client.post(url, {'username':'admin_unregistered', 'password':'p4ssw0rdd'})
+        self.assertFalse(response.context['user'].is_authenticated)
+
+        messages = [msg.message for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(messages[0], USERNAME_ATAU_PW_SALAH)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)             
+
+    def test_login_user_success(self):
+        logged_in = self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.USER_USERNAME, 'password':self.USER_PASSWORD}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_user_failed(self):
+        url = reverse(REVERSE_AUTH_LOGIN)
+        response = self.client.post(url, {'username':'user_unregistered', 'password':'p4ssw0rdd'})
+        self.assertFalse(response.context['user'].is_authenticated)
+
+        messages = [msg.message for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(messages[0], USERNAME_ATAU_PW_SALAH)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_sk_success(self):
+        logged_in = self.client.login(username=self.STAFF_KEUANGAN_USERNAME, password=self.STAFF_KEUANGAN_PASSWORD)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.STAFF_KEUANGAN_USERNAME, 'password':self.STAFF_KEUANGAN_PASSWORD}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_sk_failed(self):
+        url = reverse(REVERSE_AUTH_LOGIN)
+        response = self.client.post(url, {'username':'sk_unregistered', 'password':'p4ssw0rdd'})
+        self.assertFalse(response.context['user'].is_authenticated)
+
+        messages = [msg.message for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(messages[0], USERNAME_ATAU_PW_SALAH)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_logout_success(self):
+        self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
+        url = reverse('authentication:logout')
+        response = self.client.get(url, follow=True)
+        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse(REVERSE_AUTH_LOGIN))
+
+    def test_logout_failed(self):
+        url = reverse('authentication:logout')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse(REVERSE_AUTH_LOGIN))
 
 class ModelTest(TestCase):
     

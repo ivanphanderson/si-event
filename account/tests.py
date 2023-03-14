@@ -1,17 +1,170 @@
-from django.test import TestCase
-from django.test import Client
-from django.urls import resolve
-from .views import read_akun, update_akun
+from django.test import TestCase, Client
+from django.urls import reverse, resolve
 from .models import Account, User
+from .views import register_account, read_akun, update_akun
 import environ
 
 env = environ.Env()
 environ.Env.read_env()
 
+REVERSE_ACC_REGIST = 'account:registerAccount'
+REGIST_HTML = 'register_account.html'
+TEST_ADMIN_USERNAME = 'test_admin'
+TEST_ADMIN_EMAIL = 'test.admin@gmail.com'
+TEST_ADMIN_PASSWORD = 'testadmin123'
+TEST_USER_USERNAME = 'test_user'
+TEST_USER_EMAIL = 'test.user@gmail.com'
+TEST_USER_PASSWORD = 'testuser123'
+TEST_SK_EMAIL = 'test.sk@gmail.com'
+
 ACCOUNT_URL = '/account/'
 GANTI_STATUS_AKUN_URL = '/account/ganti-status-akun'
 UNEXPECTED_HTML = 'unexpected.html'
 PASSWORD_UNTUK_TEST = env('PASSWORD_UNTUK_TEST')
+
+def create_test_users():
+    '''Create test users and accounts'''
+    admin_user = User.objects.create(username='test_admin', email=TEST_ADMIN_EMAIL)
+    admin_user.set_password('testadmin123')
+    admin_user.save()
+    Account.objects.create(user=admin_user, username='test_admin', email=TEST_ADMIN_EMAIL, role='Admin')
+
+    user_user = User.objects.create(username='test_user', email=TEST_USER_EMAIL)
+    user_user.set_password('testuser123')
+    user_user.save()
+    Account.objects.create(user=user_user, username='test_user', email=TEST_USER_EMAIL, role='User')
+
+    sk_user = User.objects.create(username='test_sk', email=TEST_SK_EMAIL)
+    sk_user.set_password('testsk123')
+    sk_user.save()
+    Account.objects.create(user=sk_user, username='test_sk', email=TEST_SK_EMAIL, role='Staff Keuangan')
+
+
+class ModelTest(TestCase):
+    '''Test Module for models'''
+
+    def setUp(self):
+        '''Create object to test based on models'''
+        create_test_users()
+
+    def test_model_user_return_str(self):
+
+        user_admin = User.objects.get(username='test_admin')
+        self.assertEqual(user_admin.username,'test_admin')
+        self.assertEqual(user_admin.email,TEST_ADMIN_EMAIL)
+        
+        user_user = User.objects.get(username='test_user')
+        self.assertEqual(user_user.username,'test_user')
+        self.assertEqual(user_user.email,TEST_USER_EMAIL)
+        
+        user_sk = User.objects.get(username='test_sk')
+        self.assertEqual(user_sk.username,'test_sk')
+        self.assertEqual(user_sk.email,TEST_SK_EMAIL)
+
+    def test_model_account_return_str(self):
+
+        admin_acc = User.objects.get(username='test_admin')
+        self.assertEqual(admin_acc.username,'test_admin')
+        self.assertEqual(admin_acc.email, TEST_ADMIN_EMAIL)
+        
+        user_acc = User.objects.get(username='test_user')
+        self.assertEqual(user_acc.username,'test_user')
+        self.assertEqual(user_acc.email,TEST_USER_EMAIL)
+        
+        sk_acc = User.objects.get(username='test_sk')
+        self.assertEqual(sk_acc.username,'test_sk')
+        self.assertEqual(sk_acc.email,TEST_SK_EMAIL)
+
+class RegisterAccountViewTest(TestCase):
+    '''Test Module for Register Account'''
+
+    def setUp(self):
+        '''Create object to test based on models'''
+        create_test_users()
+
+        self.form_data_user = {
+            'username': 'testuser',
+            'email': 'testuser@test.com',
+            'password1': 'testpassword',
+            'password2': 'testpassword',
+            'role': 'User',
+        }
+
+        self.form_data_admin = {
+            'username': 'testadmin',
+            'email': 'testadmin@test.com',
+            'password1': 'testpassword',
+            'password2': 'testpassword',
+            'role': 'Admin',
+        }
+
+        self.form_invalid = {
+            'username': TEST_ADMIN_USERNAME,
+            'email': 'testadmin@test.com',
+            'password1': 'testpassword',
+            'password2': 'testpassword1',
+            'role': 'Admin',
+        }
+
+    def test_register_account_user_view_with_authenticated_admin_user(self):
+        self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, REGIST_HTML)
+
+        # submit valid form data
+        response = self.client.post(url, data=self.form_data_user)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Account.objects.all()), 4) # check if account was created
+        self.assertTrue(User.objects.filter(username='testuser').exists()) # check if user was created
+        user = User.objects.get(username='testuser')
+        self.assertFalse(user.is_staff)
+
+    def test_register_account_admin_view_with_authenticated_admin_user(self):
+        self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, REGIST_HTML)
+
+        # submit valid form data
+        response = self.client.post(url, data=self.form_data_admin)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Account.objects.all()), 4) # check if account was created
+        self.assertTrue(User.objects.filter(username='testadmin').exists()) # check if user was created
+        user = User.objects.get(username='testadmin')
+        self.assertTrue(user.is_staff)
+        
+
+    def test_register_account_view_with_unauthenticated_user(self):
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login?next=/account/register')
+        response = self.client.post(url, data=self.form_data_user)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login?next=/account/register')
+
+    def test_register_account_view_with_authenticated_non_admin_user(self):
+        self.client.login(username=TEST_USER_USERNAME, password=TEST_USER_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_register_account_view_with_non_unique_username(self):
+        self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, REGIST_HTML)
+
+        # submit invalid form data
+        response = self.client.post(url, data=self.form_invalid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Account.objects.all()), 3) # check if account was created
+        self.assertFalse(User.objects.filter(username='testuser').exists()) # check if user was created
+
 
 def set_up_login(self, role):
     self.client = Client()

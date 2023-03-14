@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from account.models import Account
 from .models import PasswordOTP
 from account.models import Account, User
 from .forms import ForgetPasswordForm, NewPasswordForm
@@ -7,17 +8,34 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_GET, require_POST
-from django.utils import timezone
 
 AKSES_ILEGAL = 'Akses Ilegal'
 FORGET_PASSWORD_HTML = 'forget_password.html'
 UNEXPECTED_HTML = 'unexpected.html'
 
-@require_GET
 def login_user(request):
-    # Temporary login
-    return render(request, 'login.html')
+    navbar_admin = []
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            acc = Account.objects.get(user=user)
+            if acc.role == 'Admin':
+                navbar_admin.append('Create Account')
+            return redirect('/home')
+        else:
+            messages.info(request, 'Username atau Password salah!')
+
+    context = {'form':'form', 'navbar_admin':navbar_admin}
+    return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    return redirect('/login')
+from django.views.decorators.http import require_GET, require_POST
+from django.utils import timezone
 
 @require_GET
 def forget_password(request):
