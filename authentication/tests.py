@@ -21,6 +21,7 @@ HALAMAN_OTP_HTML = 'halaman_otp.html'
 HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
 UNEXPECTED_HTML = 'unexpected.html'
 UBAH_PASSWORD_URL_USERNAME = '/ubah-password/tesname2'
+LOGGED_IN_UBAH_PASSWORD_URL = '/account/ubah-password/submit'
 OTP_URL_LENGKAP_USERNAME = 'https://si-event.herokuapp.com/otp/tesname2'
 UBAH_PASSWORD_URL_LENGKAP_USERNAME = 'https://si-event.herokuapp.com/ubah-password/tesname2'
 UBAH_PASSWORD_URL_LENGKAP_SUBMIT = 'https://si-event.herokuapp.com/ubah-password/submit/submit'
@@ -30,6 +31,7 @@ PASSWORD_UNTUK_TEST_GANTI = env('PASSWORD_UNTUK_TEST_GANTI')
 PASSWORD_UNTUK_TEST_GANTI_BEDA = env('PASSWORD_UNTUK_TEST_GANTI_BEDA')
 
 REVERSE_AUTH_LOGIN = 'authentication:login'
+REVERSE_UBAH_PASSWORD = 'account:ubah_password'
 REVERSE_HOME_HOME = 'home:home'
 LOGIN_HTML = 'login.html'
 USERNAME_ATAU_PW_SALAH = 'Username atau Password salah!'
@@ -100,9 +102,29 @@ class LoginLogoutTest(TestCase):
         self.assertEqual(logged_in, True)
         response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.ADMIN_USERNAME, 'password':self.ADMIN_PASSWORD}, follow=True)
         self.assertTrue(response.context['user'].is_authenticated)
-        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertRedirects(response, reverse(REVERSE_UBAH_PASSWORD))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_admin_dua_kali_success_to_home(self):
+        self.client.login(username=self.ADMIN_USERNAME, password=self.ADMIN_PASSWORD)
+        self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.ADMIN_USERNAME, 'password':self.ADMIN_PASSWORD}, follow=True)
+
+
+        data = {
+            'current_password': self.ADMIN_PASSWORD,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI
+        }
+        self.client.post(LOGGED_IN_UBAH_PASSWORD_URL, data)
+
+        self.client.logout()
+
+        logged_in = self.client.login(username=self.ADMIN_USERNAME, password=PASSWORD_UNTUK_TEST_GANTI)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.ADMIN_USERNAME, 'password':PASSWORD_UNTUK_TEST_GANTI}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
     
     def test_login_admin_failed(self):
         url = reverse(REVERSE_AUTH_LOGIN)
@@ -119,9 +141,28 @@ class LoginLogoutTest(TestCase):
         self.assertEqual(logged_in, True)
         response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.USER_USERNAME, 'password':self.USER_PASSWORD}, follow=True)
         self.assertTrue(response.context['user'].is_authenticated)
-        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertRedirects(response, reverse(REVERSE_UBAH_PASSWORD))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_user_dua_kali_success_to_home(self):
+        self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
+        self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.USER_USERNAME, 'password':self.USER_PASSWORD}, follow=True)
+
+        data = {
+            'current_password': self.USER_PASSWORD,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI
+        }
+        self.client.post(LOGGED_IN_UBAH_PASSWORD_URL, data)
+
+        self.client.logout()
+
+        logged_in = self.client.login(username=self.USER_USERNAME, password=PASSWORD_UNTUK_TEST_GANTI)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.USER_USERNAME, 'password':PASSWORD_UNTUK_TEST_GANTI}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
 
     def test_login_user_failed(self):
         url = reverse(REVERSE_AUTH_LOGIN)
@@ -138,9 +179,28 @@ class LoginLogoutTest(TestCase):
         self.assertEqual(logged_in, True)
         response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.STAFF_KEUANGAN_USERNAME, 'password':self.STAFF_KEUANGAN_PASSWORD}, follow=True)
         self.assertTrue(response.context['user'].is_authenticated)
-        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
+        self.assertRedirects(response, reverse(REVERSE_UBAH_PASSWORD))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(LOGIN_HTML)
+
+    def test_login_sk_dua_kali_success_to_home(self):
+        self.client.login(username=self.STAFF_KEUANGAN_USERNAME, password=self.STAFF_KEUANGAN_PASSWORD)
+        self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.STAFF_KEUANGAN_USERNAME, 'password':self.STAFF_KEUANGAN_PASSWORD}, follow=True)
+
+        data = {
+            'current_password': self.STAFF_KEUANGAN_PASSWORD,
+            'new_password': PASSWORD_UNTUK_TEST_GANTI,
+            'confirmation_password': PASSWORD_UNTUK_TEST_GANTI
+        }
+        self.client.post(LOGGED_IN_UBAH_PASSWORD_URL, data)
+
+        self.client.logout()
+
+        logged_in = self.client.login(username=self.STAFF_KEUANGAN_USERNAME, password=PASSWORD_UNTUK_TEST_GANTI)
+        self.assertEqual(logged_in, True)
+        response = self.client.post(reverse(REVERSE_AUTH_LOGIN), {'username':self.STAFF_KEUANGAN_USERNAME, 'password':PASSWORD_UNTUK_TEST_GANTI}, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertRedirects(response, reverse(REVERSE_HOME_HOME))
 
     def test_login_sk_failed(self):
         url = reverse(REVERSE_AUTH_LOGIN)

@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from account.models import Account
 from .models import PasswordOTP
 from account.models import Account, User
 from .forms import ForgetPasswordForm, NewPasswordForm
@@ -7,7 +6,8 @@ from .utils import send_forget_password_email, is_valid_referer_ubah_password_ge
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST
+from django.utils import timezone
 
 AKSES_ILEGAL = 'Akses Ilegal'
 FORGET_PASSWORD_HTML = 'forget_password.html'
@@ -24,7 +24,10 @@ def login_user(request):
             acc = Account.objects.get(user=user)
             if acc.role == 'Admin':
                 navbar_admin.append('Create Account')
-            return redirect('/home')
+            if acc.is_first_login == True:
+                return redirect('/account/ubah-password')
+            else:
+                return redirect('/home')
         else:
             messages.info(request, 'Username atau Password salah!')
 
@@ -34,8 +37,6 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('/login')
-from django.views.decorators.http import require_GET, require_POST
-from django.utils import timezone
 
 @require_GET
 def forget_password(request):

@@ -12,3 +12,4 @@ class Account(models.Model):
     username = models.CharField(max_length=150, default='')
     email = models.EmailField(default='')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    is_first_login = models.BooleanField(default=True)
