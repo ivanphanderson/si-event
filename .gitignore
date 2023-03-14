@@ -19,6 +19,7 @@ media
 
 # Collected static files
 staticfiles/
+static/
 
 # Coverage
 .coverage
