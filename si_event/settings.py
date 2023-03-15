@@ -52,9 +52,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'event',
+    'pegawai',
     'authentication',
     'account',
-    'pegawai',
     'log',
     'home',
 ]

@@ -24,7 +24,10 @@ class DataCleaner(DataHandler):
             for col in range(len(record)):
                 record[col] = str(record[col]).strip()
         last_records_index = self.get_last_records_index(data)
-        return self.next_handler.functionality(data[:last_records_index+1], information)
+        
+        if self.next_handler is not None:
+            return self.next_handler.functionality(data[:last_records_index+1], information)
+        return [data, information]
 
     def get_last_records_index(self, data: List[List[str]]):
         """

@@ -12,4 +12,3 @@ class PasswordOTP(models.Model):
     valid_until = models.DateTimeField(default=now_plus_10_minutes, blank=True)
     is_redeem = models.BooleanField(default=False)
     is_changed = models.BooleanField(default=False)
-
