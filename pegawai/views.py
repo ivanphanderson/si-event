@@ -60,7 +60,7 @@ class SavePegawaiToDatabase(CreateView):
                 )
                 new_pegawai.save()
             add_log(Account.objects.get(user=self.request.user), 'Add Data Pegawai')
-            return HttpResponseRedirect(reverse('pegawai:add_pegawai'))
+            return HttpResponseRedirect(reverse('pegawai:display_pegawai'))
         except Exception as e:
             error_message: str = e.args[0]
             return TemplateResponse(
@@ -69,7 +69,8 @@ class SavePegawaiToDatabase(CreateView):
                 context={'error': error_message}, 
                 status=400,
             )
-        
+
+
 class DisplayPegawaiView(TemplateView):
     template_name = "display_pegawai.html"
     
