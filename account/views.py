@@ -6,10 +6,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
-UNEXPECTED_HTML = 'unexpected.html'
 AKUN_TIDAK_DITEMUKAN = 'Akun Tidak Ditemukan'
 HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
+HOME_URL = '/home/'
 
 @login_required(login_url='/login')
 def register_account(request):
@@ -40,7 +42,7 @@ def register_account(request):
                 user.save()
                 account.save()
                 messages.success(request, 'Akun berhasil dibuat')
-                return redirect('/home')
+                return redirect(HOME_URL)
             else:
                 msg = 'Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.'
                 error_lst = list(form.errors.values())
@@ -52,7 +54,7 @@ def register_account(request):
         }
     else:
         messages.info(request,'Anda tidak memiliki akses untuk membuat akun')
-        return redirect('/home')
+        return redirect(HOME_URL)
     return render(request, 'register_account.html', context)
 
 @require_GET
@@ -67,7 +69,15 @@ def submit_ubah_password(request):
     if form.is_valid():
         current_password = form.cleaned_data['current_password']
         if check_password(current_password, request.user.password):
+            password = form.cleaned_data['new_password']
             user = request.user
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                context = {}
+                context['messages'] = e
+                return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, context)
+    
             user.set_password(form.cleaned_data['new_password'])
             user.save()
             account = Account.objects.get(user=user)
@@ -89,7 +99,8 @@ def read_akun(request):
         context['all_account'] = all_account
         return render(request, 'read_akun.html', context)
     else:
-        return render(request, UNEXPECTED_HTML)
+        messages.info(request,'Anda tidak memiliki akses untuk read akun')
+        return redirect(HOME_URL)
 
 @require_GET
 @login_required(login_url='/login')
@@ -103,9 +114,11 @@ def update_akun(request, id):
             context['account'] = account_update
             return render(request, 'update_akun.html', context)
         else:
-            return render(request, UNEXPECTED_HTML, {'message': AKUN_TIDAK_DITEMUKAN})
+            messages.info(request, AKUN_TIDAK_DITEMUKAN)
+            return redirect(HOME_URL)
     else:
-        return render(request, UNEXPECTED_HTML)
+        messages.info(request,'Anda tidak memiliki akses untuk update akun')
+        return redirect(HOME_URL)
     
 @require_POST
 @login_required(login_url='/login')
@@ -121,9 +134,11 @@ def submit_update_akun(request):
             account_update.save()
             return redirect('account:read_akun')
         else:
-            return render(request, UNEXPECTED_HTML, {'message': AKUN_TIDAK_DITEMUKAN})
+            messages.info(request, AKUN_TIDAK_DITEMUKAN)
+            return redirect(HOME_URL)
     else:
-        return render(request, UNEXPECTED_HTML)
+        messages.info(request,'Anda tidak memiliki akses untuk update akun')
+        return redirect(HOME_URL)
 
 @require_POST
 @login_required(login_url='/login')
@@ -139,7 +154,9 @@ def ganti_status_akun(request):
             user.save()
             return redirect('account:read_akun')
         else:
-            return render(request, UNEXPECTED_HTML, {'message': AKUN_TIDAK_DITEMUKAN})
+            messages.info(request, AKUN_TIDAK_DITEMUKAN)
+            return redirect(HOME_URL)
     else:
-        return render(request, UNEXPECTED_HTML)
+        messages.info(request,'Anda tidak memiliki akses untuk mengganti status akun')
+        return redirect(HOME_URL)
     
