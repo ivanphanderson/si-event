@@ -563,6 +563,34 @@ class LupaPasswordTest(TestCase):
         updated_user = User.objects.get(username=self.USERNAME)
         self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST_GANTI))
 
+    def test_ubah_password_post_password_invalid_dengan_kriteria_django(self):
+        data = {
+            'username': self.USERNAME,
+            'email': self.EMAIL
+        }
+        Client().post(FORGET_PASSWORD_URL_SUBMIT, data)
+        otp_obj = PasswordOTP.objects.get(username=self.USERNAME)
+        otp = otp_obj.OTP
+
+        data2 = {
+            'OTP': otp,
+            'username': self.USERNAME
+        }
+
+        Client().post(OTP_URL_SUBMIT, data2)
+
+        headers = {'HTTP_REFERER': UBAH_PASSWORD_URL_LENGKAP_USERNAME}
+
+        data3 = {
+            'username': self.USERNAME,
+            'password': '123',
+            'confirmation_password': '123'
+        }
+        response = Client().post(UBAH_PASSWORD_URL_SUBMIT, data3, **headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, HALAMAN_UBAH_PASSWORD_HTML)
+
     def test_ubah_password_post_password_beda(self):
         data = {
             'username': self.USERNAME,

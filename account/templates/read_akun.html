@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
-
+{% block title %}
+  Semua Akun
+{%endblock title%}
 {% block meta %}
-    <title>Semua Akun</title>
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+
 {% load static %}
 {% endblock meta %}
 
@@ -20,8 +25,8 @@
       <div class="col-md-12">
         <div class="table-wrap">
           {% if all_account %}
-          <table class="table table-striped" aria-describedby="All Account">
-            <thead>
+          <table class="table table-striped" aria-describedby="All Account" id="sortTable">
+            <thead style="background-color: #2A3990; color: white;">
               <tr>
               <th scope="col">Username</th>
               <th scope="col">Role</th>
@@ -109,5 +114,12 @@
 
 
   </section>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
 
+<script>
+  $('#sortTable').DataTable();
+</script>
+  
 {% endblock content %}

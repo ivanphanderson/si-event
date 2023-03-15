@@ -8,10 +8,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 AKSES_ILEGAL = 'Akses Ilegal'
 FORGET_PASSWORD_HTML = 'forget_password.html'
 UNEXPECTED_HTML = 'unexpected.html'
+HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
 
 def login_user(request):
     navbar_admin = []
@@ -87,14 +90,22 @@ def ubah_password(request, username):
     if not otp:
         return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
     
-    return render(request, 'halaman_ubah_password.html', {'username': username})
+    return render(request, HALAMAN_UBAH_PASSWORD_HTML, {'username': username})
 
 @require_POST
 def submit_ubah_password(request):
+    context = {}
     http_referer = request.META.get('HTTP_REFERER', '')
     if is_valid_referer_ubah_password_post(http_referer):
         form = NewPasswordForm(request.POST)
         if form.is_valid():
+            password = form.cleaned_data['password']
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                context['messages'] = [e]
+                context['username'] = form.cleaned_data['username']
+                return render(request, HALAMAN_UBAH_PASSWORD_HTML, context)
             username = form.cleaned_data['username']
             otp = PasswordOTP.objects.filter(username=username, is_redeem=True, is_changed=False).first()
             if not otp:
@@ -109,8 +120,8 @@ def submit_ubah_password(request):
             
             return render(request, "berhasil_ubah_password.html")
 
-        context = {}
+        
         context['messages'] = ['Password tidak sama']
         context['username'] = form.cleaned_data['username']
-        return render(request, 'halaman_ubah_password.html', context)
+        return render(request, HALAMAN_UBAH_PASSWORD_HTML, context)
     return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
