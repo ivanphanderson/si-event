@@ -6,6 +6,7 @@ from log.models import Log
 from django.contrib.auth.models import User
 from account.models import Account
 from .views import SaveUpdatePegawai
+from account.tests import set_up_login, set_up_akun_dummy
 
 
 DATA_PEGAWAI_CSV = 'data pegawai.csv'
@@ -19,6 +20,8 @@ UPDATE_PEGAWAI_ERROR_HTML = 'update_pegawai_error.html'
 KARYAWAN_NAMA = 'Karyawan 1'
 KARYAWAN_NAMA2 = 'Karyawan 2'
 ALAMAT_KARYAWAN_KALIMANTAN = 'Kalimantan Tenggara'
+EMAIL_UNTUK_TEST = 'test@gmail.com'
+URL_PEGAWAI = '/pegawai/'
 DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -26,6 +29,8 @@ DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
             Karyawan 1,Bank Negara Indonesia,1255555526,222222222222,Perum. Sesuatu 1\n\
             2,196709052014091088,Karyawan 2,Staff,Administrasi,I/d,PNS,karyawan2@gmail.com,\
             Karyawan 2,Bank Negara Indonesia,1255555528,222222222223,Perum. Sesuatu 2\n,,,,,,'
+
+
 class BaseTestCase(TestCase):
     def setUp(self):
         self.client = Client()
@@ -37,7 +42,7 @@ class BaseTestCase(TestCase):
         account = Account(
             user = user,
             username = USERNAME, 
-            email = 'tes@gmail.com',
+            email = EMAIL_UNTUK_TEST,
             role = 'Admin'
         )
         account.user.username=USERNAME
@@ -158,10 +163,23 @@ class AddPegawaiTest(BaseTestCase):
         self.assertTemplateUsed(response, ADD_PEGAWAI_ERROR_HTML)
         self.assertEqual(len(Pegawai.objects.all()), 0)
 
-class ReadPegawaiTest(TestCase):
 
-    def test_display_pegawai_template_empty(self):
-        response = self.client.get('/pegawai/')
+class ReadPegawaiNotAuthenticatedTest(TestCase):
+
+    def test_read_log_not_authenticated(self):
+        response = self.client.get(URL_PEGAWAI)
+        # karena belum login, diarahkan ke halaman login
+        self.assertRedirects(response, f'/login?next=/pegawai/', status_code=302, target_status_code=200)
+
+class ReadPegawaiTestAdmin(TestCase):
+
+    def setUp(self) -> None:
+        set_up_login(self, 'Admin')
+        set_up_akun_dummy(self)
+
+
+    def test_display_pegawai_template_empty_with_admin(self):
+        response = self.client.get(URL_PEGAWAI)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'display_pegawai.html')
         self.assertContains(response, '<h4 style="text-align: center;">Data Pegawai</h4>', status_code=200)
@@ -169,10 +187,21 @@ class ReadPegawaiTest(TestCase):
     def test_display_pegawai_template_not_empty(self):
         file_data_pegawai = SimpleUploadedFile(DATA_PEGAWAI_CSV, DATA_PEGAWAI)
         self.client.post(reverse(SAVE_PEGAWAI_URL), {'file': file_data_pegawai})
-        response = self.client.get('/pegawai/')
+        response = self.client.get(URL_PEGAWAI)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'display_pegawai.html')
         self.assertEqual(len(Pegawai.objects.all()), 2)
+
+class ReadPegawaiNonAdminTest(TestCase):
+    def setUp(self) -> None:
+        set_up_login(self, 'User')
+        set_up_akun_dummy(self)
+
+    def test_permissions_to_access_read_pegawai_with_non_admin(self):
+        response = self.client.get(URL_PEGAWAI)
+        # user tidak dapat mengakses halaman pegawai, akan dialihkan ke halaman forbidden
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'forbidden.html')
 
 class UpdatePegawaiTest(BaseTestCase):
     

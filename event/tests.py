@@ -9,6 +9,7 @@ from .models import Event, EventEmployee
 from pegawai.models import Pegawai
 from account.models import Account
 from django.contrib.auth.models import User
+from log.models import Log
 
 class EventModelTest(TestCase):
 
@@ -47,6 +48,9 @@ class EventModelTest(TestCase):
       alamat_npwp = 'Jl. Hj. Halimah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok'
     )
 
+    login = self.client.login(username='admin', password='admin123')
+    self.assertTrue(login)
+
   def test_create_event(self):
     event = Event.objects.create(
       creator=self.account,
@@ -64,6 +68,21 @@ class EventModelTest(TestCase):
     self.assertEqual(event.expense, 100000)
     self.assertEqual(event.tax, 10.0)
     self.assertEqual(event.sk_file, self.binary_data)
+    
+  def test_create_event_will_add_log(self):
+    data = {
+      'creator':self.account,
+      'event_name':self.event_name,
+      'start_date':timezone.now(),
+      'end_date':timezone.now() + timezone.timedelta(days=1),
+      'expense':100000,
+      'tax':10.0,
+      'sk_file':self.binary_data
+    }
+    self.client.post(reverse('create_event'), data)
+    self.assertEqual(len(Log.objects.all()), 1)
+    action = 'Create ' + self.event_name + ' event'
+    self.assertTrue(Log.objects.filter(action=action).first())
 
   def test_create_event_employee(self):
     event = Event.objects.create(

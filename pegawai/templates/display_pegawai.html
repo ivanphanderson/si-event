@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    Pegawai
+{%endblock title%}
+
 {% block meta %}
-<title>Data Pegawai</title>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
 
@@ -9,23 +13,9 @@
 {% endblock meta %}
 
 {% block content %}
-<style>
-  .btn-warning {
-    font-size: 13px;
-    letter-spacing: 1px;
-    line-height: 15px;
-    border: 2px solid rgba(240, 173, 78, 0.75);
-    border-radius: 40px;
-    transition: all 0.3s ease 0s;
-  }
-
-  .btn-warning:hover {
-    background: rgb(240, 173, 78, 0.75);
-    border: 2px solid rgba(240, 173, 78, 0.75);
-  }
-</style>
-<br>
-<div style="margin: 20px;">
+{% block navbar %}
+{% endblock navbar %}
+<div style="margin: 50px;">
 
   <h4 style="text-align: center;">Data Pegawai</h4>
 
@@ -61,7 +51,7 @@
   </table>
   {% else %}
   <div style="text-align: center;">
-    <img src={% static "img/search.jpg" %} class="img-fluid" alt="Search image">
+    <img src={% static "img/search.png" %} width=350 height=350 class="img-fluid" alt="Search image">
     <h5>Belum Ada Data Pegawai.</h5>
     <a href="add/" role="button" class="btn btn-warning">Masukkan Data Pegawai</a>
     <br><br>
