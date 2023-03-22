@@ -4,9 +4,9 @@ from .models import Event, EventEmployee
 
 from pegawai.models import Pegawai
 from pegawai.handler import DataCleaner
+from pegawai.views import add_log
 
 from account.models import Account
-from authentication.views import login_user
 
 from utils.converter import convert_to_data
 
@@ -40,7 +40,9 @@ def create_event(request):
     )
 
     _input_pegawai_to_event(request, list_emp_no, new_event)
-
+    
+    action = 'Create ' + event_name + ' event'
+    add_log(Account.objects.get(user=request.user), action)
     return render(request, 'done.html')
   return render(request, 'create_event.html')
 

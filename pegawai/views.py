@@ -2,18 +2,20 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
+from django.views.generic import DetailView
 from utils.converter import convert_to_data
 from .models import Pegawai
 from django.template.response import TemplateResponse
 from typing import List
 from .handler import DataCleaner, ValidColumnNameChecker, UniqueEmailInFileChecker
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from log.views import add_log
 from account.models import Account
 
+URL_AUTH = 'authentication:login'
 
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
-    login_url = reverse_lazy('authentication:login')
+    login_url = reverse_lazy(URL_AUTH)
     template_name = "add_pegawai.html"
 
     def get(self, request, *args, **kwargs):
@@ -26,11 +28,12 @@ class AddPegawaiView(LoginRequiredMixin, TemplateView):
 class SavePegawaiToDatabase(CreateView):
 
     def check_data(
-        self, 
+        self,
         data: List[List[str]]
     ) -> List:
         unique_email_checker = UniqueEmailInFileChecker(None)
-        valid_column_name_checker = ValidColumnNameChecker(unique_email_checker)
+        valid_column_name_checker = ValidColumnNameChecker(
+            unique_email_checker)
         data_cleaner = DataCleaner(valid_column_name_checker)
         return data_cleaner.functionality(data, dict())
 
@@ -65,29 +68,44 @@ class SavePegawaiToDatabase(CreateView):
             error_message: str = e.args[0]
             return TemplateResponse(
                 request,
-                'add_pegawai_error.html', 
-                context={'error': error_message}, 
+                'add_pegawai_error.html',
+                context={'error': error_message},
                 status=400,
             )
 
 
-class DisplayPegawaiView(TemplateView):
+class DisplayPegawai(LoginRequiredMixin, TemplateView):
+    login_url = reverse_lazy('authentication:login')
     template_name = "display_pegawai.html"
-    
+
+    def get_template_names(self):
+        user = self.request.user
+        account = Account.objects.get(user=user)
+
+        if account.role == 'Admin':
+            template_name = 'display_pegawai.html'
+        else:
+            template_name = 'forbidden.html'
+        return [template_name]
+
     def get_context_data(self, **kwargs):
         IS_NOT_EMPTY = False
         list_pegawai = Pegawai.objects.all().order_by('employee_no')
         if len(list_pegawai) != 0:
             IS_NOT_EMPTY = True
-      
+
+        user = self.request.user
+        account = Account.objects.get(user=user)
+
         context = super().get_context_data(**kwargs)
-        context['data'] = list_pegawai  
+        context['data'] = list_pegawai
         context['isNotEmpty'] = IS_NOT_EMPTY
-        
+        context['role'] = account.role
+
         return context
     
 class UpdatePegawaiView(TemplateView):
-    login_url = reverse_lazy('authentication:login')
+    login_url = reverse_lazy(URL_AUTH)
     template_name = "update_pegawai.html"
 
     def get(self, request, *args, **kwargs):
@@ -117,6 +135,9 @@ class SaveUpdatePegawai(TemplateView):
             index_start_data = check_data_result[1]['records_index']
 
             self.emails(request, data, index_start_data)
+            
+            add_log(Account.objects.get(user=request.user), 'Update Data Pegawai')
+
             return HttpResponseRedirect(reverse('pegawai:display_pegawai'))
         except Exception as e:
             error_message: str = e.args[0]
@@ -191,3 +212,4 @@ class SaveUpdatePegawai(TemplateView):
         else:
             pegawai.job_status = pegawai.ADMINISTRASI
         pegawai.save()
+    
