@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Update Data Pegawai
+{% endblock %}
+
+{% block content %}
+<div class="container w-75 my-5">
+    <div class="row align-items-center">
+        <div class="col align-self-center">
+            <div class="card">
+                <h3 class="card-title text-center mt-4 text-danger">Input tidak valid!</h3>
+                <div class="card-body align-self-center">
+                    {% if error %}
+                    <h4 class="text-danger">{{ error }}</h4>
+                    {% else %}
+                    <h4 class="text-danger">Aloha</h4>
+                    {% endif %}
+                    <a class="btn btn-primary btn-block mt-4" href="{% url 'pegawai:update_pegawai' %}">Kembali</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
