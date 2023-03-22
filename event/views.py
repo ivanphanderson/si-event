@@ -39,22 +39,26 @@ def create_event(request):
       tax=tax
     )
 
-    if 'pegawai_file' in request.FILES:
-      pegawai_file = request.FILES['pegawai_file'].read()
-      data_pegawai = convert_to_data(pegawai_file)
-      data_cleaner = DataCleaner(None)
-      cleaned_data = data_cleaner.functionality(data_pegawai, dict())[0]
-
-      non_blank_idx = next((i for i, row in enumerate(cleaned_data) if row[0] != ''), -1)
-      if non_blank_idx != -1:
-        for row in cleaned_data[non_blank_idx+1:]:
-          target_pegawai = Pegawai.objects.get(employee_no=row[2])
-          EventEmployee.objects.create(employee=target_pegawai, event=new_event)
-    
-    for emp_no in list_emp_no:
-      if emp_no and emp_no != 'None':
-        target_pegawai = Pegawai.objects.get(employee_no=emp_no)
-        EventEmployee.objects.create(employee=target_pegawai, event=new_event)
+    _input_pegawai_to_event(request, list_emp_no, new_event)
 
     return render(request, 'done.html')
   return render(request, 'create_event.html')
+
+
+def _input_pegawai_to_event(request, list_emp_no, new_event):
+  if 'pegawai_file' in request.FILES:
+    pegawai_file = request.FILES['pegawai_file'].read()
+    data_pegawai = convert_to_data(pegawai_file)
+    data_cleaner = DataCleaner(None)
+    cleaned_data = data_cleaner.functionality(data_pegawai, dict())[0]
+
+    non_blank_idx = next((i for i, row in enumerate(cleaned_data) if row[0] != ''), -1)
+    if non_blank_idx != -1:
+      for row in cleaned_data[non_blank_idx+1:]:
+        target_pegawai = Pegawai.objects.get(employee_no=row[2])
+        EventEmployee.objects.create(employee=target_pegawai, event=new_event)
+    
+  for emp_no in list_emp_no:
+    if emp_no and emp_no != 'None':
+      target_pegawai = Pegawai.objects.get(employee_no=emp_no)
+      EventEmployee.objects.create(employee=target_pegawai, event=new_event)
