@@ -12,17 +12,35 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from log.views import add_log
 from account.models import Account
 
+
 URL_AUTH = 'authentication:login'
 
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy(URL_AUTH)
-    template_name = "add_pegawai.html"
 
     def get(self, request, *args, **kwargs):
-        user = request.user
+        if len(Pegawai.objects.all()) > 0:
+            return HttpResponseRedirect(reverse('pegawai:update_pegawai'))
+        return super(AddPegawaiView, self).get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        user = self.request.user
         account = Account.objects.get(user=user)
+
         if account.role == 'Admin':
-            return super(AddPegawaiView, self).get(request, *args, **kwargs)
+            template_name = 'add_pegawai.html'
+        else:
+            template_name = 'forbidden.html'
+        return [template_name]
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        account = Account.objects.get(user=user)
+
+        context = super().get_context_data(**kwargs)
+        context['role'] = account.role
+
+        return context
 
 
 class SavePegawaiToDatabase(CreateView):

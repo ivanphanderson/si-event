@@ -32,6 +32,22 @@ DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
 
 
 class BaseTestCase(TestCase):
+    def create_user(self):
+        USERNAME = 'user'
+        PASSWORD = '123123123'
+        user: User = User.objects.create()
+        user.username = USERNAME
+        user.set_password(PASSWORD)
+        account = Account(
+            user = user,
+            username = USERNAME, 
+            email = EMAIL_UNTUK_TEST,
+            role = 'User'
+        )
+        account.user.username=USERNAME
+        user.save()
+        account.save()
+
     def setUp(self):
         self.client = Client()
         USERNAME = 'tesname'
@@ -49,6 +65,8 @@ class BaseTestCase(TestCase):
         user.save()
         account.save()
 
+        self.create_user()
+
         login = self.client.login(username=USERNAME, password=PASSWORD)
         self.assertTrue(login)
 
@@ -63,6 +81,19 @@ class AddPegawaiTest(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'add_pegawai.html')
+    
+    def test_add_pegawai_not_logged_in_no_template(self):
+        self.client.logout()
+        response = self.client.get(reverse("pegawai:add_pegawai"))
+        self.assertEqual(response.status_code, 302)
+    
+    def test_add_pegawai_not_authorized(self):
+        self.client.logout()
+        self.client.login(username='user', password='123123123')
+        response = self.client.get(reverse("pegawai:add_pegawai"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'forbidden.html')
 
     def test_add_pegawai_valid(self):
         """
