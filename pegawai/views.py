@@ -12,8 +12,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from log.views import add_log
 from account.models import Account
 
-
 URL_AUTH = 'authentication:login'
+
 
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy(URL_AUTH)
@@ -93,7 +93,7 @@ class SavePegawaiToDatabase(CreateView):
 
 
 class DisplayPegawai(LoginRequiredMixin, TemplateView):
-    login_url = reverse_lazy('authentication:login')
+    login_url = reverse_lazy(URL_AUTH)
     template_name = "display_pegawai.html"
 
     def get_template_names(self):
@@ -108,7 +108,7 @@ class DisplayPegawai(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         IS_NOT_EMPTY = False
-        list_pegawai = Pegawai.objects.all().order_by('employee_no')
+        list_pegawai = Pegawai.objects.all().order_by('employee_no').filter(tombstone=False)
         if len(list_pegawai) != 0:
             IS_NOT_EMPTY = True
 

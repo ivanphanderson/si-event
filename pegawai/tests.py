@@ -29,6 +29,7 @@ DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
             Karyawan 1,Bank Negara Indonesia,1255555526,222222222222,Perum. Sesuatu 1\n\
             2,196709052014091088,Karyawan 2,Staff,Administrasi,I/d,PNS,karyawan2@gmail.com,\
             Karyawan 2,Bank Negara Indonesia,1255555528,222222222223,Perum. Sesuatu 2\n,,,,,,'
+URL_ADD_PEGAWAI = "pegawai:add_pegawai"
 
 
 class BaseTestCase(TestCase):
@@ -77,20 +78,20 @@ class AddPegawaiTest(BaseTestCase):
         """
         Make sure add pegawai return correct template
         """
-        response = self.client.get(reverse("pegawai:add_pegawai"))
+        response = self.client.get(reverse(URL_ADD_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'add_pegawai.html')
     
     def test_add_pegawai_not_logged_in_no_template(self):
         self.client.logout()
-        response = self.client.get(reverse("pegawai:add_pegawai"))
+        response = self.client.get(reverse(URL_ADD_PEGAWAI))
         self.assertEqual(response.status_code, 302)
     
     def test_add_pegawai_not_authorized(self):
         self.client.logout()
         self.client.login(username='user', password='123123123')
-        response = self.client.get(reverse("pegawai:add_pegawai"))
+        response = self.client.get(reverse(URL_ADD_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'forbidden.html')
