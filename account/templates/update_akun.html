@@ -49,10 +49,22 @@
             <div class="form-outline mb-4">
               <label class="form-label" for="form1Example23">Role</label>
               <select class="form-control form-control-lg" id="role" name="role" required>
-                <option value="" selected disabled>--</option>
-                <option value="Admin">Admin</option>
-                <option value="User">User</option>
-                <option value="Staff Keuangan">Staff Keuangan</option>
+                <!-- <option value="" selected disabled>--</option> -->
+                {% if account.role == "Admin" %}
+                  <option value="Admin" selected>Admin</option>
+                {% else %}
+                  <option value="Admin">Admin</option>
+                {% endif %}
+                {% if account.role == "User" %}
+                  <option value="User" selected>User</option>
+                {% else %}
+                  <option value="User">User</option>
+                {% endif %}
+                {% if account.role == "Staff Keuangan" %}
+                  <option value="Staff Keuangan" selected>Staff Keuangan</option>
+                {% else %}
+                  <option value="Staff Keuangan">Staff Keuangan</option>
+                {% endif %}
             </select>
 
             </div>
