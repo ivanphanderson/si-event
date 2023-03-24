@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from log.views import add_log
 from account.models import Account
 
+
 URL_AUTH = 'authentication:login'
 FORBIDDEN_PAGE = 'forbidden.html'
 

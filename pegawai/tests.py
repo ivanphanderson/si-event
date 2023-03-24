@@ -32,7 +32,6 @@ DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
             Karyawan 1,Bank Negara Indonesia,1255555526,222222222222,Perum. Sesuatu 1\n\
             2,196709052014091088,Karyawan 2,Staff,Administrasi,I/d,PNS,karyawan2@gmail.com,\
             Karyawan 2,Bank Negara Indonesia,1255555528,222222222223,Perum. Sesuatu 2\n,,,,,,'
-URL_ADD_PEGAWAI = "pegawai:add_pegawai"
 
 
 class BaseTestCase(TestCase):
@@ -85,6 +84,22 @@ class AddPegawaiTest(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'add_pegawai.html')
+    
+    def test_add_pegawai_pegawai_already_available_get_redirected(self):
+        Pegawai.objects.create(
+            email='emailtest@gmail.com',
+            employee_no='196709052014091003',
+            employee_name='pegawai tes',
+            employment_status='PNS',
+            nama_di_rekening='pegawai tes',
+            nama_bank='bank tes123',
+            nomor_rekening='1255555533',
+            nomor_npwp='222222222333',
+            alamat_npwp='alamat tes',
+        )
+        response = self.client.get(reverse(URL_ADD_PEGAWAI))
+
+        self.assertEqual(response.status_code, 302)
     
     def test_add_pegawai_not_logged_in_no_template(self):
         self.client.logout()
