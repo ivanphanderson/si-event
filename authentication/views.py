@@ -16,6 +16,13 @@ FORGET_PASSWORD_HTML = 'forget_password.html'
 UNEXPECTED_HTML = 'unexpected.html'
 HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
 
+def auto_redirect(request):
+    user = request.user
+    if user.is_authenticated:
+        return redirect('/home')
+    else:
+        return redirect('/login')
+
 def login_user(request):
     navbar_admin = []
     if request.method == 'POST':

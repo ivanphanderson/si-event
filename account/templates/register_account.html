@@ -8,6 +8,10 @@
 {% load static %}
 {% endblock meta %}
 
+{% block head %}
+  
+{% endblock head %}
+
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
@@ -21,9 +25,11 @@
             {% if errors %}
                 {% for error in errors %}
                   {% for i in error %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ i }}
-                    </div>
+                    {% if i != 'This field is required.' %}
+                      <div class="alert alert-danger" role="alert">
+                          {{ i }}
+                      </div>
+                    {%endif%}
                   {% endfor %}
                 {%endfor%}
             {% endif %}
@@ -35,34 +41,38 @@
                 {% endfor %}
             {% endif %} 
             {% if msg %}
+              {% for msgg in msg %}
                 <div class="alert alert-danger" role="alert">
-                        {{ msg }}
+                        {{ msgg }}
                       </div>
+              {%endfor%}
                 {%endif%}
-          <form method="POST" action="">
+          <form id="register-form" method="POST" action="">
             {% csrf_token %}
             <!-- Email input -->
             <div class="form-outline mb-4">
-              <input type="text" id="form1Example13" class="form-control form-control-lg" name="email"/>
-              <label class="form-label" for="form1Example13">Email</label>
+              <label class="form-label" for="email">Email</label>
+              <input type="text" id="email" class="form-control form-control-lg" name="email"/>
             </div>
 
             <!-- Username input -->
             <div class="form-outline mb-4">
-                <input type="text" id="form1Example13" class="form-control form-control-lg" name="username"/>
-                <label class="form-label" for="form1Example13">Username</label>
+              <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" class="form-control form-control-lg" name="username"/>
               </div>
   
             <!-- Password input -->
             <div class="form-outline mb-4">
-              <input type="password" id="form1Example23" class="form-control form-control-lg" name="password1"/>
-              <label class="form-label" for="form1Example23">Password</label>
+              <label class="form-label" for="password1">Password</label>
+              <input type="password" id="password1" class="form-control form-control-lg" name="password1"/>
+              <div id="password-validation-message1" class="text-danger"></div>
             </div>
 
             <!-- Confirm Password input -->
             <div class="form-outline mb-4">
-                <input type="password" id="form1Example23" class="form-control form-control-lg" name="password2"/>
-                <label class="form-label" for="form1Example23">Password Confirmation</label>
+              <label class="form-label" for="password2">Password Confirmation</label>
+                <input type="password" id="password2" class="form-control form-control-lg" name="password2"/>
+                <div id="password-validation-message2" class="text-danger"></div>
               </div>
             
               <div class="form-outline mb-4">
@@ -84,7 +94,7 @@
             <div class="d-flex justify-content-center align-items-center mb-4">
   
             <!-- Submit button -->
-            <button type="submit" class="btn btn-warning btn-block">Register</button>
+            <button type="submit" id='submit-form-button' class="btn btn-warning btn-block">Register</button>
             <div class="form-outline mb-4"></div>   
         </div>
           </form>
@@ -93,4 +103,32 @@
     </div>
   </section>
 
+  <script>
+    const passwordInput1 = document.getElementById("password1");
+    const passwordValidationMessage1 = document.getElementById("password-validation-message1");
+  
+    passwordInput1.addEventListener("input", function() {
+      const password1 = passwordInput1.value;
+      if (password1.length < 8) {
+        passwordValidationMessage1.textContent = "Password must be at least 8 characters.";
+      } else {
+        passwordValidationMessage1.textContent = "";
+      }
+    });
+
+    const passwordInput2 = document.getElementById("password2");
+    const passwordValidationMessage2 = document.getElementById("password-validation-message2");
+  
+    passwordInput2.addEventListener("input", function() {
+      const password1 = passwordInput1.value;
+      const password2 = passwordInput2.value;
+      if (password1 != password2) {
+        passwordValidationMessage2.textContent = "Passwords do not match.";
+      } else {
+        passwordValidationMessage2.textContent = "";
+      }
+    });
+  </script>
+
 {% endblock content %}
+

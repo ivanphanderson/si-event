@@ -32,6 +32,9 @@
         }
     </style>
 
+	{% block head %}
+	{% endblock head %}
+
 </head>
 
 <body>
@@ -49,32 +52,34 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav" style="text-align: center;">
                 {% if request.user.is_authenticated %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="/home" style="color: #263F6B;">Home <span
-                            class="sr-only">(current)</span></a>
-                </li>
-                {% if role == 'Admin' %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="/account/" style="color: #263F6B;">Account<span
-                            class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/pegawai" style="color: #263F6B;">Employee</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/log" style="color: #263F6B;">Log</a>
-                </li>
-                {% endif %}
-                {% if role == 'User' %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="/event/create" style="color: #263F6B;">Event<span
-                            class="sr-only">(current)</span></a>
-                </li>
-                {% endif %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="/logout" style="color: #263F6B;">Logout <span
-                            class="sr-only">(current)</span></a>
-                </li>
+                    {% if not is_ubah_password %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/home" style="color: #263F6B;">Home <span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                        {% if role == 'Admin' %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/account/" style="color: #263F6B;">Account<span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/pegawai" style="color: #263F6B;">Employee</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/log" style="color: #263F6B;">Log</a>
+                        </li>
+                        {% endif %}
+                        {% if role == 'User' %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/event/create/" style="color: #263F6B;">Event<span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/logout" style="color: #263F6B;">Logout <span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                    {%endif%}    
                 {% endif %}
             </ul>
         </div>
