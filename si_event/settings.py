@@ -153,7 +153,7 @@ COVERAGE_REPORT_HTML_OUTPUT_DIR = 'coverage'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
