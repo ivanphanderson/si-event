@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 AKUN_TIDAK_DITEMUKAN = 'Akun Tidak Ditemukan'
 HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
 HOME_URL = '/home/'
+FORBIDDEN_URL = '/home/forbidden/'
 
 @login_required(login_url='/login')
 def register_account(request):
@@ -105,10 +106,11 @@ def read_akun(request):
         context = {}
         all_account = Account.objects.all().order_by(F('user__is_active').desc(), 'username')
         context['all_account'] = all_account
+        context['role'] = account.role
         return render(request, 'read_akun.html', context)
     else:
         messages.info(request,'Anda tidak memiliki akses untuk read akun')
-        return redirect(HOME_URL)
+        return redirect(FORBIDDEN_URL)
 
 @require_GET
 @login_required(login_url='/login')
@@ -120,13 +122,14 @@ def update_akun(request, id):
             account_update = Account.objects.filter(id=id).first()
             context = {}
             context['account'] = account_update
+            context['role'] = account.role
             return render(request, 'update_akun.html', context)
         else:
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
-            return redirect(HOME_URL)
+            return redirect(FORBIDDEN_URL)
     else:
         messages.info(request,'Anda tidak memiliki akses untuk update akun')
-        return redirect(HOME_URL)
+        return redirect(FORBIDDEN_URL)
     
 @require_POST
 @login_required(login_url='/login')
@@ -143,10 +146,10 @@ def submit_update_akun(request):
             return redirect('account:read_akun')
         else:
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
-            return redirect(HOME_URL)
+            return redirect(FORBIDDEN_URL)
     else:
         messages.info(request,'Anda tidak memiliki akses untuk update akun')
-        return redirect(HOME_URL)
+        return redirect(FORBIDDEN_URL)
 
 @require_POST
 @login_required(login_url='/login')
@@ -163,8 +166,8 @@ def ganti_status_akun(request):
             return redirect('account:read_akun')
         else:
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
-            return redirect(HOME_URL)
+            return redirect(FORBIDDEN_URL)
     else:
         messages.info(request,'Anda tidak memiliki akses untuk mengganti status akun')
-        return redirect(HOME_URL)
+        return redirect(FORBIDDEN_URL)
     
