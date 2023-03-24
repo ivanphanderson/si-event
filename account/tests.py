@@ -105,11 +105,27 @@ class RegisterAccountViewTest(TestCase):
         }
 
         self.form_invalid = {
-            'username': TEST_ADMIN_USERNAME,
-            'email': 'testadmin@test.com',
+            'username': 'usernamee',
+            'email': 'testadminn@test.com',
             'password1': 'testpassword',
             'password2': 'testpassword1',
             'role': 'Admin',
+        }
+
+        self.form_username_invalid = {
+            'username': TEST_ADMIN_USERNAME,
+            'email': 'testadmin@test.com',
+            'password1': 'testpassword',
+            'password2': 'testpassword',
+            'role': 'Admin',
+        }
+
+        self.form_email_invalid = {
+            'username': 'testuserr',
+            'email': TEST_USER_EMAIL,
+            'password1': 'testpassword',
+            'password2': 'testpassword',
+            'role': 'User',
         }
 
     def test_register_account_user_view_with_authenticated_admin_user(self):
@@ -157,8 +173,8 @@ class RegisterAccountViewTest(TestCase):
         url = reverse(REVERSE_ACC_REGIST)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
-    
-    def test_register_account_view_with_non_unique_username(self):
+
+    def test_register_account_view_with_invalid_form(self):
         self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
         url = reverse(REVERSE_ACC_REGIST)
         response = self.client.get(url)
@@ -169,7 +185,32 @@ class RegisterAccountViewTest(TestCase):
         response = self.client.post(url, data=self.form_invalid)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(Account.objects.all()), 3) # check if account was created
-        self.assertFalse(User.objects.filter(username='testuser').exists()) # check if user was created
+    
+    def test_register_account_view_with_non_unique_username(self):
+        self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, REGIST_HTML)
+
+        # submit invalid form data
+        response = self.client.post(url, data=self.form_username_invalid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Account.objects.all()), 3) # check if account was created
+
+    def test_register_account_view_with_non_unique_email(self):
+        self.client.login(username=TEST_ADMIN_USERNAME, password=TEST_ADMIN_PASSWORD)
+        url = reverse(REVERSE_ACC_REGIST)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, REGIST_HTML)
+
+        # submit invalid form data
+        response = self.client.post(url, data=self.form_email_invalid)
+        # print(response)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Account.objects.all()), 3) # check if account was created
+        self.assertFalse(User.objects.filter(username='testuserr').exists()) # check if user was created
 
 
 def set_up_login(self, role):

@@ -17,19 +17,30 @@ HOME_URL = '/home/'
 def register_account(request):
     user = request.user
     account = Account.objects.get(user=user)
-    if account.role == 'Admin':
-        form = UserCreationForm(request.POST)
-        form2 = AccountForm(request.POST)
-        msg = ''
-        error_lst = []
-        roles = ['Admin', 'User', 'Staff Keuangan']
-        if request.method == 'POST':
-            if form.is_valid() and form2.is_valid():
-                username = form2.cleaned_data['username']
-                password = form.cleaned_data['password1']
-                email = form2.cleaned_data['email']
-                role = form2.cleaned_data['role']
 
+    if account.role != 'Admin':
+        messages.info(request,'Anda tidak memiliki akses untuk membuat akun')
+        return redirect('/home/forbidden')
+    
+    form = UserCreationForm(request.POST)
+    form2 = AccountForm(request.POST)
+    msg = []
+    error_lst = []
+    roles = ['Admin', 'User', 'Staff Keuangan']
+
+    if request.method == 'POST':
+        if form.is_valid() and form2.is_valid():
+            username = form2.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            email = form2.cleaned_data['email']
+            role = form2.cleaned_data['role']
+        
+            if Account.objects.filter(email=email).exists():
+                # print('email ga unik bro!')
+                msg.append('A user with that email already exists.')
+                msg.append('Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.')
+
+            else:
                 user = User.objects.create_user(username=username, password=password, email=email)
                 account = Account(
                     user = user,
@@ -43,24 +54,23 @@ def register_account(request):
                 account.save()
                 messages.success(request, 'Akun berhasil dibuat')
                 return redirect(HOME_URL)
-            else:
-                msg = 'Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.'
-                error_lst = list(form.errors.values())
-        context = {
-            'form2':form2,
-            'msg':msg,
-            'errors':error_lst,
-            'roles': roles
-        }
-    else:
-        messages.info(request,'Anda tidak memiliki akses untuk membuat akun')
-        return redirect(HOME_URL)
+        else:
+            msg.append('Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.')
+            error_lst = list(form.errors.values())
+    context = {
+        'form2':form2,
+        'msg':msg,
+        'errors':error_lst,
+        'roles': roles,
+        'role': account.role,
+    }
     return render(request, 'register_account.html', context)
 
 @require_GET
 @login_required(login_url='/login')
 def ubah_password(request):
-    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML)
+    context = {'is_ubah_password':True}
+    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, context)
 
 @require_POST
 @login_required(login_url='/login')

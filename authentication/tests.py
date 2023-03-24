@@ -1,9 +1,9 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse, resolve
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from account.models import Account, User
 from django.contrib.messages import get_messages
-from .views import forget_password, ubah_password, handle_otp
+from .views import forget_password, ubah_password, handle_otp, auto_redirect
 from .models import PasswordOTP
 import environ
 
@@ -35,6 +35,35 @@ REVERSE_UBAH_PASSWORD = 'account:ubah_password'
 REVERSE_HOME_HOME = 'home:home'
 LOGIN_HTML = 'login.html'
 USERNAME_ATAU_PW_SALAH = 'Username atau Password salah!'
+
+class AutoRedirectViewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
+    def test_auto_redirect_authenticated_user(self):
+        """
+        Test that the auto_redirect function redirects an authenticated user to the home page.
+        """
+        request = self.factory.get(reverse('authentication:auto_redirect'))
+        request.user = self.user
+        response = auto_redirect(request)
+        self.assertEqual(response.url, '/home')
+        self.assertEqual(response.status_code, 302)
+
+    def test_auto_redirect_anonymous_user(self):
+        """
+        Test that the auto_redirect function redirects an anonymous user to the login page.
+        """
+        request = self.factory.get(reverse('authentication:auto_redirect'))
+        request.user = AnonymousUser()
+        response = auto_redirect(request)
+        self.assertEqual(response.url, '/login')
+        self.assertEqual(response.status_code, 302)
 
 class LoginLogoutTest(TestCase):
     '''Test Module for Authentication Login and Logout Test'''
