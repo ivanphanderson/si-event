@@ -287,6 +287,11 @@ class UpdatePegawaiTest(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'update_pegawai.html')
 
+    def test_update_pegawai_pegawai_not_available_get_redirected(self):
+        response = self.client.get(reverse("pegawai:update_pegawai"))
+
+        self.assertEqual(response.status_code, 302)
+
     def test_update_pegawai_not_logged_in_no_template(self):
         self.client.logout()
         response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
