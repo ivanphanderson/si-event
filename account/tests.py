@@ -21,7 +21,7 @@ ACCOUNT_URL = '/account/'
 GANTI_STATUS_AKUN_URL = '/account/ganti-status-akun'
 UBAH_PASSWORD_URL = '/account/ubah-password'
 UBAH_PASSWORD_SUBMIT_URL = '/account/ubah-password/submit'
-HOME_URL = '/home/'
+FORBIDDEN_URL = '/home/forbidden/'
 REVERSE_HOME_HOME = 'home:home'
 HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
 PASSWORD_UNTUK_TEST = env('PASSWORD_UNTUK_TEST')
@@ -365,12 +365,12 @@ class AccountSudahLoginAdminTest(TestCase):
         
     def test_admin_update_akun_id_ngasal(self):
         response = self.client.get(f'/account/update/3333')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
 
     def test_admin_update_akun_id_bukan_int(self):
         response = self.client.get(f'/account/update/aasdd')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_admin_update_akun_post_is_exist(self):
         data = {
@@ -389,7 +389,7 @@ class AccountSudahLoginAdminTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_admin_update_akun_post_id_bukan_int(self):
         data = {
@@ -397,7 +397,7 @@ class AccountSudahLoginAdminTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_admin_ganti_status_akun_is_exist(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': self.account_dummy.id})
@@ -409,11 +409,11 @@ class AccountSudahLoginAdminTest(TestCase):
 
     def test_admin_ganti_status_akun_id_ngasal(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 3333})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_admin_ganti_status_akun_id_bukan_int(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 'aasdd'})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
 
 class AccountSudahLoginUserTest(TestCase):
@@ -424,19 +424,19 @@ class AccountSudahLoginUserTest(TestCase):
 
     def test_user_read_akun_is_exist(self):
         response = self.client.get(ACCOUNT_URL)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_update_akun_is_exist(self):
         response = self.client.get(f'/account/update/{self.account_dummy.id}')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_update_akun_id_ngasal(self):
         response = self.client.get(f'/account/update/3333')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_update_akun_id_bukan_int(self):
         response = self.client.get(f'/account/update/aasdd')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_update_akun_post_tidak_bisa(self):
         data = {
@@ -444,7 +444,7 @@ class AccountSudahLoginUserTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
         
         updated_account = Account.objects.get(user=self.user_dummy)
         self.assertEqual(updated_account.role, "Admin") # Tidak terupdate
@@ -455,7 +455,7 @@ class AccountSudahLoginUserTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_update_akun_id_post_bukan_int(self):
         data = {
@@ -463,20 +463,20 @@ class AccountSudahLoginUserTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
 
     def test_user_ganti_status_akun_is_exist(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': self.account_dummy.id})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_ganti_status_akun_id_ngasal(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 3333})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_user_ganti_status_akun_id_bukan_int(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 'aassdd'})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
 
 class AccountSudahLoginStaffKeuanganTest(TestCase):
@@ -487,7 +487,7 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
 
     def test_staff_keuangan_read_akun_is_exist(self):
         response = self.client.get(ACCOUNT_URL)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_update_akun_is_exist(self):
         data = {
@@ -495,15 +495,15 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_update_akun_id_ngasal(self):
         response = self.client.get(f'/account/update/3333')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_update_akun_id_bukan_int(self):
         response = self.client.get(f'/account/update/aasdd')
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_update_akun_post_tidak_bisa(self):
         data = {
@@ -511,7 +511,7 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
         
         updated_account = Account.objects.get(user = self.user_dummy)
         self.assertEqual(updated_account.role, "Admin") # Tidak terupdate
@@ -522,7 +522,7 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_update_akun_post_id_bukan_int(self):
         data = {
@@ -530,17 +530,17 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
             'role': "User"
         }
         response = self.client.post(f'/account/update/submit/submit', data)
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
 
     def test_staff_keuangan_ganti_status_akun_is_exist(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': self.account_dummy.id})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_ganti_status_akun_id_ngasal(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 3333})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
 
     def test_staff_keuangan_ganti_status_akun_id_bukan_int(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 'aassdd'})
-        self.assertRedirects(response, HOME_URL, status_code=302, target_status_code=200)
+        self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
