@@ -19,7 +19,6 @@ def register_account(request):
     account = Account.objects.get(user=user)
 
     if account.role != 'Admin':
-        messages.info(request,'Anda tidak memiliki akses untuk membuat akun')
         return redirect('/home/forbidden')
     
     form = UserCreationForm(request.POST)
@@ -36,7 +35,6 @@ def register_account(request):
             role = form2.cleaned_data['role']
         
             if Account.objects.filter(email=email).exists():
-                # print('email ga unik bro!')
                 msg.append('A user with that email already exists.')
                 msg.append('Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.')
 
