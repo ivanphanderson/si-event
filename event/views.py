@@ -15,9 +15,7 @@ def create_event(request):
   if (not request.user.is_authenticated):
     return redirect('authentication:login')
   
-  user_id = request.user.id
-  account = Account.objects.get(id=user_id)
-
+  account = Account.objects.get(user=request.user)
   if (request.method == 'POST'):
     body = request.POST
 
@@ -43,6 +41,7 @@ def create_event(request):
     
     action = 'Create ' + event_name + ' event'
     add_log(Account.objects.get(user=request.user), action)
+
     return render(request, 'done.html')
   return render(request, 'create_event.html')
 
