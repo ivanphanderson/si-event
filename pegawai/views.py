@@ -16,7 +16,6 @@ from account.models import Account
 URL_AUTH = 'authentication:login'
 FORBIDDEN_PAGE = 'forbidden.html'
 
-
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy(URL_AUTH)
 
