@@ -103,7 +103,7 @@ def submit_ubah_password(request):
             try:
                 validate_password(password)
             except ValidationError as e:
-                context['messages'] = [e]
+                context['messages'] = e
                 context['username'] = form.cleaned_data['username']
                 return render(request, HALAMAN_UBAH_PASSWORD_HTML, context)
             username = form.cleaned_data['username']
