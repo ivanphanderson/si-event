@@ -13,6 +13,7 @@ from log.views import add_log
 from account.models import Account
 
 URL_AUTH = 'authentication:login'
+FORBIDDEN_PAGE = 'forbidden.html'
 
 
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
@@ -30,7 +31,7 @@ class AddPegawaiView(LoginRequiredMixin, TemplateView):
         if account.role == 'Admin':
             template_name = 'add_pegawai.html'
         else:
-            template_name = 'forbidden.html'
+            template_name = FORBIDDEN_PAGE
         return [template_name]
 
     def get_context_data(self, **kwargs):
@@ -103,7 +104,7 @@ class DisplayPegawai(LoginRequiredMixin, TemplateView):
         if account.role == 'Admin':
             template_name = 'display_pegawai.html'
         else:
-            template_name = 'forbidden.html'
+            template_name = FORBIDDEN_PAGE
         return [template_name]
 
     def get_context_data(self, **kwargs):
@@ -122,15 +123,33 @@ class DisplayPegawai(LoginRequiredMixin, TemplateView):
 
         return context
     
-class UpdatePegawaiView(TemplateView):
+class UpdatePegawaiView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy(URL_AUTH)
-    template_name = "update_pegawai.html"
+    template_name = 'update_pegawai.html'
 
     def get(self, request, *args, **kwargs):
-        user = request.user
+        if len(Pegawai.objects.all()) == 0:
+            return HttpResponseRedirect(reverse('pegawai:add_pegawai'))
+        return super(UpdatePegawaiView, self).get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        user = self.request.user
         account = Account.objects.get(user=user)
+
         if account.role == 'Admin':
-            return super(UpdatePegawaiView, self).get(request, *args, **kwargs)
+            template_name = 'update_pegawai.html'
+        else:
+            template_name = FORBIDDEN_PAGE
+        return [template_name]
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        account = Account.objects.get(user=user)
+
+        context = super().get_context_data(**kwargs)
+        context['role'] = account.role
+
+        return context
 
 class SaveUpdatePegawai(TemplateView):
 
@@ -159,8 +178,6 @@ class SaveUpdatePegawai(TemplateView):
             return HttpResponseRedirect(reverse('pegawai:display_pegawai'))
         except Exception as e:
             error_message: str = e.args[0]
-            print("masuk sini", error_message)
-            print(e)
             return TemplateResponse(
                 request,
                 'update_pegawai_error.html', 

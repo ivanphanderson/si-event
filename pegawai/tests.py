@@ -1,11 +1,11 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import Pegawai
 from log.models import Log
 from django.contrib.auth.models import User
 from account.models import Account
-from .views import SaveUpdatePegawai
+from .views import SaveUpdatePegawai, UpdatePegawaiView
 from account.tests import set_up_login, set_up_akun_dummy
 
 
@@ -22,6 +22,9 @@ KARYAWAN_NAMA2 = 'Karyawan 2'
 ALAMAT_KARYAWAN_KALIMANTAN = 'Kalimantan Tenggara'
 EMAIL_UNTUK_TEST = 'test@gmail.com'
 URL_PEGAWAI = '/pegawai/'
+URL_ADD_PEGAWAI = 'pegawai:add_pegawai'
+URL_UPDATE_PEGAWAI = 'pegawai:update_pegawai'
+URL_FORBIDDEN_PAGE = 'forbidden.html'
 DATA_PEGAWAI = b'Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -94,7 +97,7 @@ class AddPegawaiTest(BaseTestCase):
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'forbidden.html')
+        self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
     def test_add_pegawai_valid(self):
         """
@@ -233,9 +236,13 @@ class ReadPegawaiNonAdminTest(TestCase):
         response = self.client.get(URL_PEGAWAI)
         # user tidak dapat mengakses halaman pegawai, akan dialihkan ke halaman forbidden
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'forbidden.html')
+        self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
 class UpdatePegawaiTest(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
     
     def setUpPegawaiDb(self):
         self.pegawai1 = Pegawai.objects.create(
@@ -274,10 +281,25 @@ class UpdatePegawaiTest(BaseTestCase):
         """
         Make sure update pegawai return correct template
         """
-        response = self.client.get(reverse("pegawai:update_pegawai"))
+        self.setUpPegawaiDb()
+        response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'update_pegawai.html')
+
+    def test_update_pegawai_not_logged_in_no_template(self):
+        self.client.logout()
+        response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
+        self.assertEqual(response.status_code, 302)
+    
+    def test_update_pegawai_not_authorized(self):
+        self.setUpPegawaiDb()
+        self.client.logout()
+        self.client.login(username='user', password='123123123')
+        response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
     def test_update_pegawai_valid(self):
         """
