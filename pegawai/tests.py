@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from account.models import Account
 from .views import SaveUpdatePegawai, UpdatePegawaiView
 from account.tests import set_up_login, set_up_akun_dummy
+from .handler import DataCleaner
 
 
 DATA_PEGAWAI_CSV = 'data pegawai.csv'
@@ -77,9 +78,6 @@ class BaseTestCase(TestCase):
 class AddPegawaiTest(BaseTestCase):
 
     def test_add_pegawai_return_correct_template(self):
-        """
-        Make sure add pegawai return correct template
-        """
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
@@ -115,9 +113,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
     def test_add_pegawai_valid(self):
-        """
-        Make sure all Pegawai data is added
-        """
         data_pegawai = b'Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -136,9 +131,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertTrue(Log.objects.filter(action='Add Data Pegawai').first())
 
     def test_add_pegawai_with_trailing_empty_line(self):
-        """
-        Make sure all Pegawai data is added even when there is trailing empty line in uploaded file
-        """
         file_data_pegawai = SimpleUploadedFile(DATA_PEGAWAI_CSV, DATA_PEGAWAI)
         response = self.client.post(reverse(SAVE_PEGAWAI_URL), {'file': file_data_pegawai})
 
@@ -148,9 +140,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertTrue(Pegawai.objects.filter(email=KARYAWAN2_EMAIL).exists())
 
     def test_add_pegawai_duplicate_email(self):
-        """
-        Make sure that all employee's email to be added are unique
-        """
         data_pegawai = b'Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -166,9 +155,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertEqual(len(Pegawai.objects.all()), 0)
     
     def test_add_pegawai_empty(self):
-        """
-        Make sure system handle empty file with correct status code and nothing changed in database
-        """
         data_pegawai = b''
         file_data_pegawai = SimpleUploadedFile(DATA_PEGAWAI_CSV, data_pegawai)
         response = self.client.post(reverse(SAVE_PEGAWAI_URL), {'file': file_data_pegawai})
@@ -178,9 +164,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertEqual(len(Pegawai.objects.all()), 0)
 
     def test_add_pegawai_flipped_header_name(self):
-        """
-        Make sure that no pegawai is added when the column name is wrong
-        """
         data_pegawai = b'Employee Information\nNo,Employee Name,Employee No.\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -196,9 +179,6 @@ class AddPegawaiTest(BaseTestCase):
         self.assertEqual(len(Pegawai.objects.all()), 0)
 
     def test_add_pegawai_invalid_header(self):
-        """
-        Make sure proper response is returned when the header is invalid
-        """
         data_pegawai = b'Employee Information\n,Employee Name,Employee No.\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -232,7 +212,7 @@ class ReadPegawaiTestAdmin(TestCase):
         response = self.client.get(URL_PEGAWAI)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'display_pegawai.html')
-        self.assertContains(response, '<h4 style="text-align: center;">Data Pegawai</h4>', status_code=200)
+        self.assertContains(response, '<h4 style="text-align: center;">Employee Data</h4>', status_code=200)
 
     def test_display_pegawai_template_not_empty(self):
         file_data_pegawai = SimpleUploadedFile(DATA_PEGAWAI_CSV, DATA_PEGAWAI)
@@ -249,7 +229,7 @@ class ReadPegawaiNonAdminTest(TestCase):
 
     def test_permissions_to_access_read_pegawai_with_non_admin(self):
         response = self.client.get(URL_PEGAWAI)
-        # user tidak dapat mengakses halaman pegawai, akan dialihkan ke halaman forbidden
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
@@ -293,17 +273,17 @@ class UpdatePegawaiTest(BaseTestCase):
         
     # Views-related tests
     def test_update_pegawai_return_correct_template(self):
-        """
-        Make sure update pegawai return correct template
-        """
         self.setUpPegawaiDb()
         response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'update_pegawai.html')
-
+    
     def test_update_pegawai_pegawai_not_available_get_redirected(self):
-        response = self.client.get(reverse("pegawai:update_pegawai"))
+        Pegawai.objects.filter(employee_no='123').delete()
+        Pegawai.objects.filter(employee_no='234').delete()
+
+        response = self.client.get(reverse(URL_UPDATE_PEGAWAI))
 
         self.assertEqual(response.status_code, 302)
 
@@ -322,9 +302,6 @@ class UpdatePegawaiTest(BaseTestCase):
         self.assertTemplateUsed(response, URL_FORBIDDEN_PAGE)
 
     def test_update_pegawai_valid(self):
-        """
-        Make sure all Pegawai data is added
-        """
         data_pegawai = b'Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
             NAMA DI REKENING,NAMA BANK,NO REKENING,Nomor NPWP,Alamat NPWP\n\
@@ -520,28 +497,29 @@ class UpdatePegawaiTest(BaseTestCase):
         self.assertEqual(len(set_of_emails), 1)
         self.assertEqual(set_of_emails, {KARYAWAN2_EMAIL})
 
+    def test_update_pegawai_functionality_handler(self):
+        data = [
+            ['1', '123', KARYAWAN_NAMA, 'Staff', 'Administrasi', 'I/b', 'PNS', KARYAWAN1_EMAIL, 'sidfi', 'BANK NEGARA INDONESIA', '1234534216', '12345678941312', ALAMAT_KARYAWAN_JEMBER]
+        ]
+        functionality_handler = DataCleaner(None)
+        functionality_handler.functionality(data, {})
 
     def test_emails_set_tombstone(self):
         """
         Test that the method sets tombstone to True for Pegawai objects with emails that are not in the data set
         """
-
-        # Create 3 Pegawai objects with unique email addresses
         pegawai1 = Pegawai.objects.create(email='pegawai1@test.com')
         pegawai2 = Pegawai.objects.create(email='pegawai2@test.com')
         pegawai3 = Pegawai.objects.create(email='pegawai3@test.com')
 
-        # Define a data set that contains the email address of 2 Pegawai objects
         data = [
             [1, 'employee_no1', 'employee_name1', 'category1', 'job_status1', 'grade_level1', 'employment_status1', 'pegawai1@test.com', 'nama_di_rekening1', 'nama_bank1', 'nomor_rekening1', 'nomor_npwp1', 'alamat_npwp1'],
             [2, 'employee_no2', 'employee_name2', 'category2', 'job_status2', 'grade_level2', 'employment_status2', 'pegawai2@test.com', 'nama_di_rekening2', 'nama_bank2', 'nomor_rekening2', 'nomor_npwp2', 'alamat_npwp2']
         ]
 
-        # Call the emails() method with the data set
         self.view = SaveUpdatePegawai()
         self.view.emails(request=None, data=data, index=0)
 
-        # Check that tombstone is set to True for the Pegawai object with email 'pegawai3@test.com'
         pegawai1.refresh_from_db()
         pegawai2.refresh_from_db()
         pegawai3.refresh_from_db()

@@ -79,7 +79,7 @@ class ValidColumnNameChecker(DataHandler):
                 index_start_data += 1
             return index_start_data
         except IndexError:
-            raise TypeError("*Pastikan format data sudah benar!")
+            raise TypeError("Invalid Data Format!")
 
 
 class UniqueEmailInFileChecker(DataHandler):
@@ -98,4 +98,4 @@ class UniqueEmailInFileChecker(DataHandler):
         if len(unique_emails) == len(records_in_data):
             return [data, information]
         
-        raise TypeError("* Pastikan email dari pegawai unik!")
+        raise TypeError("Email must be Unique!")

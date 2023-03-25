@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-AKSES_ILEGAL = 'Akses Ilegal'
+AKSES_ILEGAL = 'Illegal Access'
 FORGET_PASSWORD_HTML = 'forget_password.html'
 UNEXPECTED_HTML = 'unexpected.html'
 HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
@@ -39,7 +39,7 @@ def login_user(request):
             else:
                 return redirect('/home')
         else:
-            messages.info(request, 'Username atau Password salah!')
+            messages.info(request, 'Wrong Username or Password!')
 
     context = {'form':'form', 'navbar_admin':navbar_admin}
     return render(request, 'login.html', context)
@@ -62,7 +62,7 @@ def submit_forget_password(request):
             send_forget_password_email(username, email)
             return redirect('authentication:handle_otp', username=username)
         else:
-            context = {'messages': ['Username dan email tidak sesuai']}
+            context = {'messages': ['Username or Email is Wrong!']}
             return render(request, FORGET_PASSWORD_HTML, context)
     return render(request, FORGET_PASSWORD_HTML)
 
@@ -82,7 +82,7 @@ def submit_otp(request):
             otp_obj.save()
             return redirect('authentication:ubah_password', username=username)
     else:
-        context = {'messages': ['Kode OTP salah/invalid'], 'username': username}
+        context = {'messages': ['Invalid/Wrong OTP Code'], 'username': username}
         return render(request, 'halaman_otp.html', context)
         
 

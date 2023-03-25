@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}
-  Semua Akun
+  Accounts List
 {%endblock title%}
 {% block meta %}
   
@@ -18,7 +18,7 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-6 text-center mb-5">
-        <h2 class="heading-section">List Semua Akun</h2>
+        <h2 class="heading-section">All Accounts</h2>
       </div>
     </div>
     <div class="row">
@@ -51,26 +51,26 @@
                 </td>
                 <td><a href="update/{{account.id}}" class="btn btn-warning">Update</a>
                 {% if account.user.is_active %}
-                <button class="btn btn-danger" type="button" id="deactivate-account" data-toggle="modal" data-target="#deactivateAccountModal{{account.id}}">Deaktivasi</button>
+                <button class="btn btn-danger" type="button" id="deactivate-account" data-toggle="modal" data-target="#deactivateAccountModal{{account.id}}">Deactivate</button>
 
                 <div class="modal fade" id="deactivateAccountModal{{account.id}}" tabindex="-1" role="dialog" aria-labelledby="deactivateAccountModalLabel" aria-hidden="true">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="deactivateAccountModalLabel">Deaktivasi Akun</h5>
+                        <h5 class="modal-title" id="deactivateAccountModalLabel">Deactivate Account</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div>
                       <div class="modal-body">
-                        Apakah Anda yakin ingin me-nonaktifkan akun {{account.username}}?
+                        Are you sure to deactivate account {{account.username}}?
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         <form method="POST" action="ganti-status-akun">
                           {% csrf_token %}
                           <input type="hidden" name="id_akun" value={{account.id}}>
-                          <button type="submit" class="btn btn-danger">Deaktivasi</button>
+                          <button type="submit" class="btn btn-danger">Deactivate</button>
                         </form>
                       </div>
                     </div>

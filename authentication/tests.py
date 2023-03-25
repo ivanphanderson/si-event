@@ -34,7 +34,7 @@ REVERSE_AUTH_LOGIN = 'authentication:login'
 REVERSE_UBAH_PASSWORD = 'account:ubah_password'
 REVERSE_HOME_HOME = 'home:home'
 LOGIN_HTML = 'login.html'
-USERNAME_ATAU_PW_SALAH = 'Username atau Password salah!'
+USERNAME_ATAU_PW_SALAH = 'Wrong Username or Password!'
 
 class AutoRedirectViewTest(TestCase):
     def setUp(self):

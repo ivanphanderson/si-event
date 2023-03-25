@@ -2,25 +2,20 @@
 {% load static %}
 
 {% block title %}
-Update Data Pegawai
+Update Employee Data
 {% endblock %}
 
 {% block content %}
-<div class="container w-75 my-5">
-    <div class="row align-items-center">
-        <div class="col align-self-center">
-            <div class="card">
-                <h3 class="card-title text-center mt-4 text-danger">Input tidak valid!</h3>
-                <div class="card-body align-self-center">
-                    {% if error %}
-                    <h4 class="text-danger">{{ error }}</h4>
-                    {% else %}
-                    <h4 class="text-danger">Aloha</h4>
-                    {% endif %}
-                    <a class="btn btn-primary btn-block mt-4" href="{% url 'pegawai:update_pegawai' %}">Kembali</a>
-                </div>
-            </div>
-        </div>
+<div>
+    <h1 style="text-align: center; font-weight: bold;">400</h1>
+    <h4 style="text-align: center; font-weight: bold;">Wrong Input</h4>
+
+    <div style="text-align: center;">
+        <img src={% static "img/oops.png" %} width="350" height="350" class="img-fluid" alt="Search image">
+        <h5>{{ error }}</h5>
+        <br>
+        <a href="{% url 'pegawai:update_pegawai' %}" role="button" class="btn btn-warning">Back</a>
+        <br><br>
     </div>
 </div>
 {% endblock %}
