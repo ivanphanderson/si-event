@@ -145,9 +145,6 @@ class CreateEventViewTestCase(TestCase):
     def test_create_event_with_file_upload(self):
       url = reverse('create_event')
 
-      start_dt_obj = datetime.datetime.strptime(self.start_date, self.strpformat)
-      end_dt_obj = datetime.datetime.strptime(self.end_date, self.strpformat)
-
       data = {
           'event_name': self.event_name,
           'start_date': self.start_date,
@@ -171,9 +168,6 @@ class CreateEventViewTestCase(TestCase):
 
     def test_create_event_with_email_list(self):
       url = reverse('create_event')
-
-      start_dt_obj = datetime.datetime.strptime(self.start_date, self.strpformat)
-      end_dt_obj = datetime.datetime.strptime(self.end_date, self.strpformat)
 
       data = {
           'event_name': self.event_name,

@@ -9,10 +9,13 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-AKUN_TIDAK_DITEMUKAN = 'Akun Tidak Ditemukan'
+AKUN_TIDAK_DITEMUKAN = 'Account not found'
 HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = 'halaman_ubah_password_logged_in.html'
 HOME_URL = '/home/'
 FORBIDDEN_URL = '/home/forbidden/'
+ACCOUNT_CREATION_FAILED = 'Account creation failed, make sure all field is filled correctly.'
+NO_ACCESS_TO_READ_ACCOUNT = "You don't have access to read account!"
+NO_ACCESS_TO_UPDATE_ACCOUNT = "You don't have access to update account!"
 
 @login_required(login_url='/login')
 def register_account(request):
@@ -37,7 +40,7 @@ def register_account(request):
         
             if Account.objects.filter(email=email).exists():
                 msg.append('A user with that email already exists.')
-                msg.append('Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.')
+                msg.append(ACCOUNT_CREATION_FAILED)
 
             else:
                 user = User.objects.create_user(username=username, password=password, email=email)
@@ -51,10 +54,10 @@ def register_account(request):
                     user.is_staff = True
                 user.save()
                 account.save()
-                messages.success(request, 'Akun berhasil dibuat')
+                messages.success(request, 'Account is created successfully.')
                 return redirect(HOME_URL)
         else:
-            msg.append('Pembuatan akun baru gagal, pastikan seluruh field sudah terisi dengan benar.')
+            msg.append(ACCOUNT_CREATION_FAILED)
             error_lst = list(form.errors.values())
     context = {
         'form2':form2,
@@ -92,10 +95,10 @@ def submit_ubah_password(request):
             account = Account.objects.get(user=user)
             account.is_first_login = False
             account.save()
-            messages.info(request,'Password berhasil diubah, silakan login ulang')
+            messages.info(request,'Password has been changed, please login again.')
             return redirect('/login')
-        return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Current password tidak sesuai']})
-    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Password baru berbeda dengan konfirmasi password baru']})
+        return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Current password is incorrect!']})
+    return render(request, HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML, {'messages': ['Make sure new password and its confirmation is the same!']})
 
 @require_GET
 @login_required(login_url='/login')
@@ -109,7 +112,7 @@ def read_akun(request):
         context['role'] = account.role
         return render(request, 'read_akun.html', context)
     else:
-        messages.info(request,'Anda tidak memiliki akses untuk read akun')
+        messages.info(request, NO_ACCESS_TO_READ_ACCOUNT)
         return redirect(FORBIDDEN_URL)
 
 @require_GET
@@ -128,7 +131,7 @@ def update_akun(request, id):
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request,'Anda tidak memiliki akses untuk update akun')
+        messages.info(request, NO_ACCESS_TO_UPDATE_ACCOUNT)
         return redirect(FORBIDDEN_URL)
     
 @require_POST
@@ -148,7 +151,7 @@ def submit_update_akun(request):
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request,'Anda tidak memiliki akses untuk update akun')
+        messages.info(request, NO_ACCESS_TO_UPDATE_ACCOUNT)
         return redirect(FORBIDDEN_URL)
 
 @require_POST
@@ -168,6 +171,6 @@ def ganti_status_akun(request):
             messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request,'Anda tidak memiliki akses untuk mengganti status akun')
+        messages.info(request, "You don't have access to update account status!")
         return redirect(FORBIDDEN_URL)
     
