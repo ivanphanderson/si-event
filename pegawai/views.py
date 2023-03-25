@@ -2,13 +2,12 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
-from django.views.generic import DetailView
 from utils.converter import convert_to_data
 from .models import Pegawai
 from django.template.response import TemplateResponse
 from typing import List
 from .handler import DataCleaner, ValidColumnNameChecker, UniqueEmailInFileChecker
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from log.views import add_log
 from account.models import Account
 
@@ -40,6 +39,7 @@ class AddPegawaiView(LoginRequiredMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         context['role'] = account.role
+        context['title'] = 'Add Employee Data'
 
         return context
 
@@ -85,10 +85,13 @@ class SavePegawaiToDatabase(CreateView):
             return HttpResponseRedirect(reverse('pegawai:display_pegawai'))
         except Exception as e:
             error_message: str = e.args[0]
+            user = self.request.user
+            account = Account.objects.get(user=user)
+
             return TemplateResponse(
                 request,
-                'add_pegawai_error.html',
-                context={'error': error_message},
+                'add_pegawai_error.html', 
+                context={'error': error_message, 'role': account.role}, 
                 status=400,
             )
 
@@ -122,10 +125,10 @@ class DisplayPegawai(LoginRequiredMixin, TemplateView):
         context['role'] = account.role
 
         return context
-    
+
+
 class UpdatePegawaiView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy(URL_AUTH)
-    template_name = 'update_pegawai.html'
 
     def get(self, request, *args, **kwargs):
         if len(Pegawai.objects.all()) == 0:
@@ -148,6 +151,7 @@ class UpdatePegawaiView(LoginRequiredMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         context['role'] = account.role
+        context['title'] = 'Update Employee Data'
 
         return context
 
@@ -178,10 +182,13 @@ class SaveUpdatePegawai(TemplateView):
             return HttpResponseRedirect(reverse('pegawai:display_pegawai'))
         except Exception as e:
             error_message: str = e.args[0]
+            user = self.request.user
+            account = Account.objects.get(user=user)
+
             return TemplateResponse(
                 request,
                 'update_pegawai_error.html', 
-                context={'error': error_message}, 
+                context={'error': error_message, 'role': account.role}, 
                 status=400,
             )
         
@@ -247,4 +254,3 @@ class SaveUpdatePegawai(TemplateView):
         else:
             pegawai.job_status = pegawai.ADMINISTRASI
         pegawai.save()
-    
