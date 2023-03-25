@@ -128,7 +128,7 @@ def submit_ubah_password(request):
             return render(request, "berhasil_ubah_password.html")
 
         
-        context['messages'] = ['Password tidak sama']
+        context['messages'] = ['Password is not the same!']
         context['username'] = form.cleaned_data['username']
         return render(request, HALAMAN_UBAH_PASSWORD_HTML, context)
     return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
