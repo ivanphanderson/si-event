@@ -44,7 +44,9 @@
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
 
 <script>
-  $('#sortTable').DataTable();
+  $('#sortTable').DataTable({
+  "order": [[0, 'desc'], [1, 'desc']],
+  });
 </script>
 
 {% endblock content %}
