@@ -22,7 +22,6 @@ test:
   artifacts:
     paths:
       - coverage.xml
-  allow_failure: true
 
 
 sonarqube:

@@ -19,7 +19,7 @@ UBAH_PASSWORD_URL_ASAL = '/ubah-password/asd'
 FORGET_PASSWORD_HTML = 'forget_password.html'
 HALAMAN_OTP_HTML = 'halaman_otp.html'
 HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
-UNEXPECTED_HTML = 'unexpected.html'
+FORBIDDEN_HTML = 'forbidden.html'
 UBAH_PASSWORD_URL_USERNAME = '/ubah-password/tesname2'
 LOGGED_IN_UBAH_PASSWORD_URL = '/account/ubah-password/submit'
 OTP_URL_LENGKAP_USERNAME = 'https://si-event.herokuapp.com/otp/tesname2'
@@ -417,12 +417,12 @@ class LupaPasswordTest(TestCase):
     def test_ubah_password_get_is_exist(self):
         response = Client().get(UBAH_PASSWORD_URL_ASAL)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
 
     def test_ubah_password_post_is_exist(self):
         response = Client().post(UBAH_PASSWORD_URL_SUBMIT, {})
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
 
     def test_using_ubah_password_func(self):
         response = resolve(UBAH_PASSWORD_URL_ASAL)
@@ -520,7 +520,7 @@ class LupaPasswordTest(TestCase):
 
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
     
 
     def test_ubah_password_http_referer_invalid(self):
@@ -528,7 +528,7 @@ class LupaPasswordTest(TestCase):
         response = Client().get(f'/ubah-password/tes', {}, **headers)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
 
     def test_ubah_password_post_is_functional(self):
         data = {
@@ -555,8 +555,7 @@ class LupaPasswordTest(TestCase):
         }
         response = Client().post(UBAH_PASSWORD_URL_SUBMIT, data3, **headers)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'berhasil_ubah_password.html')
+        self.assertRedirects(response, f'/login', status_code=302, target_status_code=200)
 
         updated_user = User.objects.get(username=self.USERNAME)
         self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST_GANTI))
@@ -586,8 +585,7 @@ class LupaPasswordTest(TestCase):
         }
         response = Client().post(UBAH_PASSWORD_URL_SUBMIT, data3, **headers)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'berhasil_ubah_password.html')
+        self.assertRedirects(response, f'/login', status_code=302, target_status_code=200)
 
         updated_user = User.objects.get(username=self.USERNAME)
         self.assertTrue(updated_user.check_password(PASSWORD_UNTUK_TEST_GANTI))
@@ -675,7 +673,7 @@ class LupaPasswordTest(TestCase):
         response = Client().post(f'/ubah-password/submit/submit', data3, **headers)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
 
     def test_ubah_password_post_http_referer_asal(self):        
         data = {
@@ -703,4 +701,4 @@ class LupaPasswordTest(TestCase):
         response = Client().post(UBAH_PASSWORD_URL_SUBMIT, data3, **headers)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, UNEXPECTED_HTML)
+        self.assertTemplateUsed(response, FORBIDDEN_HTML)
