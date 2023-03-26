@@ -112,7 +112,6 @@ def read_akun(request):
         context['role'] = account.role
         return render(request, 'read_akun.html', context)
     else:
-        messages.info(request, NO_ACCESS_TO_READ_ACCOUNT)
         return redirect(FORBIDDEN_URL)
 
 @require_GET
@@ -123,15 +122,15 @@ def update_akun(request, id):
     if account.role == "Admin":
         if id.isdigit() and Account.objects.filter(id=id).first():
             account_update = Account.objects.filter(id=id).first()
+            if account_update.user.is_superuser or account_update.user == user:
+                return redirect(FORBIDDEN_URL)
             context = {}
             context['account'] = account_update
             context['role'] = account.role
             return render(request, 'update_akun.html', context)
         else:
-            messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request, NO_ACCESS_TO_UPDATE_ACCOUNT)
         return redirect(FORBIDDEN_URL)
     
 @require_POST
@@ -143,15 +142,15 @@ def submit_update_akun(request):
         id_akun = request.POST.get("id_akun")
         if id_akun.isdigit() and Account.objects.filter(id=id_akun).first():
             account_update = Account.objects.filter(id=id_akun).first()
+            if account_update.user.is_superuser or account_update.user == user:
+                return redirect(FORBIDDEN_URL)
             role_baru = request.POST.get("role")
             account_update.role = role_baru
             account_update.save()
             return redirect('account:read_akun')
         else:
-            messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request, NO_ACCESS_TO_UPDATE_ACCOUNT)
         return redirect(FORBIDDEN_URL)
 
 @require_POST
@@ -163,14 +162,14 @@ def ganti_status_akun(request):
         id_akun = request.POST.get("id_akun")
         if id_akun.isdigit() and Account.objects.filter(id=id_akun).first():
             account_delete = Account.objects.filter(id=id_akun).first()
+            if account_delete.user.is_superuser or account_delete.user == user:
+                return redirect(FORBIDDEN_URL)
             user = account_delete.user
             user.is_active = not user.is_active
             user.save()
             return redirect('account:read_akun')
         else:
-            messages.info(request, AKUN_TIDAK_DITEMUKAN)
             return redirect(FORBIDDEN_URL)
     else:
-        messages.info(request, "You don't have access to update account status!")
         return redirect(FORBIDDEN_URL)
     

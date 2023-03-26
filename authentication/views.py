@@ -12,8 +12,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 AKSES_ILEGAL = 'Illegal Access'
+LOGIN_URL = '/login'
 FORGET_PASSWORD_HTML = 'forget_password.html'
-UNEXPECTED_HTML = 'unexpected.html'
+FORBIDDEN_HTML = 'forbidden.html'
 HALAMAN_UBAH_PASSWORD_HTML = 'halaman_ubah_password.html'
 
 def auto_redirect(request):
@@ -21,7 +22,7 @@ def auto_redirect(request):
     if user.is_authenticated:
         return redirect('/home')
     else:
-        return redirect('/login')
+        return redirect(LOGIN_URL)
 
 def login_user(request):
     navbar_admin = []
@@ -46,7 +47,7 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    return redirect('/login')
+    return redirect(LOGIN_URL)
 
 @require_GET
 def forget_password(request):
@@ -91,11 +92,11 @@ def ubah_password(request, username):
     http_referer = request.META.get('HTTP_REFERER', '')
 
     if not is_valid_referer_ubah_password_get(http_referer):
-        return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
+        return render(request, FORBIDDEN_HTML)
 
     otp = PasswordOTP.objects.filter(username=username, valid_until__gte=timezone.now(), is_redeem=True, is_changed=False).first()
     if not otp:
-        return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
+        return render(request, FORBIDDEN_HTML)
     
     return render(request, HALAMAN_UBAH_PASSWORD_HTML, {'username': username})
 
@@ -116,7 +117,7 @@ def submit_ubah_password(request):
             username = form.cleaned_data['username']
             otp = PasswordOTP.objects.filter(username=username, is_redeem=True, is_changed=False).first()
             if not otp:
-                return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
+                return render(request, FORBIDDEN_HTML)
             
             otp.is_changed = True
             otp.save()
@@ -124,11 +125,11 @@ def submit_ubah_password(request):
             user = User.objects.filter(username=username).first()
             user.set_password(form.cleaned_data['password'])
             user.save()
-            
-            return render(request, "berhasil_ubah_password.html")
+            messages.info(request, "Password has been saved. Please login using your new password.")
+            return redirect(LOGIN_URL)
 
         
         context['messages'] = ['Password is not the same!']
         context['username'] = form.cleaned_data['username']
         return render(request, HALAMAN_UBAH_PASSWORD_HTML, context)
-    return render(request, UNEXPECTED_HTML, {'message': AKSES_ILEGAL})
+    return render(request, FORBIDDEN_HTML)
