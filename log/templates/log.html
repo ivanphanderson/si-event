@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Log
+{% endblock title %}
+
+{% block meta %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+{% endblock meta %}
+
+{% block content %}
+<div style="margin: 50px;">
+
+  <h4 style="text-align: center;">Log</h4>
+  <br><br>
+  <table class="table table-striped" id="sortTable">
+
+    <caption>Table to show changelog</caption>
+
+    <thead style="background-color: #2A3990; color: white;">
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Timestamp</th>
+        <th scope="col">Action taken by</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in data %}
+      <tr>
+        <td>{{log.date}}</td>
+        <td>{{log.timestamp}}</td>
+        <td>{{log.user.username}}</td>
+        <td>{{log.action}}</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+  $('#sortTable').DataTable({
+  "order": [[0, 'desc'], [1, 'desc']],
+  });
+</script>
+
+{% endblock content %}

@@ -15,7 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+import event.urls as event
+import authentication.urls as authentication
 
 urlpatterns = [
+    path('',include('authentication.urls')),
     path('admin/', admin.site.urls),
+    path('event/', include(event)),
+    path('pegawai/', include('pegawai.urls')),
+    path('account/', include('account.urls')),
+    path('log/', include('log.urls')),
+    path('home/', include('home.urls')),
 ]
