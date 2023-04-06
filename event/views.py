@@ -1,65 +1,111 @@
 from django.shortcuts import render, redirect
-
 from .models import Event, EventEmployee
-
 from pegawai.models import Pegawai
 from pegawai.handler import DataCleaner
 from pegawai.views import add_log
-
 from account.models import Account
-
 from utils.converter import convert_to_data
+from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.db.models import Q
+from django.http import JsonResponse
+from .validators import validate_event_employee_fields
+from django.core.exceptions import ValidationError
 
+CREATE_EVENT = 'create_event.html'
+EVENT_LIST = 'event_list.html'
 
+@login_required(login_url='/login')
 def create_event(request):
-  if (not request.user.is_authenticated):
-    return redirect('authentication:login')
-  
-  account = Account.objects.get(user=request.user)
   if (request.method == 'POST'):
     body = request.POST
 
-    event_name   = body.get('event_name')
-    start_date   = body.get('start_date')
-    end_date     = body.get('end_date')
-    expense      = body.get('expense')
-    tax          = body.get('tax')
-    raw_list_emp = str(body.get('list_employee_no')).strip()
+    event_name = body.get('event_name')
+    start_date = body.get('start_date')
+    end_date   = body.get('end_date')
+    action     = body.get('action')
 
-    list_emp_no = raw_list_emp.split() if raw_list_emp else []
+    if action == 'add_roles':
+      request.session['event_name'] = event_name
+      request.session['start_date'] = start_date
+      request.session['end_date']   = end_date
+      return render(request, 'input_employee.html')
+    else:
+      account = Account.objects.get(user=request.user)
+      Event.objects.create(
+        creator=account,
+        event_name=event_name,
+        start_date=start_date,
+        end_date=end_date,
+      )
+      action = 'Create ' + event_name + ' event'
+      add_log(account, action)
 
-    new_event  = Event.objects.create(
-      creator=account,
-      event_name=event_name,
-      start_date=start_date,
-      end_date=end_date,
-      expense=expense,
-      tax=tax
-    )
+      request.session.pop('event_name', None)
+      request.session.pop('start_date', None)
+      request.session.pop('end_date', None)
+      return get_events(request, action)
+  return render(request, CREATE_EVENT)
 
-    _input_pegawai_to_event(request, list_emp_no, new_event)
+
+@login_required(login_url='/login')
+def input_employee_to_event(request):
+  account    = Account.objects.get(user=request.user)
+  form_data  = request.POST
+  num_fields = int(form_data['num_fields'])
+
+  total_honor = 0
+  for idx in range(num_fields):
+    total_honor += abs(int(form_data[f'honor_field_{idx}']))
+  
+  new_event = Event.objects.create(
+    creator=account,
+    event_name=request.session['event_name'],
+    start_date=request.session['start_date'],
+    end_date=request.session['end_date'],
+    expense=total_honor,
+  )
+
+  action = 'Create ' + request.session['event_name'] + ' event'
+  add_log(Account.objects.get(user=request.user), action)
+
+  for idx in range(num_fields):
+    employee_no = form_data[f'dropdown-select_{idx}']
+    role        = form_data[f'role_field_{idx}']
+    honor       = form_data[f'honor_field_{idx}']
+    pph         = form_data[f'pph_field_{idx}']
+
+    try:
+      validate_event_employee_fields(int(pph), int(honor))
+    except ValidationError:
+      honor = abs(int(honor))
+      pph   = abs(int(pph))
+
+    if str(employee_no).isnumeric():
+      pegawai = Pegawai.objects.get(employee_no=employee_no)
+      EventEmployee.objects.create(employee=pegawai, event=new_event, honor=honor, pph=pph, role=role)
+  
+  return get_events(request, action)
+
+
+def get_options(request):
+  search_term = request.GET.get('search', '')
+  employees = Pegawai.objects.filter(Q(employee_no__icontains=search_term) | Q(employee_name__icontains=search_term))
+  employees = [{'employee_no': e.employee_no, 'employee_name': e.employee_name} for e in employees]
+  return JsonResponse(employees, safe=False)
+
+
+@login_required(login_url='/login')
+def get_events(request, success_message=None):
+  account = Account.objects.get(user=request.user)
+  event_data = Event.objects.all().order_by('event_name')
+  owner_data = dict()
     
-    action = 'Create ' + event_name + ' event'
-    add_log(Account.objects.get(user=request.user), action)
+  for event in event_data:
+    if event.creator == account:
+      owner_data[f'{event.event_name}'] = True
 
-    return render(request, 'done.html')
-  return render(request, 'create_event.html')
-
-
-def _input_pegawai_to_event(request, list_emp_no, new_event):
-  if 'pegawai_file' in request.FILES:
-    pegawai_file = request.FILES['pegawai_file'].read()
-    data_pegawai = convert_to_data(pegawai_file)
-    data_cleaner = DataCleaner(None)
-    cleaned_data = data_cleaner.functionality(data_pegawai, dict())[0]
-
-    non_blank_idx = next((i for i, row in enumerate(cleaned_data) if row[0] != ''), -1)
-    if non_blank_idx != -1:
-      for row in cleaned_data[non_blank_idx+1:]:
-        target_pegawai = Pegawai.objects.get(employee_no=row[2])
-        EventEmployee.objects.create(employee=target_pegawai, event=new_event)
-    
-  for emp_no in list_emp_no:
-    if emp_no and emp_no != 'None':
-      target_pegawai = Pegawai.objects.get(employee_no=emp_no)
-      EventEmployee.objects.create(employee=target_pegawai, event=new_event)
+  if success_message is not None:
+    return render(request, EVENT_LIST, {'event_data':event_data, 'owner_data':owner_data, 'success_message':success_message})
+  
+  return render(request, EVENT_LIST, {'event_data':event_data, 'owner_data':owner_data})
