@@ -46,7 +46,11 @@ Add Employee
               <br>
               Note: 
               <br>
+              - Empty number of role will make no staff to the event
+              <br>
               - Any negative value for pph and honor will be converted automatically to non negative value.
+              <br>
+              - Any empty role name will be named as Role_idx
               <br>
               - Any empty employee target will not be input as a staff
             </div>
@@ -112,7 +116,7 @@ Add Employee
       label.for = `field_${i}`;
       label.innerText = `Role ${i + 1}:  `;
       labelHonor.innerText = `Honor (BRUTO)`;
-      labelEmp.innerText = `Employee (find and select)`;
+      labelEmp.innerText = `Employee: (find and select by employee number or employee name)`;
       pphLabel.innerText = `Pph`;
 
       role_name.type = 'text';

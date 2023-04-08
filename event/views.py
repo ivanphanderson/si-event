@@ -11,11 +11,13 @@ from django.db.models import Q
 from django.http import JsonResponse
 from .validators import validate_event_employee_fields
 from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_http_methods
 
 CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
 
 @login_required(login_url='/login')
+@require_http_methods(['GET', 'POST'])
 def create_event(request):
   if (request.method == 'POST'):
     body = request.POST
@@ -49,14 +51,20 @@ def create_event(request):
 
 
 @login_required(login_url='/login')
+@require_http_methods(['POST'])
 def input_employee_to_event(request):
   account    = Account.objects.get(user=request.user)
   form_data  = request.POST
-  num_fields = int(form_data['num_fields'])
+
+  if form_data['num_fields'] != '':
+    num_fields = int(form_data['num_fields'])
+  else:
+    num_fields = 0
 
   total_honor = 0
   for idx in range(num_fields):
-    total_honor += abs(int(form_data[f'honor_field_{idx}']))
+    if form_data[f'honor_field_{idx}'] != '':
+      total_honor += abs(int(form_data[f'honor_field_{idx}']))
   
   new_event = Event.objects.create(
     creator=account,
@@ -70,24 +78,21 @@ def input_employee_to_event(request):
   add_log(Account.objects.get(user=request.user), action)
 
   for idx in range(num_fields):
-    employee_no = form_data[f'dropdown-select_{idx}']
-    role        = form_data[f'role_field_{idx}']
-    honor       = form_data[f'honor_field_{idx}']
-    pph         = form_data[f'pph_field_{idx}']
+    if f'dropdown-select_{idx}' in form_data:
+      employee_no = form_data[f'dropdown-select_{idx}']
+      role        = form_data[f'role_field_{idx}']
+      honor       = form_data[f'honor_field_{idx}']
+      pph         = form_data[f'pph_field_{idx}']
 
-    try:
-      validate_event_employee_fields(int(pph), int(honor))
-    except ValidationError:
-      honor = abs(int(honor))
-      pph   = abs(int(pph))
-
-    if str(employee_no).isnumeric():
-      pegawai = Pegawai.objects.get(employee_no=employee_no)
-      EventEmployee.objects.create(employee=pegawai, event=new_event, honor=honor, pph=pph, role=role)
+      role, pph, honor  = validate_event_employee_fields(role, pph, honor, idx)
+      if str(employee_no).isnumeric():
+        pegawai = Pegawai.objects.get(employee_no=employee_no)
+        EventEmployee.objects.create(employee=pegawai, event=new_event, honor=honor, pph=pph, role=role)
   
   return get_events(request, action)
 
 
+@require_http_methods(['GET'])
 def get_options(request):
   search_term = request.GET.get('search', '')
   employees = Pegawai.objects.filter(Q(employee_no__icontains=search_term) | Q(employee_name__icontains=search_term))
@@ -96,6 +101,7 @@ def get_options(request):
 
 
 @login_required(login_url='/login')
+@require_http_methods(['GET', 'POST'])
 def get_events(request, success_message=None):
   account = Account.objects.get(user=request.user)
   event_data = Event.objects.all().order_by('event_name')

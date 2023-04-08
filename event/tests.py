@@ -146,6 +146,42 @@ class EventCreateViewTestCase(TestCase):
     self.assertEqual(event_employee1.role, 'PO')
     self.assertEqual(event_employee1.honor, 10000)
     self.assertEqual(event_employee1.pph, 10)
+  
+  def test_create_event_empty_num_fields(self):
+    url = reverse('create_event')
+    
+    response = self.client.get(url)
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, CREATE_EVENT)
+
+    new_event_name = 'Test Event Baru Lagi'
+    
+    sess_data = {
+      'event_name': new_event_name,
+      'start_date': self.start_date,
+      'end_date': self.end_date,
+      'action': 'add_roles'
+    }
+
+    data = {
+      'num_fields':'',
+    }
+
+    response = self.client.post(url, data=sess_data)
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'input_employee.html')
+    
+    session_data = self.client.session
+    self.assertEqual(session_data['event_name'], new_event_name)
+    self.assertEqual(session_data['start_date'], self.start_date)
+    self.assertEqual(session_data['end_date'], self.end_date)
+    
+    self.client.post(reverse('input_employee_to_event'), data)
+    event = Event.objects.last()
+    
+    empty_qs = EventEmployee.objects.none()
+    queryset = EventEmployee.objects.filter(event=event)
+    self.assertQuerysetEqual(queryset, empty_qs, "Queryset should be empty")
 
 
 class EventModelTest(TestCase):
@@ -411,6 +447,11 @@ class EventEmployeeModelTestCase(TestCase):
     self.assertEqual(field.default, 0)
     self.assertEqual(field.validators[0].limit_value, 0)
 
+  def test_netto_field(self):
+    field = EventEmployee._meta.get_field('netto')
+    self.assertEqual(field.default, 0)
+    self.assertEqual(field.validators[0].limit_value, 0)
+
   def test_pph_field(self):
     field = EventEmployee._meta.get_field('pph')
     self.assertEqual(field.default, 0)
@@ -427,24 +468,27 @@ class EventEmployeeModelTestCase(TestCase):
     self.assertEqual(self.event_employee.honor, 1000)
     self.assertEqual(self.event_employee.pph, 10)
     self.assertEqual(self.event_employee.role, 'Admin')
+    self.assertEqual(
+      self.event_employee.netto, (100-self.event_employee.pph)/100*self.event_employee.honor)
   
 
 class ValidationTests(TestCase):
-
   def test_validate_event_employee_fields(self):
-    pph = 100000
-    honor = 200000
-    validate_event_employee_fields(pph, honor)
-    
-    pph = -100000
-    honor = 200000
-    with self.assertRaises(ValidationError):
-      validate_event_employee_fields(pph, honor)
-    
-    pph = 100000
-    honor = -200000
-    with self.assertRaises(ValidationError):
-      validate_event_employee_fields(pph, honor)
+    role_name, pph, honor = validate_event_employee_fields('', '', '', 1)
+    self.assertEqual(role_name, 'Role_1')
+    self.assertEqual(pph, 0)
+    self.assertEqual(honor, 0)
+
+    role_name, pph, honor = validate_event_employee_fields('Manager', '100', '50', 2)
+    self.assertEqual(role_name, 'Manager')
+    self.assertEqual(pph, 100)
+    self.assertEqual(honor, 50)
+
+    role_name, pph, honor = validate_event_employee_fields('Supervisor', '-100', '-50', 3)
+    self.assertEqual(role_name, 'Supervisor')
+    self.assertEqual(pph, 100)
+    self.assertEqual(honor, 50)
+
 
 
 class InputEmployeeToEventTestCase(TestCase):
