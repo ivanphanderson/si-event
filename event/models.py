@@ -16,4 +16,9 @@ class EventEmployee(models.Model):
   event    = models.ForeignKey(Event, on_delete=models.CASCADE)
   honor    = models.IntegerField(validators=[MinValueValidator(0)], default=0)
   pph      = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+  netto    = models.IntegerField(validators=[MinValueValidator(0)], default=0)
   role     = models.CharField(max_length=100, null=True)
+
+  def save(self, *args, **kwargs):
+    self.netto = ((100-int(self.pph))/100)*int(self.honor)
+    super().save(*args, **kwargs)
