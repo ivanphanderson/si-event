@@ -130,6 +130,7 @@ def riwayat_events(request):
 def detail_event(request, id):
   context={}
   account = Account.objects.get(user=request.user)
+  context['account']=account
   context['role'] = account.role
 
   if id.isdigit() and Event.objects.filter(id=id).first():
