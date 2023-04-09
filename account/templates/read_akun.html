@@ -40,9 +40,9 @@
             <tbody>
               {% for account in all_account %}
               <tr>
-                <td>{{account.username}}</td>
-                <td>{{account.role}}</td>
-                <td>
+                <td style="vertical-align: middle;">{{account.username}}</td>
+                <td style="vertical-align: middle;">{{account.role}}</td>
+                <td style="vertical-align: middle;">
                   {% if account.user.is_active %}
                     Aktif
                   {% else %}
@@ -52,7 +52,7 @@
                 {% if account.user.is_superuser or account.user == user %}
                   <td></td>
                 {% else %}
-                  <td><a href="update/{{account.id}}" class="btn btn-warning">Update</a>
+                  <td style="vertical-align: middle;"><a href="update/{{account.id}}" class="btn btn-warning">Update</a>
                   {% if account.user.is_active %}
                   <button class="btn btn-danger" type="button" id="deactivate-account" data-toggle="modal" data-target="#deactivateAccountModal{{account.id}}">Deactivate</button>
 

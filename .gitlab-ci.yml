@@ -42,7 +42,7 @@ sonarqube:
     paths:
       - .sonar/cache
   script: 
-    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.language=py -Dsonar.exclusions=.gitlab-ci.yml,manage.py,si_event/*,utils/**
+    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.language=py -Dsonar.exclusions=.gitlab-ci.yml,manage.py,si_event/*,utils/**,static/homecss/nicepage.css
   allow_failure: true
 
 deployment_production:

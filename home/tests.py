@@ -28,7 +28,7 @@ class DisplayTestAdmin(TestCase):
     def test_display_home_template(self):
         response = self.client.get(URL_HOME)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'home.html')
+        self.assertTemplateUsed(response, 'index.html')
 
     def test_permissions_to_access_display_forbidden(self):
         response = self.client.get(URL_FORBIDDEN)

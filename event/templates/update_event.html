@@ -20,15 +20,15 @@ Create Event
       <div class="container">
         <div class="row">
           <div class="col text-center">
-            <h3>Create Event</h3>
+            <h3>Update Event</h3>
           </div>
         </div>
       </div>
-      <div class="modal" id="errDateModal" tabindex="-1" role="dialog">
+      <div class="modal a1" id="errDateModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="warningMsg">Warning</h5>
+              <h5 class="modal-title b2" id="warningMsg">Warning</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -36,7 +36,7 @@ Create Event
             <div class="modal-body">
               The start date cannot be later than the end date
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer c3">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
             </div>
           </div>
@@ -44,39 +44,38 @@ Create Event
       </div>
       <div class="modal" id="errEmpModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
+          <div class="modal-content a1">
             <div class="modal-header">
               <h5 class="modal-title" id="warningMsg">Warning</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body b2">
               Please fill in all required fields
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer c3">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
             </div>
           </div>
         </div>
       </div>
-      <form method="post" enctype="multipart/form-data" id="dataForm">
+      <form method="post" enctype="multipart/form-data" id="dataForm" action="/event/submit-update/{{event.id}}">
         {% csrf_token %}
         <div class="form-group">
           <label for="event_name"> Event Name:</label>
-          <input type="text" class="form-control" id="event_name" name="event_name" required>
+          <input type="text" class="form-control" id="event_name" name="event_name" required value="{{event.event_name}}">
         </div>
         <div class="form-group">
           <label for="start_date">Start Date:</label>
-          <input type="date" class="form-control" id="start_date" name="start_date" required>
+          <input type="date" class="form-control" id="start_date" name="start_date" required value="{{event.start_date|date:'Y-m-d'}}">
         </div>
         <div class="form-group">
           <label for="end_date">End Date:</label>
-          <input type="date" class="form-control" id="end_date" name="end_date" required>
+          <input type="date" class="form-control" id="end_date" name="end_date" required value="{{event.end_date|date:'Y-m-d'}}">
         </div>
         <input type="hidden" name="action" id="form_action">
-        <button type="submit" class="btn btn-primary" id="create_event">Create Event</button>
-        <button type="submit" class="btn btn-primary" id="add_role" name="add_role" value="true">Add Roles</button>
+        <button type="submit" class="btn btn-primary" id="create_event">Update Event</button>
       </form>
     </div>
   </div>
@@ -84,25 +83,18 @@ Create Event
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  $(document).ready(function() {
-    var successMessage = "{{ success_message }}";
-    if (successMessage) {
-      $('#succModal').modal('show');
-    }
-  });
-
-  const nextBtn = document.getElementById('add_role');
+  
   const createBtn = document.getElementById('create_event');
   const formAction = document.getElementById('form_action');
 
   function validateForm(action) {
-    const startDt   = document.getElementById('start_date');
-    const endDt     = document.getElementById('end_date');
+    const startDate   = document.getElementById('start_date');
+    const endDate     = document.getElementById('end_date');
     const eventName = document.getElementById('event_name');
-    if ((eventName.value == '' || eventName.value == null) || (startDt.value == '' || startDt.value == null) || (endDt.value == '' || endDt.value == null)){
+    if ((eventName.value == '' || eventName.value == null) || (startDate.value == '' || startDate.value == null) || (endDate.value == '' || endDate.value == null)){
       $('#errEmpModal').modal('show');
     }
-    else if (startDt.value >= endDt.value){
+    else if (startDate.value >= endDate.value){
       $('#errDateModal').modal('show');
     }  
     else{
@@ -111,9 +103,11 @@ Create Event
     }
   }
 
-  nextBtn.addEventListener('click', function(event) {
-    event.preventDefault();
-    validateForm('add_roles');
+  $(document).ready(function() {
+    var successMessage = "{{ success_message }}";
+    if (successMessage) {
+      $('#succModal').modal('show');
+    }
   });
 
   createBtn.addEventListener('click', function(event) {
