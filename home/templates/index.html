@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Home
+{%endblock title%}
+
+{% block meta %}
+{% load static %}
+{% endblock meta %}
+
+{% block content %}
+{% block navbar %}
+{% endblock navbar %}
+    <link rel="stylesheet" href="/static/homecss/nicepage.css" media="screen">
+<link rel="stylesheet" href="/static/homecss/homepage.css" media="screen">
+    <meta name="generator" content="Nicepage 5.7.13, nicepage.com">
+    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+    
+    
+    <script type="application/ld+json">{
+		"@context": "http://schema.org",
+		"@type": "Organization",
+		"name": ""
+}</script>
+    <meta name="theme-color" content="#a37fdf">
+    <meta property="og:title" content="Contact 1">
+    <meta property="og:type" content="website">
+  <meta data-intl-tel-input-cdn-path="intlTelInput/"></head>
+  <body data-home-page="https://website4542498.nicepage.io/Contact-1.html?version=9607a374-8dd4-4437-9158-46107d9b3c20" data-home-page-title="Contact 1" class="u-body u-xl-mode" data-lang="en">
+    <section class="u-clearfix u-section-1" id="sec-d6a4">
+      <div class="u-clearfix u-layout-wrap u-layout-wrap-1">
+        <div class="u-layout">
+          <div class="u-layout-row">
+            <div class="u-container-align-left-lg u-container-align-left-md u-container-align-left-sm u-container-align-left-xl u-container-style u-layout-cell u-size-28-xl u-size-29-lg u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-1">
+              <div class="u-container-layout u-container-layout-1">
+                <h1 class="u-align-left u-text u-text-1" style="color: #263F6B">Welcome {{user}}</h1>
+              </div>
+            </div>
+            {% if role == 'Admin' %}
+            <div class="u-container-style u-layout-cell u-size-31-lg u-size-32-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-2">
+              <div class="u-container-layout u-container-layout-2">
+                <div class="u-list u-list-1">
+                  <div class="u-repeater u-repeater-1">
+                    <div class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1" onclick="window.location.href = '/account';">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-3"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-1"><img src="/static/homecss/icons/account.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-2">Account</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-2" onclick="window.location.href = '/pegawai';">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-4"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"><img src="/static/homecss/icons/employee.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-3">EMPLOYEE</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-3" onclick="window.location.href = '/event';"">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-5"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-3"><img src="/static/homecss/icons/event.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-4">EVENT</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-4" onclick="window.location.href = '/log';"">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-6"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-4"><img src="/static/homecss/icons/log.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-5">Log</h4>
+              </div>
+            {% else %}
+            <div class="u-container-style u-layout-cell u-size-31-lg u-size-32-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-2">
+              <div class="u-container-layout u-container-layout-2">
+                <div class="u-list u-list-1">
+                  <div class="u-repeater u-repeater-1">
+                    <div class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1" onclick="window.location.href = '/event';">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-3"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-1"><img src="/static/homecss/icons/event.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-2">Event</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-2">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-4"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"><img src="/static/homecss/icons/coming-soon.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-3">Coming Soon</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-3">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-5"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-3"><img src="/static/homecss/icons/coming-soon.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-4">Coming Soon</h4>
+                      </div>
+                    </div>
+                    <div class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-4">
+                      <div class="u-container-layout u-similar-container u-valign-top u-container-layout-6"><span class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-4"><img src="/static/homecss/icons/coming-soon.png" alt=""></span>
+                        <h4 class="u-align-center u-text u-text-5">Coming Soon</h4>
+              </div>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    {% endblock content %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Update Event Employee
+{%endblock title%}
+{% block meta %}
+  
+{% load static %}
+{% endblock meta %}
+
+{% block content %}
+{% block navbar %}
+{% endblock navbar %}
+
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex align-items-center justify-content-center h-100">
+            <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+            <h4 class="font-weight-bold">Update Event Employee</h4>
+            <br>
+            {% if messages %}
+              {% for message in messages %}
+              <div class="alert alert-warning" role="alert">
+                {{ message }}
+              </div>
+              {% endfor %}
+            {% endif %} 
+          <form method="POST" action="/event/submit-update-employee/{{event_employee.id}}">
+            {% csrf_token %}
+            <div class="form-outline mb-4">
+              <label class="form-label" for="form1Example13">Role</label>
+              <input required type="text" id="form1Example13" class="form-control form-control-lg" name="role_field_0" value="{{event_employee.role}}" />
+              
+            </div>
+  
+            <div class="form-outline mb-4">
+              <label class="form-label" for="form1Example23">Honor (BRUTO)</label>
+              <input required type="text" id="form1Example23" class="form-control form-control-lg" name="honor_field_0" value="{{event_employee.honor}}"/>
+            </div>
+
+            <div class="form-outline mb-4">
+              <label class="form-label" for="form1Example23">Pph</label>
+              <input required type="text" id="form1Example23" class="form-control form-control-lg" name="pph_field_0" value="{{event_employee.pph}}"/>
+            </div>
+
+            <div class="form-outline mb-4">
+              <label>Employee: (find and select by employee number or employee name)</label>
+              <input type="text" name="search_field_0" id="search_field_0" placeholder="Find By Name or Employee Number" class="form-control mb-3" required fdprocessedid="0vh1c" value="{{event_employee.employee.employee_name}} ({{event_employee.employee.employee_no}})">
+              <select id="dropdown-select_0" name="dropdown-select_0" class="form-control" fdprocessedid="4gb5vj">
+                <option value="{{event_employee.employee.employee_no}}" selected>{{event_employee.employee.employee_name}} ({{event_employee.employee.employee_no}})</option>
+              </select>
+            </div>
+            
+            <div class="d-flex justify-content-around align-items-center mb-4">
+  
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-warning btn-block">Update</button>
+            
+            <div class="form-outline mb-4"></div>   
+            
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const dropdown   = document.getElementById('dropdown-select_0');
+
+    dropdown.addEventListener('change', function() {
+        const selectedOption = dropdown.options[dropdown.selectedIndex];
+        searchTerm.value = selectedOption.text;
+      });
+
+    const input = document.getElementById(`search_field_0`);
+      input.addEventListener('input', function() {
+        const searchTerm = input.value;
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            const options = JSON.parse(this.responseText);
+            dropdown.innerHTML= '';
+
+            const defaultOptions = document.createElement('option');
+            defaultOptions.innerHTML='Click here to choose available employee based on input above';
+            defaultOptions.disabled = true;
+            dropdown.appendChild(defaultOptions);
+            
+            options.forEach(function(option) {
+              const opt2 = document.createElement('option');
+              opt2.innerHTML = `${option.employee_name} (${option.employee_no})`;
+              opt2.value = option.employee_no;
+              dropdown.appendChild(opt2);
+            });
+          }
+        };
+        xhr.open('GET', `/event/get-options/?search=${searchTerm}`);
+        xhr.send();
+      });
+      
+  </script>
+
+{% endblock content %}
