@@ -15,7 +15,6 @@ def filter(request):
 
     pegawai = request.GET.get('pegawai')
     date_min = request.GET.get('date_min')
-    print(date_min)
     date_max = request.GET.get('date_max')
     event = request.GET.get('event')
 
@@ -24,7 +23,7 @@ def filter(request):
         qs = qs.filter(event__in=e)
 
     if is_valid_queryparam(date_max):
-        ev = Event.objects.filter(end_date__lt=date_max)
+        ev = Event.objects.filter(end_date__lte=date_max)
         qs = qs.filter(event__in=ev)
 
     if is_valid_queryparam(pegawai) and pegawai != 'None':

@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Update Account
+Update Account
 {%endblock title%}
 {% block meta %}
-  
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
 {% load static %}
@@ -15,22 +15,22 @@
 {% endblock navbar %}
 
 <div class="text-center">
-    <h1 class="font-weight-bold">{{event.event_name}}</h1 >
+  <h1 class="font-weight-bold">{{event.event_name}}</h1>
 </div>
 <br>
 {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-warning" style="margin-left: 6vw; margin-right: 6vw;" role="alert">
-    {{ message }}
-    </div>
-    {% endfor %}
-{% endif %} 
+{% for message in messages %}
+<div class="alert alert-warning" style="margin-left: 6vw; margin-right: 6vw;" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endif %}
 
 <div class="container detail" style="margin-left: 6vw;">
-    <h5>Start date: {{event.start_date}}</h5>
-    <h5>End date: {{event.end_date}}</h5>
-    <br>
-    <br>
+  <h5>Start date: {{event.start_date}}</h5>
+  <h5>End date: {{event.end_date}}</h5>
+  <br>
+  <br>
 </div>
 <div class="container" style="margin-bottom: 50px;">
   <div class="row justify-content-center">
@@ -42,84 +42,77 @@
     <div class="col-md-12">
       <div class="table-wrap">
         {% if event_employees %}
-          {% if event.creator == account %}
-            <div style = "display: flex; justify-content:flex-end; margin-bottom: 10px;">
-              <a href="/event/add-employee/{{event.id}}" class="btn btn-primary float-right">Add Employee</a>
-            </div>  
-          {% endif %}
-        <table class="table table-striped" aria-describedby="All Account" id="sortTable">
+        {% if event.creator == account %}
+        <div style="display: flex; justify-content:flex-end; margin-bottom: 10px;">
+          <a href="/event/add-employee/{{event.id}}" class="btn btn-primary float-right">Add Employee</a>
+        </div>
+        {% endif %}
+        <table class="table table-striped" aria-describedby="All Account" id="table">
           <thead style="background-color: #2A3990; color: white;">
             <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Role</th>
-            <th scope="col">Honor</th>
-            <th scope="col">Pph (%)</th>
-            <th scope="col">Action</th>
+              <th scope="col">No.</th>
+              <th scope="col">Nama</th>
+              <th scope="col">Tugas</th>
+              <th scope="col">Bruto(Rp.)</th>
+              <th scope="col">Pph (Rp.)</th>
+              <th scope="col">Netto</th>
+              <th scope="col">Nama di rekening</th>
+              <th scope="col">Bank</th>
+              <th scope="col">No Rekening</th>
             </tr>
           </thead>
           <tbody>
             {% for event_employee in event_employees %}
             <tr>
-              <td style="vertical-align: middle;">{{event_employee.employee.employee_name}}</td>
-              <td style="vertical-align: middle;">{{event_employee.role}}</td>
-              <td style="vertical-align: middle;">
-                <script>
-                  var honor = {{event_employee.honor}};
-                  var honor_format = ((honor).toLocaleString('ID', {
-                    style: 'currency',
-                    currency: 'IDR',
-                  }));
-                  document.write(honor_format.slice(0,2) + honor_format.slice(3));
-                </script>
-              </td>
-              <td style="vertical-align: middle;">{{event_employee.pph}}</td>
-              <td>
-                {% if event.creator == account %}
-                  <a href="/event/update-employee/{{event_employee.id}}" class="btn btn-warning">Update</a>
-
-                  <button class="btn btn-danger" type="button" id="delete-event-employee" data-toggle="modal" data-target="#deleteEventEmployeeModal{{event_employee.id}}">Delete</button>
-
-                    <div class="modal fade" id="deleteEventEmployeeModal{{event_employee.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="deactivateAccountModalLabel">Delete Event Employee</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            Are you sure to delete {{event_employee.employee.employee_name}} from this event?
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <form method="POST" action="/event/delete-employee/{{event_employee.id}}">
-                              {% csrf_token %}
-                              <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  {% endif %}
-              </td>
+              <th scope="row" id="number"></th>
+              <td>{{event_employee.employee.employee_name}}</td>
+              <td>{{event_employee.role}}</td>
+              <td>{{event_employee.honor}}</td>
+              <td>{{event_employee.pph}}</td>
+              <td>{{event_employee.netto}}</td>
+              <td>{{event_employee.employee.nama_di_rekening}}</td>
+              <td>{{event_employee.employee.nama_bank}}</td>
+              <td>{{event_employee.employee.nomor_rekening}}</td>
             </tr>
-            {% endfor %}
+            {%endfor%}
+            <tr>
+              <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
+              <th scope="col">{{ total_bruto }}</th>
+              <th scope="col">{{ total_pph }}</th>
+              <th scope="col">{{ total_netto }}</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
           </tbody>
         </table>
+        <div style="text-align: center;">
+          <br>
+          <a href="#" role="button" class="btn btn-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-cloud-download" viewBox="0 0 16 16">
+              <path
+                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
+              <path
+                d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
+            </svg>
+            Download
+          </a>
+          <br><br>
+        </div>
         {% else %}
         <div style="text-align: center;">
-          <img src={% static "img/no_employee.png" %} width=500 height=400 class="img-fluid" alt="Search image">
           <br>
-          {% if event.creator == account %}
-          <a href="/event/add-employee/{{event.id}}" role="button" class="btn btn-warning">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-upload" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
-              <path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/>
+          <a href="#" role="button" class="btn btn-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-cloud-download" viewBox="0 0 16 16">
+              <path
+                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
+              <path
+                d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
             </svg>
-            Add Employee
+            Download
           </a>
-          {% endif %}
           <br><br>
         </div>
         {% endif %}
@@ -128,12 +121,85 @@
   </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script>
+  var table = document.getElementsByTagName('table')[0],
+    rows = table.getElementsByTagName('tr'),
+    text = 'textContent' in document ? 'textContent' : 'innerText';
+
+  for (var i = 1, len = rows.length; i < len - 1; i++) {
+    rows[i].children[0][text] = i + '.' + rows[i].children[0][text];
+  }
+</script>
 
 <script>
-  $('#sortTable').DataTable();
+  const selectBox = document.querySelector('.select-box');
+  const selectOption = document.querySelector('.select-option');
+  const soValue = document.querySelector('#soValue');
+  const optionSearch = document.querySelector('#optionSearch');
+  const options = document.querySelector('.options');
+  const optionsList = document.querySelectorAll('.options li');
+
+  selectOption.addEventListener('click', function () {
+    selectBox.classList.toggle('active');
+  });
+
+  optionsList.forEach(function (optionsListSingle) {
+    optionsListSingle.addEventListener('click', function () {
+      text = this.textContent;
+      soValue.value = text;
+      selectBox.classList.remove('active');
+    })
+  });
+
+  optionSearch.addEventListener('keyup', function () {
+    var filter, li, i, textValue;
+    filter = optionSearch.value.toUpperCase();
+    li = options.getElementsByTagName('li');
+    for (i = 0; i < li.length; i++) {
+      liCount = li[i];
+      textValue = liCount.textContent || liCount.innerText;
+      if (textValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = '';
+      } else {
+        li[i].style.display = 'none';
+      }
+    }
+  })
+</script>
+<script>
+  const selectBoxEvent = document.querySelector('.select-box-event');
+  const selectOptionEvent = document.querySelector('.select-option-event');
+  const soValueEvent = document.querySelector('#soValueEvent');
+  const optionSearchEvent = document.querySelector('#optionSearchEvent');
+  const optionsEvent = document.querySelector('.options-event');
+  const optionsListEvent = document.querySelectorAll('.options-event li');
+
+  selectOptionEvent.addEventListener('click', function () {
+    selectBoxEvent.classList.toggle('active');
+  });
+
+  optionsListEvent.forEach(function (optionsListSingle) {
+    optionsListSingle.addEventListener('click', function () {
+      text = this.textContent;
+      soValueEvent.value = text;
+      selectBoxEvent.classList.remove('active');
+    })
+  });
+
+  optionSearchEvent.addEventListener('keyup', function () {
+    var filter, li, i, textValue;
+    filter = optionSearchEvent.value.toUpperCase();
+    li = optionsEvent.getElementsByTagName('li');
+    for (i = 0; i < li.length; i++) {
+      liCount = li[i];
+      textValue = liCount.textContent || liCount.innerText;
+      if (textValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = '';
+      } else {
+        li[i].style.display = 'none';
+      }
+    }
+  })
 </script>
 
 {% endblock content %}
