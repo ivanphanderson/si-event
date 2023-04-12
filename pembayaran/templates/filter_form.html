@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Honors and Payments
+{% endblock title %}
+
+{% block meta %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+  integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+{% endblock meta %}
+
+{% block head %}
+<style>
+  .select-option, .select-option-event {
+    position: relative;
+  }
+
+  .select-option input, .select-option-event input{
+    width: 100%;
+    background-color: #fff;
+    color: #000;
+    border-radius: 7px;
+    cursor: pointer;
+    padding: 15px 20px;
+    border: 0;
+    outline: 0;
+  }
+
+  .select-option:after, .select-option-event:after{
+    content: "";
+    border-top: 12px solid #000;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    margin-top: -8px;
+  }
+
+  .content, .content-event{
+    background-color: #fff;
+    position: absolute;
+    color: #000;
+    border-radius: 7px;
+    margin-top: 15px;
+    width: 100%;
+    z-index: 999;
+    padding: 20px;
+    display: none;
+  }
+
+  .search input, .search-event input{
+    width: 100%;
+    padding: 15px;
+    outline: 0;
+    border: 1px solid #b3b3b3;
+    border-radius: 5px;
+  }
+
+  .options, .options-event{
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .options li, .options-event li{
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .options li:hover, .options-event li:hover{
+    background-color: #f2f2f2;
+  }
+
+  .select-box.active .content, .select-box-event.active .content-event {
+    display: block;
+  }
+
+  .select-box.active .select-option:after, .select-box-event.active .select-option-event:after{
+    transform: rotate(-180deg);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin: 50px;">
+
+  <h4 style="text-align: center;">Honors and Payments</h4>
+  <br><br>
+
+  <form method="GET" action=".">
+    <div class="form-group col-md-2 col-lg-2">
+      <label for="publishDateMin">From Date</label>
+      <input type="date" class="form-control" id="publishDateMin" name="date_min" value="{{date_min}}">
+    </div>
+    <div class="form-group col-md-2 col-lg-2">
+      <label for="publishDateMax">Until Date</label>
+      <input type="date" class="form-control" id="publishDateMax" name="date_max" value="{{date_max}}">
+    </div>
+    <div class="form-group col-md-4">
+      <label for="pegawai">Employee</label>
+      <div class="select-box">
+        <div class="select-option">
+          <input type="text" placeholder="Choose.." id="soValue" readonly name="pegawai" value="{{pegawai}}">
+        </div>
+        <div class="content">
+          <div class="Search">
+            <input type="text" id="optionSearch" placeholder="Search" name="">
+          </div>
+          <ul class="options">
+            <li>None</li>
+            {% for cat in employees %}
+            <li value="{{ cat.employee_name }}">{{ cat.employee_name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="event">Event</label>
+      <div class="select-box-event">
+        <div class="select-option-event">
+          <input type="text" placeholder="Choose.." id="soValueEvent" readonly name="event" value="{{event}}">
+        </div>
+        <div class="content-event">
+          <div class="Search-event">
+            <input type="text" id="optionSearchEvent" placeholder="Search" name="">
+          </div>
+          <ul class="options-event">
+            <li value=" ">None</li>
+            {% for cat in categories %}
+            <li value="{{ cat.event_name }}">{{ cat.event_name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <br><br>
+
+  <table class="table table-striped" id="table">
+
+    <caption>Table to show honor and payments filter</caption>
+
+    <thead>
+      <tr>
+        <th scope="col">No.</th>
+        <th scope="col">Nama</th>
+        <th scope="col">Tugas</th>
+        <th scope="col">Bruto(Rp.)</th>
+        <th scope="col">Pph (Rp.)</th>
+        <th scope="col">Netto</th>
+        <th scope="col">Nama di rekening</th>
+        <th scope="col">Bank</th>
+        <th scope="col">No Rekening</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for qs in queryset %}
+      <tr>
+        <th scope="row" id="number"></th>
+        <td>{{qs.employee.employee_name}}</td>
+        <td>{{qs.role}}</td>
+        <td>{{qs.honor}}</td>
+        <td>{{qs.pph}}</td>
+        <td>{{qs.netto}}</td>
+        <td>{{qs.employee.nama_di_rekening}}</td>
+        <td>{{qs.employee.nama_bank}}</td>
+        <td>{{qs.employee.nomor_rekening}}</td>
+      </tr>
+      {%endfor%}
+      <tr>
+        <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
+        <th scope="col">{{ total_bruto }}</th>
+        <th scope="col">{{ total_pph }}</th>
+        <th scope="col">{{ total_netto }}</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="#" role="button" class="btn btn-warning" style="float: right;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-download"
+      viewBox="0 0 16 16">
+      <path
+        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
+      <path
+        d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
+    </svg>
+    Download
+  </a>
+
+  <br><br><br>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script>
+  var table = document.getElementsByTagName('table')[0],
+    rows = table.getElementsByTagName('tr'),
+    text = 'textContent' in document ? 'textContent' : 'innerText';
+
+  for (var i = 1, len = rows.length; i < len; i++) {
+    rows[i].children[0][text] = i + '.' + rows[i].children[0][text];
+  }
+</script>
+<script>
+  const selectBox = document.querySelector('.select-box');
+  const selectOption = document.querySelector('.select-option');
+  const soValue = document.querySelector('#soValue');
+  const optionSearch = document.querySelector('#optionSearch');
+  const options = document.querySelector('.options');
+  const optionsList = document.querySelectorAll('.options li');
+
+  selectOption.addEventListener('click', function () {
+    selectBox.classList.toggle('active');
+  });
+
+  optionsList.forEach(function (optionsListSingle) {
+    optionsListSingle.addEventListener('click', function () {
+      text = this.textContent;
+      soValue.value = text;
+      selectBox.classList.remove('active');
+    })
+  });
+
+  optionSearch.addEventListener('keyup', function () {
+    var filter, li, i, textValue;
+    filter = optionSearch.value.toUpperCase();
+    li = options.getElementsByTagName('li');
+    for (i = 0; i < li.length; i++) {
+      liCount = li[i];
+      textValue = liCount.textContent || liCount.innerText;
+      if (textValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = '';
+      } else {
+        li[i].style.display = 'none';
+      }
+    }
+  })
+</script>
+<script>
+  const selectBoxEvent = document.querySelector('.select-box-event');
+  const selectOptionEvent = document.querySelector('.select-option-event');
+  const soValueEvent = document.querySelector('#soValueEvent');
+  const optionSearchEvent = document.querySelector('#optionSearchEvent');
+  const optionsEvent = document.querySelector('.options-event');
+  const optionsListEvent = document.querySelectorAll('.options-event li');
+
+  selectOptionEvent.addEventListener('click', function () {
+    selectBoxEvent.classList.toggle('active');
+  });
+
+  optionsListEvent.forEach(function (optionsListSingle) {
+    optionsListSingle.addEventListener('click', function () {
+      text = this.textContent;
+      soValueEvent.value = text;
+      selectBoxEvent.classList.remove('active');
+    })
+  });
+
+  optionSearchEvent.addEventListener('keyup', function () {
+    var filter, li, i, textValue;
+    filter = optionSearchEvent.value.toUpperCase();
+    li = optionsEvent.getElementsByTagName('li');
+    for (i = 0; i < li.length; i++) {
+      liCount = li[i];
+      textValue = liCount.textContent || liCount.innerText;
+      if (textValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = '';
+      } else {
+        li[i].style.display = 'none';
+      }
+    }
+  })
+</script>
+
+{% endblock content %}
