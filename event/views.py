@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from .validators import validate_event_employee_fields
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_http_methods
+from django.db.models import Sum
 
 CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
@@ -140,6 +141,10 @@ def detail_event(request, id):
     event_employees = EventEmployee.objects.filter(event=event)
     context['event'] = event
     context['event_employees'] = event_employees
+    qs = EventEmployee.objects.all().filter(event=event.id)
+    context['total_bruto'] = qs.aggregate(Sum('honor'))['honor__sum']
+    context['total_pph'] = qs.aggregate(Sum('pph'))['pph__sum']
+    context['total_netto'] = qs.aggregate(Sum('netto'))['netto__sum']
     return render(request, 'detail_event.html', context)
   
   return redirect(FORBIDDEN_URL)
