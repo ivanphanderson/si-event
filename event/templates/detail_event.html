@@ -14,6 +14,14 @@
 {% block navbar %}
 {% endblock navbar %}
 
+<nav aria-label="breadcrumb" class="ml-3">
+  <ol class="breadcrumb bg-white">
+    <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'get_events' %}">Event</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Detail</li>
+  </ol>
+</nav>
+
 <div class="text-center">
     <h1 class="font-weight-bold">{{event.event_name}}</h1 >
 </div>

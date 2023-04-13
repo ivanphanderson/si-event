@@ -7,6 +7,13 @@
 
 {% block content %}
 <div class="container w-75 my-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-white">
+          <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'pegawai:display_pegawai' %}">Employee</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Update</li>
+        </ol>
+    </nav>
     <div class="row align-items-center">
         <div class="col align-self-center b">
             <div class="card" style="border-radius: 10px; border: 2px solid; border-color: #2A3990;">

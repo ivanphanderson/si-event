@@ -15,7 +15,13 @@ Employee List
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
-<div style="margin: 50px;">
+<div class="m-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-white">
+      <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Employee</li>
+    </ol>
+  </nav>
 
   <h4 style="text-align: center;">Employee Data</h4>
 
