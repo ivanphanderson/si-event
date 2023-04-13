@@ -75,18 +75,20 @@ Update Account
               <td>{{event_employee.employee.nomor_rekening}}</td>
             </tr>
             {%endfor%}
-            <tr>
-              <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
-              <th scope="col">{{ total_bruto }}</th>
-              <th scope="col">{{ total_pph }}</th>
-              <th scope="col">{{ total_netto }}</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
+            <div class="rowTotal">
+              <tr>
+                <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
+                <th scope="col">{{ total_bruto }}</th>
+                <th scope="col">{{ total_pph }}</th>
+                <th scope="col">{{ total_netto }}</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+              </tr>
+            </div>
           </tbody>
         </table>
-        <div style="text-align: center;">
+        <div class="downloadBtn" style="text-align: center;">
           <br>
           <a href="#" role="button" class="btn btn-warning">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -136,33 +138,33 @@ Update Account
 </script>
 
 <script>
-  const selectBox = document.querySelector('.select-box');
-  const selectOption = document.querySelector('.select-option');
-  const soValue = document.querySelector('#soValue');
-  const optionSearch = document.querySelector('#optionSearch');
-  const options = document.querySelector('.options');
-  const optionsList = document.querySelectorAll('.options li');
+  const selBox = document.querySelector('.select-box');
+  const selOption = document.querySelector('.select-option');
+  const soVal = document.querySelector('#soValue');
+  const optSearch = document.querySelector('#optionSearch');
+  const opt = document.querySelector('.options');
+  const optList = document.querySelectorAll('.options li');
 
-  selectOption.addEventListener('click', function () {
+  selOption.addEventListener('click', function () {
     selectBox.classList.toggle('active');
   });
 
-  optionsList.forEach(function (optionsListSingle) {
-    optionsListSingle.addEventListener('click', function () {
+  optList.forEach(function (optionsListSingle) {
+    optListSingle.addEventListener('click', function () {
       text = this.textContent;
-      soValue.value = text;
-      selectBox.classList.remove('active');
+      soVal.value = text;
+      selBox.classList.remove('active');
     })
   });
 
-  optionSearch.addEventListener('keyup', function () {
-    var filter, li, i, textValue;
-    filter = optionSearch.value.toUpperCase();
-    li = options.getElementsByTagName('li');
+  optSearch.addEventListener('keyup', function () {
+    var filter, li, i, textVal;
+    filter = optSearch.value.toUpperCase();
+    li = opt.getElementsByTagName('li');
     for (i = 0; i < li.length; i++) {
       liCount = li[i];
       textValue = liCount.textContent || liCount.innerText;
-      if (textValue.toUpperCase().indexOf(filter) > -1) {
+      if (textVal.toUpperCase().indexOf(filter) > -1) {
         li[i].style.display = '';
       } else {
         li[i].style.display = 'none';
@@ -171,29 +173,29 @@ Update Account
   })
 </script>
 <script>
-  const selectBoxEvent = document.querySelector('.select-box-event');
-  const selectOptionEvent = document.querySelector('.select-option-event');
-  const soValueEvent = document.querySelector('#soValueEvent');
-  const optionSearchEvent = document.querySelector('#optionSearchEvent');
-  const optionsEvent = document.querySelector('.options-event');
-  const optionsListEvent = document.querySelectorAll('.options-event li');
+  const selectBoxEv = document.querySelector('.select-box-event');
+  const selectOptionEv = document.querySelector('.select-option-event');
+  const soValueEv = document.querySelector('#soValueEvent');
+  const optionSearchEv = document.querySelector('#optionSearchEvent');
+  const optionsEv = document.querySelector('.options-event');
+  const optionsListEv = document.querySelectorAll('.options-event li');
 
-  selectOptionEvent.addEventListener('click', function () {
-    selectBoxEvent.classList.toggle('active');
+  selectOptionEv.addEventListener('click', function () {
+    selectBoxEv.classList.toggle('active');
   });
 
-  optionsListEvent.forEach(function (optionsListSingle) {
+  optionsListEv.forEach(function (optionsListSingle) {
     optionsListSingle.addEventListener('click', function () {
       text = this.textContent;
-      soValueEvent.value = text;
-      selectBoxEvent.classList.remove('active');
+      soValueEv.value = text;
+      selectBoxEv.classList.remove('active');
     })
   });
 
-  optionSearchEvent.addEventListener('keyup', function () {
+  optionSearchEv.addEventListener('keyup', function () {
     var filter, li, i, textValue;
-    filter = optionSearchEvent.value.toUpperCase();
-    li = optionsEvent.getElementsByTagName('li');
+    filter = optionSearchEv.value.toUpperCase();
+    li = optionsEv.getElementsByTagName('li');
     for (i = 0; i < li.length; i++) {
       liCount = li[i];
       textValue = liCount.textContent || liCount.innerText;
