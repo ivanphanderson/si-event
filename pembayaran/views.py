@@ -14,8 +14,8 @@ def filter(request):
     qs = EventEmployee.objects.all()
 
     pegawai = request.GET.get('pegawai')
-    date_min = request.GET.get('date_min')
-    date_max = request.GET.get('date_max')
+    date_min = request.GET.get('publishDateMin')
+    date_max = request.GET.get('publishDateMax')
     event = request.GET.get('event')
 
     if is_valid_queryparam(date_min):

@@ -77,8 +77,8 @@ class FilterHonorTest(TestCase):
     
     def test_filter_is_exist(self):
         filter_date = {
-            'date_min': '2023-03-28',
-            'date_max': '2023-04-28',
+            'publishDateMin': '2023-03-28',
+            'publishDateMax': '2023-04-28',
             'pegawai': self.pegawai.employee_name,
             'event': self.event.event_name,
         }
@@ -89,8 +89,8 @@ class FilterHonorTest(TestCase):
     
     def test_filter_is_not_exist(self):
         filter_date = {
-            'date_min': '2022-03-28',
-            'date_max': '2022-04-28',
+            'publishDateMin': '2022-03-28',
+            'publishDateMax': '2022-04-28',
             'pegawai': '',
             'event': '',
         }
@@ -99,7 +99,7 @@ class FilterHonorTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'filter_form.html')
         e = Event.objects.filter(end_date__gte='2023-03-28') 
-        date = Event.objects.filter(end_date__lt='2023-04-28')
+        date = Event.objects.filter(end_date__lte='2023-04-28')
         event_emp_date = EventEmployee.objects.filter(Q(event__in=e) | Q(event__in=date))
         self.assertEqual(len(event_emp_date), 0)
         
