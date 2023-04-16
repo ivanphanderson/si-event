@@ -62,6 +62,7 @@ Event List
   {% if event_data %}
   <div style="text-align: center;">
     <br>
+    {% if role == 'User' %}
     <a href="my-event" role="button" class="btn btn-primary" style="margin-right: 1vw;">
       My Event
     </a>
@@ -72,6 +73,7 @@ Event List
       </svg>
       Create Event
     </a>
+    {% endif %}
     <br><br><br>
   </div>
 
@@ -95,7 +97,7 @@ Event List
         <td style="vertical-align: middle;">{{event.end_date}}</td>
         {% if event.event_name in owner_data or role == 'Admin' %}
         <td style="vertical-align: middle;">
-          {% if event.event_name in owner_data %}
+          {% if event.event_name in owner_data and role == 'User' %}
             <a href="update/{{event.id}}" class="btn btn-warning">Update</a>
           {% endif %}
           <a href="detail/{{event.id}}" class="btn btn-dark">Detail</a>
