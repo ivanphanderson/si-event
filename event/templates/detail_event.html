@@ -1,273 +1,316 @@
 {% extends 'base.html' %}
-
+{% load static %}
+{% load convert_pph %}
 {% block title %}
 Update Account
-{%endblock title%}
+{% endblock title %}
 {% block meta %}
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
-{% load static %}
+<link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css"
+/>
 {% endblock meta %}
-
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
-
 <nav aria-label="breadcrumb" class="ml-3">
-  <ol class="breadcrumb bg-white">
-    <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'get_events' %}">Event</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Detail</li>
-  </ol>
+    <ol class="breadcrumb bg-white">
+        <li class="breadcrumb-item">
+            <a href="{% url 'home:home' %}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'get_events' %}">Event</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Detail</li>
+    </ol>
 </nav>
 
 <div class="text-center">
-  <h1 class="font-weight-bold">{{event.event_name}}</h1>
+    <h1 class="font-weight-bold">{{event.event_name}}</h1>
 </div>
-<br>
+<br />
 {% if messages %}
 {% for message in messages %}
-<div class="alert alert-warning" style="margin-left: 6vw; margin-right: 6vw;" role="alert">
-  {{ message }}
+<div
+    class="alert alert-warning"
+    style="margin-left: 6vw; margin-right: 6vw"
+    role="alert"
+>
+    {{ message }}
 </div>
 {% endfor %}
 {% endif %}
 
-<div class="container detail" style="margin-left: 6vw;">
-  <h5>Start date: {{event.start_date}}</h5>
-  <h5>End date: {{event.end_date}}</h5>
-  <br>
-  <br>
+<div class="container detail" style="margin-left: 6vw">
+    <h5>Start date: {{event.start_date}}</h5>
+    <h5>End date: {{event.end_date}}</h5>
+    <br />
+    <br />
 </div>
-<div class="container" style="margin-bottom: 50px;">
-  <div class="row justify-content-center">
-    <div class="col-md-6 text-center mb-5">
-      <h3 class="heading-section">Event Employee</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="table-wrap">
-        {% if event_employees %}
-        {% if event.creator == account %}
-        <div style="display: flex; justify-content:flex-end; margin-bottom: 10px;">
-          <a href="/event/add-employee/{{event.id}}" class="btn btn-primary float-right">Add Employee</a>
+<div class="container" style="margin-bottom: 50px">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center mb-5">
+            <h3 class="heading-section">Event Employee</h3>
         </div>
-        {% endif %}
-        <table class="table table-striped" aria-describedby="All Account" id="table">
-          <thead style="background-color: #2A3990; color: white;">
-            <tr>
-              <th scope="col">No.</th>
-              <th scope="col">Nama</th>
-              <th scope="col">Tugas</th>
-              <th scope="col">Bruto(Rp.)</th>
-              <th scope="col">Pph (%)</th>
-              <th scope="col">Netto (Rp.)</th>
-              <th scope="col">Nama di rekening</th>
-              <th scope="col">Bank</th>
-              <th scope="col">No Rekening</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for event_employee in event_employees %}
-            <tr>
-              <th scope="row" id="number"></th>
-              <td>{{event_employee.employee.employee_name}}</td>
-              <td>{{event_employee.role}}</td>
-              <td>{{event_employee.honor}}</td>
-              <td>{{event_employee.pph}}</td>
-              <td>{{event_employee.netto}}</td>
-              <td>{{event_employee.employee.nama_di_rekening}}</td>
-              <td>{{event_employee.employee.nama_bank}}</td>
-              <td>{{event_employee.employee.nomor_rekening}}</td>
-            </tr>
-            {%endfor%}
-            <div class="rowTotal">
-              <tr>
-                <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
-                <th scope="col">{{ total_bruto }}</th>
-                <th scope="col">{{ total_pph }}</th>
-                <th scope="col">{{ total_netto }}</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-              </tr>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-wrap">
+                {% if event_employees %}
+                {% if event.creator == account %}
+                <div
+                    style="
+                        display: flex;
+                        justify-content: flex-end;
+                        margin-bottom: 10px;
+                    "
+                >
+                    <a
+                        href="/event/add-employee/{{event.id}}"
+                        class="btn btn-primary float-right"
+                        >Add Employee</a
+                    >
+                </div>
+                {% endif %}
+                <table
+                    class="table table-striped"
+                    aria-describedby="All Account"
+                    id="table"
+                >
+                    <thead style="background-color: #2a3990; color: white">
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Nama</th>
+                            <th scope="col">Tugas</th>
+                            <th scope="col">Bruto(Rp.)</th>
+                            <th scope="col">Pph (Rp.)</th>
+                            <th scope="col">Netto (Rp.)</th>
+                            <th scope="col">Nama di rekening</th>
+                            <th scope="col">Bank</th>
+                            <th scope="col">No Rekening</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event_employee in event_employees %}
+                        <tr>
+                            <th scope="row" id="number"></th>
+                            <td>{{event_employee.employee.employee_name}}</td>
+                            <td>{{event_employee.role}}</td>
+                            <td>{{event_employee.honor}}</td>
+                            <td>{{ event_employee.pph|convert:event_employee.honor }}</td>
+                            <td>{{event_employee.netto}}</td>
+                            <td>
+                                {{event_employee.employee.nama_di_rekening}}
+                            </td>
+                            <td>{{event_employee.employee.nama_bank}}</td>
+                            <td>{{event_employee.employee.nomor_rekening}}</td>
+                        </tr>
+                        {% endfor %}
+                        <div class="rowTotal">
+                            <tr>
+                                <th
+                                    scope="col"
+                                    colspan="3"
+                                    style="text-align: center"
+                                >
+                                    TOTAL
+                                </th>
+                                <th scope="col">{{ total_bruto }}</th>
+                                <th scope="col">{{ total_pph }}</th>
+                                <th scope="col">{{ total_netto }}</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                        </div>
+                    </tbody>
+                </table>
+                <div class="downloadBtn" style="text-align: center">
+                    <br />
+                    <a
+                        id="tombolDownloadBtrMemo"
+                        href=""
+                        role="button"
+                        class="btn btn-warning"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            class="bi bi-cloud-download"
+                            viewBox="0 0 16 16"
+                        >
+                            <path
+                                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                            />
+                            <path
+                                d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"
+                            />
+                        </svg>
+                        Download BTR/Memo
+                    </a>
+                    <br /><br />
+                </div>
+                {% else %}
+                <div style="text-align: center;">
+                    <img src="{% static 'img/no_employee.png' %}" width=500 height=400 class="img-fluid" alt="Search image">
+                    <br>
+                    {% if event.creator == account %}
+                    <a href="/event/add-employee/{{event.id}}" role="button" class="btn btn-warning">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-upload" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
+                        <path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                      </svg>
+                      Add Employee
+                    </a>
+                    {% endif %}
+                    <br><br>
+                </div>          
+                {% endif %}
             </div>
-          </tbody>
-        </table>
-        <div class="downloadBtn" style="text-align: center;">
-          <br>
-          <a id="tombolDownloadBtrMemo" href="" role="button" class="btn btn-warning">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-              class="bi bi-cloud-download" viewBox="0 0 16 16">
-              <path
-                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-              <path
-                d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
-            </svg>
-            Download BTR/Memo
-          </a>
-          <br><br>
         </div>
-        {% else %}
-        <div style="text-align: center;">
-          <br>
-          <a href="#" role="button" class="btn btn-warning">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-              class="bi bi-cloud-download" viewBox="0 0 16 16">
-              <path
-                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-              <path
-                d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
-            </svg>
-            Download
-          </a>
-          <br><br>
-        </div>
-        {% endif %}
-      </div>
     </div>
-  </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"
+></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
 <script>
-  window.CSRF_TOKEN = "{{ csrf_token }}";
-  document.getElementById("tombolDownloadBtrMemo").addEventListener("click", downloadAsExcel);
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+    document
+        .getElementById("tombolDownloadBtrMemo")
+        .addEventListener("click", downloadAsExcel);
 
-  async function sendDataToBackend(data) {
-      fetch(
-          "{% url 'pembayaran:download_as_excel' type='btrmemo' %}", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRFToken": window.CSRF_TOKEN
-              },
-              credentials: "same-origin",
-              body: JSON.stringify(data),
-          })
-      .then((res) => res.blob())
-      .then((blob) => URL.createObjectURL(blob))
-      .then((href) => {
-          Object.assign(document.createElement('a'), {
-              href,
-              download: 'BTR dan memo.xlsx',
-          }).click();
-      });
-  }
-
-  function downloadAsExcel(event) {
-      event.preventDefault();
-      const table = document.getElementById('table');
-      const numOfRows = table.getElementsByTagName('tr').length;
-      let tableData = {};
-
-      for (let i = 0; i < numOfRows; i++) {
-          const row = table.rows[i]
-          let record = {};
-          if (i !== (numOfRows-1)) {
-              record['no'] = row.cells[0].innerHTML;
-              record['nama karyawan'] = row.cells[1].innerHTML;
-              record['tugas'] = row.cells[2].innerHTML;
-              record['bruto'] = row.cells[3].innerHTML;
-              record['pph'] = row.cells[4].innerHTML;
-              record['netto'] = row.cells[5].innerHTML;
-              record['nama di rekening'] = row.cells[6].innerHTML;
-              record['bank'] = row.cells[7].innerHTML;
-              record['nomor rekening'] = row.cells[8].innerHTML;
-              tableData[i] = record;
-          }
-          else {
-              record['total'] = row.cells[0].innerHTML;
-              record['total bruto'] = row.cells[1].innerHTML;
-              record['total pph'] = row.cells[2].innerHTML;
-              record['total netto'] = row.cells[3].innerHTML;
-              tableData[i] = record;
-          }
-      }
-      sendDataToBackend(tableData)
-  }
-</script>
-<script>
-  var table = document.getElementsByTagName('table')[0],
-    rows = table.getElementsByTagName('tr'),
-    text = 'textContent' in document ? 'textContent' : 'innerText';
-
-  for (var i = 1, len = rows.length; i < len - 1; i++) {
-    rows[i].children[0][text] = i + '.' + rows[i].children[0][text];
-  }
-</script>
-
-<script>
-  const selBox = document.querySelector('.select-box');
-  const selOption = document.querySelector('.select-option');
-  const soVal = document.querySelector('#soValue');
-  const optSearch = document.querySelector('#optionSearch');
-  const opt = document.querySelector('.options');
-  const optList = document.querySelectorAll('.options li');
-
-  selOption.addEventListener('click', function () {
-    selectBox.classList.toggle('active');
-  });
-
-  optList.forEach(function (optionsListSingle) {
-    optListSingle.addEventListener('click', function () {
-      let text = this.textContent;
-      soVal.value = text;
-      selBox.classList.remove('active');
-    })
-  });
-
-  optSearch.addEventListener('keyup', function () {
-    var filter, li, i, textVal;
-    filter = optSearch.value.toUpperCase();
-    li = opt.getElementsByTagName('li');
-    for (i = 0; i < li.length; i++) {
-      if (textVal.toUpperCase().indexOf(filter) > -1) {
-        li[i].style.display = '';
-      } else {
-        li[i].style.display = 'none';
-      }
+    async function sendDataToBackend(data) {
+        fetch("{% url 'pembayaran:download_as_excel' type='btrmemo' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": window.CSRF_TOKEN,
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(data),
+        })
+            .then((res) => res.blob())
+            .then((blob) => URL.createObjectURL(blob))
+            .then((href) => {
+                Object.assign(document.createElement("a"), {
+                    href,
+                    download: "BTR dan memo.xlsx",
+                }).click();
+            });
     }
-  })
+
+    function downloadAsExcel(event) {
+        event.preventDefault();
+        const table = document.getElementById("table");
+        const numOfRows = table.getElementsByTagName("tr").length;
+        let tableData = {};
+
+        for (let i = 0; i < numOfRows; i++) {
+            const row = table.rows[i];
+            let record = {};
+            if (i !== numOfRows - 1) {
+                record["no"] = row.cells[0].innerHTML;
+                record["nama karyawan"] = row.cells[1].innerHTML;
+                record["tugas"] = row.cells[2].innerHTML;
+                record["bruto"] = row.cells[3].innerHTML;
+                record["pph"] = row.cells[4].innerHTML;
+                record["netto"] = row.cells[5].innerHTML;
+                record["nama di rekening"] = row.cells[6].innerHTML;
+                record["bank"] = row.cells[7].innerHTML;
+                record["nomor rekening"] = row.cells[8].innerHTML;
+                tableData[i] = record;
+            } else {
+                record["total"] = row.cells[0].innerHTML;
+                record["total bruto"] = row.cells[1].innerHTML;
+                record["total pph"] = row.cells[2].innerHTML;
+                record["total netto"] = row.cells[3].innerHTML;
+                tableData[i] = record;
+            }
+        }
+        sendDataToBackend(tableData);
+    }
 </script>
 <script>
-  const selectBoxEv = document.querySelector('.select-box-event');
-  const selectOptionEv = document.querySelector('.select-option-event');
-  const soValueEv = document.querySelector('#soValueEvent');
-  const optionSearchEv = document.querySelector('#optionSearchEvent');
-  const optionsEv = document.querySelector('.options-event');
-  const optionsListEv = document.querySelectorAll('.options-event li');
+    var table = document.getElementsByTagName("table")[0],
+        rows = table.getElementsByTagName("tr"),
+        text = "textContent" in document ? "textContent" : "innerText";
 
-  selectOptionEv.addEventListener('click', function () {
-    selectBoxEv.classList.toggle('active');
-  });
-
-  optionsListEv.forEach(function (optionsListSingle) {
-    optionsListSingle.addEventListener('click', function () {
-      let text = this.textContent;
-      soValueEv.value = text;
-      selectBoxEv.classList.remove('active');
-    })
-  });
-
-  optionSearchEv.addEventListener('keyup', function () {
-    var filter, li, i, textValue;
-    filter = optionSearchEv.value.toUpperCase();
-    li = optionsEv.getElementsByTagName('li');
-    for (i = 0; i < li.length; i++) {
-      let liCount = li[i];
-      textValue = liCount.textContent || liCount.innerText;
-      if (textValue.toUpperCase().indexOf(filter) > -1) {
-        li[i].style.display = '';
-      } else {
-        li[i].style.display = 'none';
-      }
+    for (var i = 1, len = rows.length; i < len - 1; i++) {
+        rows[i].children[0][text] = i + "." + rows[i].children[0][text];
     }
-  })
 </script>
+<script>
+    const selBox = document.querySelector(".select-box");
+    const selOption = document.querySelector(".select-option");
+    const soVal = document.querySelector("#soValue");
+    const optSearch = document.querySelector("#optionSearch");
+    const opt = document.querySelector(".options");
+    const optList = document.querySelectorAll(".options li");
 
+    selOption.addEventListener("click", function () {
+        selectBox.classList.toggle("active");
+    });
+
+    optList.forEach(function (optionsListSingle) {
+        optListSingle.addEventListener("click", function () {
+            let text = this.textContent;
+            soVal.value = text;
+            selBox.classList.remove("active");
+        });
+    });
+
+    optSearch.addEventListener("keyup", function () {
+        var filter, li, i, textVal;
+        filter = optSearch.value.toUpperCase();
+        li = opt.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            if (textVal.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    });
+</script>
+<script>
+    const selectBoxEv = document.querySelector(".select-box-event");
+    const selectOptionEv = document.querySelector(".select-option-event");
+    const soValueEv = document.querySelector("#soValueEvent");
+    const optionSearchEv = document.querySelector("#optionSearchEvent");
+    const optionsEv = document.querySelector(".options-event");
+    const optionsListEv = document.querySelectorAll(".options-event li");
+
+    selectOptionEv.addEventListener("click", function () {
+        selectBoxEv.classList.toggle("active");
+    });
+
+    optionsListEv.forEach(function (optionsListSingle) {
+        optionsListSingle.addEventListener("click", function () {
+            let text = this.textContent;
+            soValueEv.value = text;
+            selectBoxEv.classList.remove("active");
+        });
+    });
+
+    optionSearchEv.addEventListener("keyup", function () {
+        var filter, li, i, textValue;
+        filter = optionSearchEv.value.toUpperCase();
+        li = optionsEv.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            let liCount = li[i];
+            textValue = liCount.textContent || liCount.innerText;
+            if (textValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    });
+</script>
 {% endblock content %}

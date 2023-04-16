@@ -1,118 +1,174 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}
-Create Event
+{% block title %}Create Event
 {% endblock %}
-
 {% block head %}
 <style>
-  #warningMsg {
-    color: red;
-  }
+    #warningMsg {
+        color: red;
+    }
 </style>
 {% endblock %}
-
 {% block content %}
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="container">
-        <div class="row">
-          <div class="col text-center">
-            <h3>Update Event</h3>
-          </div>
-        </div>
-      </div>
-      <div class="modal a1" id="errDateModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title b2" id="warningMsg">Warning</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <h3>Update Event</h3>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-              The start date cannot be later than the end date
+            <div class="modal a1" id="errDateModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title b2" id="warningMsg">
+                                Warning
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            The start date cannot be later than the end date
+                        </div>
+                        <div class="modal-footer c3">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                I understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer c3">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+            <div class="modal" id="errEmpModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content a1">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="warningMsg">Warning</h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body b2">
+                            Please fill in all required fields
+                        </div>
+                        <div class="modal-footer c3">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                I understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+            <form
+                method="post"
+                enctype="multipart/form-data"
+                id="dataForm"
+                action="/event/submit-update/{{event.id}}"
+            >
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="event_name"> Event Name:</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="event_name"
+                        name="event_name"
+                        required
+                        value="{{event.event_name}}"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="start_date"
+                        name="start_date"
+                        required
+                        value="{{event.start_date|date:'Y-m-d'}}"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="end_date"
+                        name="end_date"
+                        required
+                        value="{{event.end_date|date:'Y-m-d'}}"
+                    />
+                </div>
+                <input type="hidden" name="action" id="form_action" />
+                <button type="submit" class="btn btn-primary" id="create_event">
+                    Update Event
+                </button>
+            </form>
         </div>
-      </div>
-      <div class="modal" id="errEmpModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content a1">
-            <div class="modal-header">
-              <h5 class="modal-title" id="warningMsg">Warning</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body b2">
-              Please fill in all required fields
-            </div>
-            <div class="modal-footer c3">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <form method="post" enctype="multipart/form-data" id="dataForm" action="/event/submit-update/{{event.id}}">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="event_name"> Event Name:</label>
-          <input type="text" class="form-control" id="event_name" name="event_name" required value="{{event.event_name}}">
-        </div>
-        <div class="form-group">
-          <label for="start_date">Start Date:</label>
-          <input type="date" class="form-control" id="start_date" name="start_date" required value="{{event.start_date|date:'Y-m-d'}}">
-        </div>
-        <div class="form-group">
-          <label for="end_date">End Date:</label>
-          <input type="date" class="form-control" id="end_date" name="end_date" required value="{{event.end_date|date:'Y-m-d'}}">
-        </div>
-        <input type="hidden" name="action" id="form_action">
-        <button type="submit" class="btn btn-primary" id="create_event">Update Event</button>
-      </form>
     </div>
-  </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"
+></script>
 <script>
-  
-  const createBtn = document.getElementById('create_event');
-  const formAction = document.getElementById('form_action');
+    const createBtn = document.getElementById("create_event");
+    const formAction = document.getElementById("form_action");
 
-  function validateForm(action) {
-    const startDate   = document.getElementById('start_date');
-    const endDate     = document.getElementById('end_date');
-    const eventName = document.getElementById('event_name');
-    if ((eventName.value == '' || eventName.value == null) || (startDate.value == '' || startDate.value == null) || (endDate.value == '' || endDate.value == null)){
-      $('#errEmpModal').modal('show');
+    function validateForm(action) {
+        const startDate = document.getElementById("start_date");
+        const endDate = document.getElementById("end_date");
+        const eventName = document.getElementById("event_name");
+        if (
+            eventName.value == "" ||
+            eventName.value == null ||
+            startDate.value == "" ||
+            startDate.value == null ||
+            endDate.value == "" ||
+            endDate.value == null
+        ) {
+            $("#errEmpModal").modal("show");
+        } else if (startDate.value > endDate.value) {
+            $("#errDateModal").modal("show");
+        } else {
+            formAction.value = action;
+            document.getElementById("dataForm").submit();
+        }
     }
-    else if (startDate.value >= endDate.value){
-      $('#errDateModal').modal('show');
-    }  
-    else{
-      formAction.value = action;
-      document.getElementById('dataForm').submit();
-    }
-  }
 
-  $(document).ready(function() {
-    var successMessage = "{{ success_message }}";
-    if (successMessage) {
-      $('#succModal').modal('show');
-    }
-  });
+    $(document).ready(function () {
+        var successMessage = "{{ success_message }}";
+        if (successMessage) {
+            $("#succModal").modal("show");
+        }
+    });
 
-  createBtn.addEventListener('click', function(event) {
-    event.preventDefault();
-    validateForm('create_event');
-  });
+    createBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        validateForm("create_event");
+    });
 </script>
 {% endblock %}

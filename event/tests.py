@@ -1,969 +1,1052 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
-
-import datetime
-
 from .models import Event, EventEmployee
 from pegawai.models import Pegawai
 from account.models import Account
 from django.contrib.auth.models import User
 from log.models import Log
-
 from .validators import validate_event_employee_fields
-
 from account.tests import set_up_login, set_up_akun_dummy
+import datetime
 
-CREATE_EVENT = 'create_event.html'
-EVENT_LIST = 'event_list.html'
-FORBIDDEN_URL = '/home/forbidden/'
+CREATE_EVENT = "create_event.html"
+EVENT_LIST = "event_list.html"
+FORBIDDEN_URL = reverse("home:forbidden")
 DATE_FORMAT = "%Y-%m-%d"
 
 
 class EventCreateViewTestCase(TestCase):
-  def setUp(self):
-    self.client = Client()
-    self.user = User.objects.create_user(
-        username='testuser', email='testuser@test.com', password='testpassword')
-    self.client.login(username='testuser', password='testpassword')
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="testuser", email="testuser@test.com", password="testpassword"
+        )
+        self.client.login(username="testuser", password="testpassword")
 
-    self.account = Account.objects.create(
-      user=self.user,
-      username='jonikeren',
-      email='acc1@example.com',
-      role='User',
-      is_first_login=True
-    )
+        self.account = Account.objects.create(
+            user=self.user,
+            username="jonikeren",
+            email="acc1@example.com",
+            role="User",
+            is_first_login=True,
+        )
 
-    self.pegawai1 = Pegawai.objects.create(
-      email='pegawai1@gmail.com',
-      employee_no='111',
-      employee_name='joni',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='247128658',
-      alamat_npwp='Jl. Hj. Hasannah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
+        self.pegawai1 = Pegawai.objects.create(
+            email="pegawai1@gmail.com",
+            employee_no="111",
+            employee_name="joni",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Hasannah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    self.pegawai2 = Pegawai.objects.create(
-      email='pegawai2@gmail.com',
-      employee_no='222',
-      employee_name='jono',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='2471286667',
-      alamat_npwp='Jl. Hj. Hasannah Saeran II No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
+        self.pegawai2 = Pegawai.objects.create(
+            email="pegawai2@gmail.com",
+            employee_no="222",
+            employee_name="jono",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="2471286667",
+            alamat_npwp="Jl. Hj. Hasannah Saeran II No. 1 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    self.start_date = '2023-03-21'
-    self.end_date = '2023-03-23'
-    self.strpformat = '%Y-%m-%d'
+        self.start_date = "2023-03-21"
+        self.end_date = "2023-03-23"
+        self.strpformat = "%Y-%m-%d"
 
-  def test_create_event_get(self):
-    response = self.client.get(reverse('create_event'))
-    self.assertEqual(response.status_code, 200)
+    def test_create_event_get(self):
+        response = self.client.get(reverse("create_event"))
+        self.assertEqual(response.status_code, 200)
 
-  def test_create_event_not_user(self):
-    Account.objects.filter(username='jonikeren').update(role='Admin')
-    response = self.client.get(reverse('create_event'))
-    self.assertEqual(response.status_code, 302)
+    def test_create_event_not_user(self):
+        Account.objects.filter(username="jonikeren").update(role="Admin")
+        response = self.client.get(reverse("create_event"))
+        self.assertEqual(response.status_code, 302)
 
-  def test_riwayat_event(self):
-    response = self.client.get(reverse('riwayat_events'))
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'riwayat_event.html')
+    def test_riwayat_event(self):
+        response = self.client.get(reverse("riwayat_events"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "riwayat_event.html")
 
-  def test_create_event_only(self):
-    url = reverse('create_event')
+    def test_create_event_only(self):
+        url = reverse("create_event")
 
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, CREATE_EVENT)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, CREATE_EVENT)
 
-    new_event_name = 'Test Event_Baru'
-    start_dt_obj = datetime.datetime.strptime(
-        self.start_date, self.strpformat).date()
-    end_dt_obj = datetime.datetime.strptime(
-        self.end_date, self.strpformat).date()
+        new_event_name = "Test Event_Baru"
+        start_dt_obj = datetime.datetime.strptime(
+            self.start_date, self.strpformat
+        ).date()
+        end_dt_obj = datetime.datetime.strptime(self.end_date, self.strpformat).date()
 
-    sess_data = {
-      'event_name': new_event_name,
-      'start_date': self.start_date,
-      'end_date': self.end_date,
-    }
+        sess_data = {
+            "event_name": new_event_name,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+        }
 
-    response = self.client.post(url, data=sess_data)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, EVENT_LIST)
+        response = self.client.post(url, data=sess_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, EVENT_LIST)
 
-    event = Event.objects.last()
-    self.assertEqual(event.start_date, start_dt_obj)
-    self.assertEqual(event.end_date, end_dt_obj)
+        event = Event.objects.last()
+        self.assertEqual(event.start_date, start_dt_obj)
+        self.assertEqual(event.end_date, end_dt_obj)
 
-  def test_create_event(self):
-    url = reverse('create_event')
+    def test_create_event(self):
+        url = reverse("create_event")
 
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, CREATE_EVENT)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, CREATE_EVENT)
 
-    new_event_name = 'Test Event_Baru'
-    start_dt_obj = datetime.datetime.strptime(
-        self.start_date, self.strpformat).date()
-    end_dt_obj = datetime.datetime.strptime(
-        self.end_date, self.strpformat).date()
+        new_event_name = "Test Event_Baru"
+        start_dt_obj = datetime.datetime.strptime(
+            self.start_date, self.strpformat
+        ).date()
+        end_dt_obj = datetime.datetime.strptime(self.end_date, self.strpformat).date()
 
-    sess_data = {
-      'event_name': new_event_name,
-      'start_date': self.start_date,
-      'end_date': self.end_date,
-      'action': 'add_roles'
-    }
+        sess_data = {
+            "event_name": new_event_name,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "action": "add_roles",
+        }
 
-    data = {
-      'num_fields': 1,
-      'role_field_0': 'PO',
-      'honor_field_0': 10000,
-      'pph_field_0': 10,
-      'dropdown-select_0': '111'
-    }
+        data = {
+            "num_fields": 1,
+            "role_field_0": "PO",
+            "honor_field_0": 10000,
+            "pph_field_0": 10,
+            "dropdown-select_0": "111",
+        }
 
-    response = self.client.post(url, data=sess_data)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'input_employee.html')
+        response = self.client.post(url, data=sess_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "input_employee.html")
 
-    session_data = self.client.session
-    self.assertEqual(session_data['event_name'], new_event_name)
-    self.assertEqual(session_data['start_date'], self.start_date)
-    self.assertEqual(session_data['end_date'], self.end_date)
+        session_data = self.client.session
+        self.assertEqual(session_data["event_name"], new_event_name)
+        self.assertEqual(session_data["start_date"], self.start_date)
+        self.assertEqual(session_data["end_date"], self.end_date)
 
-    response = self.client.post(reverse('input_employee_to_event'), data)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, EVENT_LIST)
+        response = self.client.post(reverse("input_employee_to_event"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, EVENT_LIST)
 
-    event = Event.objects.last()
-    self.assertEqual(event.creator, self.account)
-    self.assertEqual(event.event_name, new_event_name)
-    self.assertEqual(Event.objects.count(), 1)
-    self.assertEqual(event.start_date, start_dt_obj)
-    self.assertEqual(event.end_date, end_dt_obj)
+        event = Event.objects.last()
+        self.assertEqual(event.creator, self.account)
+        self.assertEqual(event.event_name, new_event_name)
+        self.assertEqual(Event.objects.count(), 1)
+        self.assertEqual(event.start_date, start_dt_obj)
+        self.assertEqual(event.end_date, end_dt_obj)
 
-    event_employee1 = EventEmployee.objects.get(employee=self.pegawai1)
-    self.assertEqual(event_employee1.role, 'PO')
-    self.assertEqual(event_employee1.honor, 10000)
-    self.assertEqual(event_employee1.pph, 10)
+        event_employee1 = EventEmployee.objects.get(employee=self.pegawai1)
+        self.assertEqual(event_employee1.role, "PO")
+        self.assertEqual(event_employee1.honor, 10000)
+        self.assertEqual(event_employee1.pph, 10)
 
-  def test_create_event_empty_num_fields(self):
-    url = reverse('create_event')
+    def test_create_event_empty_num_fields(self):
+        url = reverse("create_event")
 
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, CREATE_EVENT)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, CREATE_EVENT)
 
-    new_event_name = 'Test Event Baru Lagi'
+        new_event_name = "Test Event Baru Lagi"
 
-    sess_data = {
-      'event_name': new_event_name,
-      'start_date': self.start_date,
-      'end_date': self.end_date,
-      'action': 'add_roles'
-    }
+        sess_data = {
+            "event_name": new_event_name,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "action": "add_roles",
+        }
 
-    data = {
-      'num_fields': '',
-    }
+        data = {
+            "num_fields": "",
+        }
 
-    response = self.client.post(url, data=sess_data)
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'input_employee.html')
+        response = self.client.post(url, data=sess_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "input_employee.html")
 
-    session_data = self.client.session
-    self.assertEqual(session_data['event_name'], new_event_name)
-    self.assertEqual(session_data['start_date'], self.start_date)
-    self.assertEqual(session_data['end_date'], self.end_date)
+        session_data = self.client.session
+        self.assertEqual(session_data["event_name"], new_event_name)
+        self.assertEqual(session_data["start_date"], self.start_date)
+        self.assertEqual(session_data["end_date"], self.end_date)
 
-    self.client.post(reverse('input_employee_to_event'), data)
-    event = Event.objects.last()
+        self.client.post(reverse("input_employee_to_event"), data)
+        event = Event.objects.last()
 
-    empty_qs = EventEmployee.objects.none()
-    queryset = EventEmployee.objects.filter(event=event)
-    self.assertQuerysetEqual(queryset, empty_qs, "Queryset should be empty")
+        empty_qs = EventEmployee.objects.none()
+        queryset = EventEmployee.objects.filter(event=event)
+        self.assertQuerysetEqual(queryset, empty_qs, "Queryset should be empty")
 
 
 class EventModelTest(TestCase):
-  def setUp(self):
-    email = 'joni@gmail.com'
+    def setUp(self):
+        email = "joni@gmail.com"
 
-    self.event_name = 'Test Event'
-    self.binary_data = b'some binary data'
+        self.event_name = "Test Event"
+        self.binary_data = b"some binary data"
 
-    self.user = User.objects.create_user(
-      username='admin',
-      password='admin123',
-      email='adminkece@gmail.com'
-    )
+        self.user = User.objects.create_user(
+            username="admin", password="admin123", email="adminkece@gmail.com"
+        )
 
-    self.account = Account.objects.create(
-      user=self.user,
-      username='jonikeren',
-      email=email,
-      role='User',
-      is_first_login=True
-    )
+        self.account = Account.objects.create(
+            user=self.user,
+            username="jonikeren",
+            email=email,
+            role="User",
+            is_first_login=True,
+        )
 
-    self.pegawai = Pegawai.objects.create(
-      email=email,
-      employee_no='employee1',
-      employee_name='Jonyy',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='247128658',
-      alamat_npwp='Jl. Hj. Halimah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
+        self.pegawai = Pegawai.objects.create(
+            email=email,
+            employee_no="employee1",
+            employee_name="Jonyy",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Halimah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    login = self.client.login(username='admin', password='admin123')
-    self.assertTrue(login)
+        login = self.client.login(username="admin", password="admin123")
+        self.assertTrue(login)
 
-  def test_create_event(self):
-    event = Event.objects.create(
-      creator=self.account,
-      event_name=self.event_name,
-      start_date='2022-04-27',
-      end_date='2022-05-28',
-      expense=100000,
-      sk_file=self.binary_data
-    )
-    self.assertIsInstance(event, Event)
-    self.assertEqual(event.creator, self.account)
-    self.assertEqual(event.event_name, self.event_name)
-    self.assertLess(event.start_date, event.end_date)
-    self.assertEqual(event.expense, 100000)
-    self.assertEqual(event.sk_file, self.binary_data)
+    def test_create_event(self):
+        event = Event.objects.create(
+            creator=self.account,
+            event_name=self.event_name,
+            start_date="2022-04-27",
+            end_date="2022-05-28",
+            expense=100000,
+            sk_file=self.binary_data,
+        )
+        self.assertIsInstance(event, Event)
+        self.assertEqual(event.creator, self.account)
+        self.assertEqual(event.event_name, self.event_name)
+        self.assertLess(event.start_date, event.end_date)
+        self.assertEqual(event.expense, 100000)
+        self.assertEqual(event.sk_file, self.binary_data)
 
-  def test_create_event_will_add_log(self):
-    sess_data = {
-      'event_name': self.event_name,
-      'start_date': '2022-03-15',
-      'end_date': '2022-06-12',
-    }
+    def test_create_event_will_add_log(self):
+        sess_data = {
+            "event_name": self.event_name,
+            "start_date": "2022-03-15",
+            "end_date": "2022-06-12",
+        }
 
-    self.client.post(reverse('create_event'), data=sess_data)
-    self.assertEqual(len(Log.objects.all()), 1)
+        self.client.post(reverse("create_event"), data=sess_data)
+        self.assertEqual(len(Log.objects.all()), 1)
 
-    action = 'Create ' + self.event_name + ' event'
-    self.assertTrue(Log.objects.filter(action=action).first())
+        action = "Create " + self.event_name + " event"
+        self.assertTrue(Log.objects.filter(action=action).first())
 
-  def test_create_event_employee(self):
-    event = Event.objects.create(
-      creator=self.account,
-      event_name=self.event_name,
-      start_date='2022-01-01',
-      end_date='2022-02-02',
-      expense=100000,
-      sk_file=self.binary_data
-    )
+    def test_create_event_employee(self):
+        event = Event.objects.create(
+            creator=self.account,
+            event_name=self.event_name,
+            start_date="2022-01-01",
+            end_date="2022-02-02",
+            expense=100000,
+            sk_file=self.binary_data,
+        )
 
-    event_employee = EventEmployee.objects.create(
-      employee=self.pegawai,
-      event=event
-    )
+        event_employee = EventEmployee.objects.create(
+            employee=self.pegawai, event=event
+        )
 
-    self.assertIsInstance(event_employee, EventEmployee)
-    self.assertEqual(event_employee.employee, self.pegawai)
-    self.assertEqual(event_employee.event, event)
+        self.assertIsInstance(event_employee, EventEmployee)
+        self.assertEqual(event_employee.employee, self.pegawai)
+        self.assertEqual(event_employee.event, event)
 
 
 class CreateUnauthorizedEventViewTestCase(TestCase):
-  def test_unauthenticated_create(self):
-    response = self.client.get(reverse('create_event'))
-    self.assertEqual(response.status_code, 302)
+    def test_unauthenticated_create(self):
+        response = self.client.get(reverse("create_event"))
+        self.assertEqual(response.status_code, 302)
 
-  def test_unauthenticated_input(self):
-    response = self.client.get(reverse('input_employee_to_event'))
-    self.assertEqual(response.status_code, 302)
+    def test_unauthenticated_input(self):
+        response = self.client.get(reverse("input_employee_to_event"))
+        self.assertEqual(response.status_code, 302)
 
 
 class ShowEventListViewTestCase(TestCase):
-  def setUp(self):
-    email = 'jona@gmail.com'
+    def setUp(self):
+        email = "jona@gmail.com"
 
-    self.event_name = 'Test Event Baru'
-    self.binary_data = b'some binary data'
+        self.event_name = "Test Event Baru"
+        self.binary_data = b"some binary data"
 
-    self.user = User.objects.create_user(
-      username='admin',
-      password='admin123',
-      email='adminkece@gmail.com'
-    )
+        self.user = User.objects.create_user(
+            username="admin", password="admin123", email="adminkece@gmail.com"
+        )
 
-    self.account = Account.objects.create(
-      user=self.user,
-      username='jonikeren',
-      email=email,
-      role='User',
-      is_first_login=True
-    )
+        self.account = Account.objects.create(
+            user=self.user,
+            username="jonikeren",
+            email=email,
+            role="User",
+            is_first_login=True,
+        )
 
-    self.event_name_1 = 'Event 1'
-    self.event1 = Event.objects.create(
-      creator=self.account,
-      event_name=self.event_name_1,
-      start_date='2022-04-23',
-      end_date='2022-05-29',
-      expense=10000,
-      sk_file=self.binary_data
-    )
-    self.event2 = Event.objects.create(
-      event_name='Event 2',
-      start_date='2022-04-24',
-      end_date='2022-05-30',
-      expense=12000,
-      sk_file=self.binary_data
-    )
+        self.event_name_1 = "Event 1"
+        self.event1 = Event.objects.create(
+            creator=self.account,
+            event_name=self.event_name_1,
+            start_date="2022-04-23",
+            end_date="2022-05-29",
+            expense=10000,
+            sk_file=self.binary_data,
+        )
+        self.event2 = Event.objects.create(
+            event_name="Event 2",
+            start_date="2022-04-24",
+            end_date="2022-05-30",
+            expense=12000,
+            sk_file=self.binary_data,
+        )
 
-  def test_get_events(self):
-    self.client.login(username='admin', password='admin123')
-    response = self.client.get(reverse('get_events'))
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'event_list.html')
-    self.assertContains(response, self.event_name_1)
-    self.assertContains(response, 'Event 2')
-    self.assertDictEqual(response.context['owner_data'], {
-                         self.event_name_1: True})
+    def test_get_events(self):
+        self.client.login(username="admin", password="admin123")
+        response = self.client.get(reverse("get_events"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "event_list.html")
+        self.assertContains(response, self.event_name_1)
+        self.assertContains(response, "Event 2")
+        self.assertDictEqual(response.context["owner_data"], {self.event_name_1: True})
 
-  def test_get_events_unauthenticated(self):
-    response = self.client.get(reverse('get_events'))
-    self.assertRedirects(response, '/login?next=/event/')
+    def test_get_events_unauthenticated(self):
+        response = self.client.get(reverse("get_events"))
+        self.assertRedirects(response, "/login?next=/event/")
 
-  def test_get_options_view(self):
-    Pegawai.objects.create(
-      email='johndoer1@gmail.com',
-      employee_no='190756565',
-      employee_name='Test Pegawai 1',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335365',
-      nomor_npwp='247128654',
-      alamat_npwp='Jl. Hj. Halimah Saerang I No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
-    Pegawai.objects.create(
-      email='johndoer2@gmail.com',
-      employee_no='190756566',
-      employee_name='Test Pegawai 2',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335366',
-      nomor_npwp='247128652',
-      alamat_npwp='Jl. Hj. Halimah Saerang I No. 2 RT. 004/02 Kukusan Beji Depok')
+    def test_get_options_view(self):
+        Pegawai.objects.create(
+            email="johndoer1@gmail.com",
+            employee_no="190756565",
+            employee_name="Test Pegawai 1",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335365",
+            nomor_npwp="247128654",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 1 RT. 004/02 Kukusan Beji Depok",
+        )
+        Pegawai.objects.create(
+            email="johndoer2@gmail.com",
+            employee_no="190756566",
+            employee_name="Test Pegawai 2",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335366",
+            nomor_npwp="247128652",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 2 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    Pegawai.objects.create(
-      email='johndoer3@gmail.com',
-      employee_no='190756567',
-      employee_name='Test Pegawai 3',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='247128659',
-      alamat_npwp='Jl. Hj. Halimah Saerang I No. 3 RT. 004/02 Kukusan Beji Depok'
-    )
+        Pegawai.objects.create(
+            email="johndoer3@gmail.com",
+            employee_no="190756567",
+            employee_name="Test Pegawai 3",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128659",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 3 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    response = self.client.get(reverse('get_options'), data={'search': 'Test'})
-    self.assertEqual(response.status_code, 200)
-    self.assertJSONEqual(str(response.content, encoding='utf8'), [
-      {'employee_no': '190756565', 'employee_name': 'Test Pegawai 1'},
-      {'employee_no': '190756566', 'employee_name': 'Test Pegawai 2'},
-      {'employee_no': '190756567', 'employee_name': 'Test Pegawai 3'},
-    ])
+        response = self.client.get(reverse("get_options"), data={"search": "Test"})
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding="utf8"),
+            [
+                {"employee_no": "190756565", "employee_name": "Test Pegawai 1"},
+                {"employee_no": "190756566", "employee_name": "Test Pegawai 2"},
+                {"employee_no": "190756567", "employee_name": "Test Pegawai 3"},
+            ],
+        )
 
 
 class EventEmployeeModelTestCase(TestCase):
-  @classmethod
-  def setUpTestData(cls):
-    email = 'jona@gmail.com'
-    cls.binary_data = b'some binary data 1'
-    cls.user = User.objects.create_user(
-      username='admin',
-      password='admin123',
-      email='adminkocak@gmail.com'
-    )
+    @classmethod
+    def setUpTestData(cls):
+        email = "jona@gmail.com"
+        cls.binary_data = b"some binary data 1"
+        cls.user = User.objects.create_user(
+            username="admin", password="admin123", email="adminkocak@gmail.com"
+        )
 
-    cls.account = Account.objects.create(
-      user=cls.user,
-      username='jonikeren',
-      email=email,
-      role='User',
-      is_first_login=True
-    )
+        cls.account = Account.objects.create(
+            user=cls.user,
+            username="jonikeren",
+            email=email,
+            role="User",
+            is_first_login=True,
+        )
 
-    cls.event = Event.objects.create(
-      event_name='Test Event Baru',
-      start_date='2023-01-01',
-      end_date='2023-01-02',
-    )
+        cls.event = Event.objects.create(
+            event_name="Test Event Baru",
+            start_date="2023-01-01",
+            end_date="2023-01-02",
+        )
 
-    cls.pegawai = Pegawai.objects.create(
-      email='johndoer2@gmail.com',
-      employee_no='190756565',
-      employee_name='Jonyy',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='247128658',
-      alamat_npwp='Jl. Hj. Halimah Saerang I No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
+        cls.pegawai = Pegawai.objects.create(
+            email="johndoer2@gmail.com",
+            employee_no="190756565",
+            employee_name="Jonyy",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 1 RT. 004/02 Kukusan Beji Depok",
+        )
 
-    cls.event_employee = EventEmployee.objects.create(
-      employee=cls.pegawai,
-      event=cls.event,
-      honor=1000,
-      pph=10,
-      role='Admin'
-    )
+        cls.event_employee = EventEmployee.objects.create(
+            employee=cls.pegawai, event=cls.event, honor=1000, pph=10, role="Admin"
+        )
 
-  def test_employee_field(self):
-      field = EventEmployee._meta.get_field('employee')
-      self.assertEqual(field.related_model, Pegawai)
+    def test_employee_field(self):
+        field = EventEmployee._meta.get_field("employee")
+        self.assertEqual(field.related_model, Pegawai)
 
-  def test_event_field(self):
-    field = EventEmployee._meta.get_field('event')
-    self.assertEqual(field.related_model, Event)
+    def test_event_field(self):
+        field = EventEmployee._meta.get_field("event")
+        self.assertEqual(field.related_model, Event)
 
-  def test_honor_field(self):
-    field = EventEmployee._meta.get_field('honor')
-    self.assertEqual(field.default, 0)
-    self.assertEqual(field.validators[0].limit_value, 0)
+    def test_honor_field(self):
+        field = EventEmployee._meta.get_field("honor")
+        self.assertEqual(field.default, 0)
+        self.assertEqual(field.validators[0].limit_value, 0)
 
-  def test_netto_field(self):
-    field = EventEmployee._meta.get_field('netto')
-    self.assertEqual(field.default, 0)
-    self.assertEqual(field.validators[0].limit_value, 0)
+    def test_netto_field(self):
+        field = EventEmployee._meta.get_field("netto")
+        self.assertEqual(field.default, 0)
+        self.assertEqual(field.validators[0].limit_value, 0)
 
-  def test_pph_field(self):
-    field = EventEmployee._meta.get_field('pph')
-    self.assertEqual(field.default, 0)
-    self.assertEqual(field.validators[0].limit_value, 0)
+    def test_pph_field(self):
+        field = EventEmployee._meta.get_field("pph")
+        self.assertEqual(field.default, 0)
+        self.assertEqual(field.validators[0].limit_value, 0)
 
-  def test_role_field(self):
-    field = EventEmployee._meta.get_field('role')
-    self.assertEqual(field.max_length, 100)
-    self.assertEqual(field.null, True)
+    def test_role_field(self):
+        field = EventEmployee._meta.get_field("role")
+        self.assertEqual(field.max_length, 100)
+        self.assertEqual(field.null, True)
 
-  def test_event_employee_creation(self):
-    self.assertEqual(self.event_employee.employee, self.pegawai)
-    self.assertEqual(self.event_employee.event, self.event)
-    self.assertEqual(self.event_employee.honor, 1000)
-    self.assertEqual(self.event_employee.pph, 10)
-    self.assertEqual(self.event_employee.role, 'Admin')
-    self.assertEqual(
-      self.event_employee.netto, (100-self.event_employee.pph)/100*self.event_employee.honor)
+    def test_event_employee_creation(self):
+        self.assertEqual(self.event_employee.employee, self.pegawai)
+        self.assertEqual(self.event_employee.event, self.event)
+        self.assertEqual(self.event_employee.honor, 1000)
+        self.assertEqual(self.event_employee.pph, 10)
+        self.assertEqual(self.event_employee.role, "Admin")
+        self.assertEqual(
+            self.event_employee.netto,
+            (100 - self.event_employee.pph) / 100 * self.event_employee.honor,
+        )
 
 
 class ValidationTests(TestCase):
-  def test_validate_event_employee_fields(self):
-    role_name, pph, honor = validate_event_employee_fields('', '', '', 1)
-    self.assertEqual(role_name, 'Role_1')
-    self.assertEqual(pph, 0)
-    self.assertEqual(honor, 0)
+    def test_validate_event_employee_fields(self):
+        role_name, pph, honor = validate_event_employee_fields("", "", "", 1)
+        self.assertEqual(role_name, "Role_1")
+        self.assertEqual(pph, 0)
+        self.assertEqual(honor, 0)
 
-    role_name, pph, honor = validate_event_employee_fields(
-        'Manager', '100', '50', 2)
-    self.assertEqual(role_name, 'Manager')
-    self.assertEqual(pph, 100)
-    self.assertEqual(honor, 50)
+        role_name, pph, honor = validate_event_employee_fields(
+            "Manager", "100", "50", 2
+        )
+        self.assertEqual(role_name, "Manager")
+        self.assertEqual(pph, 100)
+        self.assertEqual(honor, 50)
 
-    role_name, pph, honor = validate_event_employee_fields(
-        'Supervisor', '-100', '-50', 3)
-    self.assertEqual(role_name, 'Supervisor')
-    self.assertEqual(pph, 100)
-    self.assertEqual(honor, 50)
+        role_name, pph, honor = validate_event_employee_fields(
+            "Supervisor", "-100", "-50", 3
+        )
+        self.assertEqual(role_name, "Supervisor")
+        self.assertEqual(pph, 100)
+        self.assertEqual(honor, 50)
 
 
 class InputEmployeeToEventTestCase(TestCase):
-  def setUp(self):
-    self.client = Client()
-    self.start_date = '2023-03-22'
-    self.end_date = '2023-03-25'
-    self.user = User.objects.create_user(
-      username='admin5',
-      password='admin345',
-      email='adminkacok@gmail.com'
-    )
-    self.account = Account.objects.create(
-      user=self.user,
-      username='jonakeren',
-      email='jokimak@gmail.com',
-      role='User',
-      is_first_login=True
-    )
-    self.sess_data = {
-      'event_name': 'Event Paling Baru',
-      'start_date': self.start_date,
-      'end_date': self.end_date,
-      'action': 'add_roles'
-    }
-    self.pegawai = Pegawai.objects.create(
-      email='johndoer5@gmail.com',
-      employee_no='123',
-      employee_name='Jonyz',
-      employee_category='Staff',
-      job_status='Administrasi',
-      grade_level='-',
-      employment_status='Kontrak',
-      nama_di_rekening='karyawankeren',
-      nama_bank='Mandiri',
-      nomor_rekening='4971335367',
-      nomor_npwp='247128658',
-      alamat_npwp='Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok'
-    )
-    self.event_data = {
-        'num_fields': 1,
-        'dropdown-select_0': '123',
-        'role_field_0': 'Admin',
-        'honor_field_0': '-100',
-        'pph_field_0': '-200',
-    }
-    self.client.login(username='admin5', password='admin345')
+    def setUp(self):
+        self.client = Client()
+        self.start_date = "2023-03-22"
+        self.end_date = "2023-03-25"
+        self.user = User.objects.create_user(
+            username="admin5", password="admin345", email="adminkacok@gmail.com"
+        )
+        self.account = Account.objects.create(
+            user=self.user,
+            username="jonakeren",
+            email="jokimak@gmail.com",
+            role="User",
+            is_first_login=True,
+        )
+        self.sess_data = {
+            "event_name": "Event Paling Baru",
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "action": "add_roles",
+        }
+        self.pegawai = Pegawai.objects.create(
+            email="johndoer5@gmail.com",
+            employee_no="123",
+            employee_name="Jonyz",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok",
+        )
+        self.event_data = {
+            "num_fields": 1,
+            "dropdown-select_0": "123",
+            "role_field_0": "Admin",
+            "honor_field_0": "-100",
+            "pph_field_0": "-200",
+        }
+        self.client.login(username="admin5", password="admin345")
 
-  def test_input_employee_to_event_with_negative_honor_and_pph(self):
-    self.client.post(reverse('create_event'), data=self.sess_data)
-    response = self.client.post(
-        reverse('input_employee_to_event'), data=self.event_data, follow=True)
-    self.assertEqual(response.status_code, 200)
-    self.assertContains(response, 'Event List')
-    self.assertEqual(abs(int(self.event_data['honor_field_0'])), 100)
-    self.assertEqual(abs(int(self.event_data['pph_field_0'])), 200)
+    def test_input_employee_to_event_with_negative_honor_and_pph(self):
+        self.client.post(reverse("create_event"), data=self.sess_data)
+        response = self.client.post(
+            reverse("input_employee_to_event"), data=self.event_data, follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Event List")
+        self.assertEqual(abs(int(self.event_data["honor_field_0"])), 100)
+        self.assertEqual(abs(int(self.event_data["pph_field_0"])), 200)
 
 
 def set_up_event_employee(self):
-		self.event_employee = EventEmployee(
-			employee=self.pegawai,
-			event=self.event,
-			honor=10000,
-			pph=5,
-			netto=9500,
-			role='Ketua'
-		)
-		self.event_employee.save()
+    self.event_employee = EventEmployee(
+        employee=self.pegawai,
+        event=self.event,
+        honor=10000,
+        pph=5,
+        netto=9500,
+        role="Ketua",
+    )
+    self.event_employee.save()
 
 
 class RUDEventLoggedInAdminTest(TestCase):
-  def setUp(self) -> None:
-    set_up_login(self, 'Admin')
-    self.start_date = '2023-03-22'
-    self.end_date = '2023-03-25'
-    self.event = Event(
-      creator=self.account,
-			event_name='Event Paling Baru',
-			start_date=self.start_date,
-			end_date=self.end_date,
-			expense=20000
-		)
-    self.event.save()
-    self.pegawai = Pegawai(
-			email='johndoer5@gmail.com',
-			employee_no='123',
-			employee_name='Jonyz',
-			employee_category='Staff',
-			job_status='Administrasi',
-			grade_level='-',
-			employment_status='Kontrak',
-			nama_di_rekening='karyawankeren',
-			nama_bank='Mandiri',
-			nomor_rekening='4971335367',
-			nomor_npwp='247128658',
-			alamat_npwp='Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok'
-		)
-    self.pegawai.save()
+    def setUp(self) -> None:
+        set_up_login(self, "Admin")
+        self.start_date = "2023-03-22"
+        self.end_date = "2023-03-25"
+        self.event = Event(
+            creator=self.account,
+            event_name="Event Paling Baru",
+            start_date=self.start_date,
+            end_date=self.end_date,
+            expense=20000,
+        )
+        self.event.save()
+        self.pegawai = Pegawai(
+            email="johndoer5@gmail.com",
+            employee_no="123",
+            employee_name="Jonyz",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok",
+        )
+        self.pegawai.save()
 
-  def test_detail_event_valid(self):
-    response = self.client.get(f'/event/detail/{self.event.id}')
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'detail_event.html')
+    def test_detail_event_valid(self):
+        response = self.client.get(f"/event/detail/{self.event.id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "detail_event.html")
 
-  def test_riwayat_event_redirected(self):
-    response = self.client.get(reverse('riwayat_events'))
-    self.assertEqual(response.status_code, 302)
-           
-  def test_detail_event_id_invalid(self):
-    response = self.client.get('/event/detail/3333')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_detail_event_id_not_int(self):
-    response = self.client.get('/event/detail/asd')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_event_get_valid(self):
-    response = self.client.get(f'/event/update/{self.event.id}')
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'update_event.html')
-                
-  def test_update_event_id_invalid(self):
-    response = self.client.get('/event/update/3333')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_event_id_not_int(self):
-    response = self.client.get('/event/update/asd')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_event_post_valid(self):
-    new_event_name = 'Updated Event2'
-    new_start_date = '2020-01-01'
-    new_end_date   = '2023-01-01'
-    data = {
-      'event_name': new_event_name,
-      'start_date': new_start_date,
-      'end_date': new_end_date
-    }
-    response = self.client.post(f'/event/submit-update/{self.event.id}', data)
-    updated_event = Event.objects.get(id=self.event.id)
-    self.assertEqual(updated_event.event_name, new_event_name)
-    self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), new_start_date)
-    self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), new_end_date)
-                                                    
-    self.assertRedirects(response, f'/event/detail/{self.event.id}', status_code=302, target_status_code=200)
-                
-  def test_update_event_post_id_invalid(self):
-    new_event_name = 'Updated Event'
-    new_start_date = '2020-01-01'
-    new_end_date   = '2023-01-01'
-    data = {
-      'event_name': new_event_name,
-      'start_date': new_start_date,
-      'end_date': new_end_date
-    }
-    response = self.client.post('/event/submit-update/3333', data)
-    updated_event = Event.objects.get(id=self.event.id)
-    self.assertEqual(updated_event.event_name, self.event.event_name)
-    self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date)
-    self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date)
-                                                    
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_input_employee_to_existing_event_get(self):
-    response = self.client.get(f'/event/add-employee/{self.event.id}')
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'input_employee_to_existing_event.html')
-                
-  def test_input_employee_to_existing_event_get_id_invalid(self):
-    response = self.client.get('/event/add-employee/3333')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_input_employee_to_existing_event_get_id_bukan_int(self):
-    response = self.client.get('/event/add-employee/asd')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_input_employee_to_existing_event_post(self):
-    role = 'Ketua'
-    honor = 100000
-    pph   = 5
-    employee_no = '123'
-    data = {
-      'num_fields': '1',
-      'role_field_0': role,
-      'honor_field_0': honor,
-      'pph_field_0': pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post(f'/event/submit-add-employee/{self.event.id}', data)
-    event = Event.objects.get(id=self.event.id)
-    event_employee = EventEmployee.objects.filter(event=event).first()
-    self.assertEqual(event_employee.role, role)
-    self.assertEqual(event_employee.honor, honor)
-    self.assertEqual(event_employee.pph, pph)
-                                                    
-    self.assertRedirects(response, f'/event/detail/{self.event.id}', status_code=302, target_status_code=200)
-    
-  def test_input_employee_to_existing_event_post_kosongan(self):
-    data = {
-      'num_fields': '',
-    }
-    response = self.client.post(f'/event/submit-add-employee/{self.event.id}', data)
-    event = Event.objects.get(id=self.event.id)
-    with self.assertRaises(ObjectDoesNotExist):
-      EventEmployee.objects.get(event=event)
-                                                    
-    self.assertRedirects(response, f'/event/detail/{self.event.id}', status_code=302, target_status_code=200)
-                
-  def test_input_employee_to_existing_event_post_id_invalid(self):
-    role = 'Ketua'
-    honor = 100000
-    pph   = 5
-    employee_no = '123'
-    data = {
-      'num_fields': '1',
-      'role_field_0': role,
-      'honor_field_0': honor,
-      'pph_field_0': pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post('/event/submit-add-employee/3333', data)
-    event = Event.objects.get(id=self.event.id)
-    with self.assertRaises(ObjectDoesNotExist):
-      EventEmployee.objects.get(event=event)
-                                                    
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_input_employee_to_existing_event_post_id_bukan_int(self):
-    role = 'Ketua'
-    honor = 100000
-    pph   = 5
-    employee_no = '123'
-    data = {
-      'num_fields': '1',
-      'role_field_0': role,
-      'honor_field_0': honor,
-      'pph_field_0': pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post('/event/submit-add-employee/asd', data)
-    event = Event.objects.get(id=self.event.id)
-    with self.assertRaises(ObjectDoesNotExist):
-      EventEmployee.objects.get(event=event)
-                                                    
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_employee_to_existing_event_get(self):
-    set_up_event_employee(self)
-    response = self.client.get(f'/event/update-employee/{self.event_employee.id}')
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'update_event_employee.html')
-                
-  def test_update_employee_to_existing_event_get_id_invalid(self):
-    set_up_event_employee(self)
-    response = self.client.get('/event/update-employee/3333')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-    
-  def test_update_employee_to_existing_event_get_id_bukan_int(self):
-    set_up_event_employee(self)
-    response = self.client.get('/event/update-employee/asd')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_employee_to_existing_event_post(self):
-    set_up_event_employee(self)
-    new_role = 'Ketuanew'
-    new_honor = 100001
-    new_pph   = 6
-    employee_no = '123'
-    data = {
-      'role_field_0': new_role,
-      'honor_field_0': new_honor,
-      'pph_field_0': new_pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post(f'/event/submit-update-employee/{self.event_employee.id}', data)
-    event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
-    self.assertEqual(event_employee.role, new_role)
-    self.assertEqual(event_employee.honor, new_honor)
-    self.assertEqual(event_employee.pph, new_pph)
-                                                    
-    self.assertRedirects(response, f'/event/detail/{self.event.id}', status_code=302, target_status_code=200)
-                
-  def test_update_employee_to_existing_event_post_id_invalid(self):
-    set_up_event_employee(self)
-    new_role = 'Ketuanew'
-    new_honor = 100001
-    new_pph   = 6
-    employee_no = '123'
-    data = {
-      'role_field_0': new_role,
-      'honor_field_0': new_honor,
-      'pph_field_0': new_pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post('/event/submit-update-employee/3333', data)
-    event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
-    self.assertEqual(event_employee.role, self.event_employee.role)
-    self.assertEqual(event_employee.honor, self.event_employee.honor)
-    self.assertEqual(event_employee.pph, self.event_employee.pph)
-                                                    
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_update_employee_to_existing_event_post_id_bukan_int(self):
-    set_up_event_employee(self)
-    new_role = 'Ketuanew'
-    new_honor = 100001
-    new_pph   = 6
-    employee_no = '123'
-    data = {
-      'role_field_0': new_role,
-      'honor_field_0': new_honor,
-      'pph_field_0': new_pph,
-      'dropdown-select_0': employee_no
-    }
-    response = self.client.post('/event/submit-update-employee/asd', data)
-    event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
-    self.assertEqual(event_employee.role, self.event_employee.role)
-    self.assertEqual(event_employee.honor, self.event_employee.honor)
-    self.assertEqual(event_employee.pph, self.event_employee.pph)
-                                                    
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_delete_employee_to_existing_event_post(self):
-    set_up_event_employee(self)
-    data = {}
-    response = self.client.post(f'/event/delete-employee/{self.event_employee.id}', data)
-    with self.assertRaises(ObjectDoesNotExist): # Objek berhasil dihapus
-      EventEmployee.objects.get(id=self.event_employee.id)
-                                                    
-    self.assertRedirects(response, f'/event/detail/{self.event.id}', status_code=302, target_status_code=200)
-                
-  def test_delete_employee_to_existing_event_post_id_invalid(self):
-    set_up_event_employee(self)
-    data = {}
-    response = self.client.post('/event/delete-employee/3333', data)
-                
-    self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-  def test_delete_employee_to_existing_event_post_id_bukan_int(self):
-    set_up_event_employee(self)
-    data = {}
-    response = self.client.post('/event/delete-employee/asd', data)
-                
-    self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus																		
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
+    def test_riwayat_event_redirected(self):
+        response = self.client.get(reverse("riwayat_events"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_detail_event_id_invalid(self):
+        response = self.client.get("/event/detail/3333")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_detail_event_id_not_int(self):
+        response = self.client.get("/event/detail/asd")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_event_get_valid(self):
+        response = self.client.get(f"/event/update/{self.event.id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "update_event.html")
+
+    def test_update_event_id_invalid(self):
+        response = self.client.get("/event/update/3333")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_event_id_not_int(self):
+        response = self.client.get("/event/update/asd")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_event_post_valid(self):
+        new_event_name = "Updated Event2"
+        new_start_date = "2020-01-01"
+        new_end_date = "2023-01-01"
+        data = {
+            "event_name": new_event_name,
+            "start_date": new_start_date,
+            "end_date": new_end_date,
+        }
+        response = self.client.post(f"/event/submit-update/{self.event.id}", data)
+        updated_event = Event.objects.get(id=self.event.id)
+        self.assertEqual(updated_event.event_name, new_event_name)
+        self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), new_start_date)
+        self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), new_end_date)
+
+        self.assertRedirects(
+            response,
+            f"/event/detail/{self.event.id}",
+            status_code=302,
+            target_status_code=200,
+        )
+
+    def test_update_event_post_id_invalid(self):
+        new_event_name = "Updated Event"
+        new_start_date = "2020-01-01"
+        new_end_date = "2023-01-01"
+        data = {
+            "event_name": new_event_name,
+            "start_date": new_start_date,
+            "end_date": new_end_date,
+        }
+        response = self.client.post("/event/submit-update/3333", data)
+        updated_event = Event.objects.get(id=self.event.id)
+        self.assertEqual(updated_event.event_name, self.event.event_name)
+        self.assertEqual(
+            updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date
+        )
+        self.assertEqual(
+            updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date
+        )
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_get(self):
+        response = self.client.get(f"/event/add-employee/{self.event.id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "input_employee_to_existing_event.html")
+
+    def test_input_employee_to_existing_event_get_id_invalid(self):
+        response = self.client.get("/event/add-employee/3333")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_get_id_bukan_int(self):
+        response = self.client.get("/event/add-employee/asd")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_post(self):
+        role = "Ketua"
+        honor = 100000
+        pph = 5
+        employee_no = "123"
+        data = {
+            "num_fields": "1",
+            "role_field_0": role,
+            "honor_field_0": honor,
+            "pph_field_0": pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post(f"/event/submit-add-employee/{self.event.id}", data)
+        event = Event.objects.get(id=self.event.id)
+        event_employee = EventEmployee.objects.filter(event=event).first()
+        self.assertEqual(event_employee.role, role)
+        self.assertEqual(event_employee.honor, honor)
+        self.assertEqual(event_employee.pph, pph)
+
+        self.assertRedirects(
+            response,
+            f"/event/detail/{self.event.id}",
+            status_code=302,
+            target_status_code=200,
+        )
+
+    def test_input_employee_to_existing_event_post_kosongan(self):
+        data = {
+            "num_fields": "",
+        }
+        response = self.client.post(f"/event/submit-add-employee/{self.event.id}", data)
+        event = Event.objects.get(id=self.event.id)
+        with self.assertRaises(ObjectDoesNotExist):
+            EventEmployee.objects.get(event=event)
+
+        self.assertRedirects(
+            response,
+            f"/event/detail/{self.event.id}",
+            status_code=302,
+            target_status_code=200,
+        )
+
+    def test_input_employee_to_existing_event_post_id_invalid(self):
+        role = "Ketua"
+        honor = 100000
+        pph = 5
+        employee_no = "123"
+        data = {
+            "num_fields": "1",
+            "role_field_0": role,
+            "honor_field_0": honor,
+            "pph_field_0": pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post("/event/submit-add-employee/3333", data)
+        event = Event.objects.get(id=self.event.id)
+        with self.assertRaises(ObjectDoesNotExist):
+            EventEmployee.objects.get(event=event)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_post_id_bukan_int(self):
+        role = "Ketua"
+        honor = 100000
+        pph = 5
+        employee_no = "123"
+        data = {
+            "num_fields": "1",
+            "role_field_0": role,
+            "honor_field_0": honor,
+            "pph_field_0": pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post("/event/submit-add-employee/asd", data)
+        event = Event.objects.get(id=self.event.id)
+        with self.assertRaises(ObjectDoesNotExist):
+            EventEmployee.objects.get(event=event)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_get(self):
+        set_up_event_employee(self)
+        response = self.client.get(f"/event/update-employee/{self.event_employee.id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "update_event_employee.html")
+
+    def test_update_employee_to_existing_event_get_id_invalid(self):
+        set_up_event_employee(self)
+        response = self.client.get("/event/update-employee/3333")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_get_id_bukan_int(self):
+        set_up_event_employee(self)
+        response = self.client.get("/event/update-employee/asd")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_post(self):
+        set_up_event_employee(self)
+        new_role = "Ketuanew"
+        new_honor = 100001
+        new_pph = 6
+        employee_no = "123"
+        data = {
+            "role_field_0": new_role,
+            "honor_field_0": new_honor,
+            "pph_field_0": new_pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post(
+            f"/event/submit-update-employee/{self.event_employee.id}", data
+        )
+        event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
+        self.assertEqual(event_employee.role, new_role)
+        self.assertEqual(event_employee.honor, new_honor)
+        self.assertEqual(event_employee.pph, new_pph)
+
+        self.assertRedirects(
+            response,
+            f"/event/detail/{self.event.id}",
+            status_code=302,
+            target_status_code=200,
+        )
+
+    def test_update_employee_to_existing_event_post_id_invalid(self):
+        set_up_event_employee(self)
+        new_role = "Ketuanew"
+        new_honor = 100001
+        new_pph = 6
+        employee_no = "123"
+        data = {
+            "role_field_0": new_role,
+            "honor_field_0": new_honor,
+            "pph_field_0": new_pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post("/event/submit-update-employee/3333", data)
+        event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
+        self.assertEqual(event_employee.role, self.event_employee.role)
+        self.assertEqual(event_employee.honor, self.event_employee.honor)
+        self.assertEqual(event_employee.pph, self.event_employee.pph)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_post_id_bukan_int(self):
+        set_up_event_employee(self)
+        new_role = "Ketuanew"
+        new_honor = 100001
+        new_pph = 6
+        employee_no = "123"
+        data = {
+            "role_field_0": new_role,
+            "honor_field_0": new_honor,
+            "pph_field_0": new_pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post("/event/submit-update-employee/asd", data)
+        event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
+        self.assertEqual(event_employee.role, self.event_employee.role)
+        self.assertEqual(event_employee.honor, self.event_employee.honor)
+        self.assertEqual(event_employee.pph, self.event_employee.pph)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_delete_employee_to_existing_event_post(self):
+        set_up_event_employee(self)
+        data = {}
+        response = self.client.post(
+            f"/event/delete-employee/{self.event_employee.id}", data
+        )
+        with self.assertRaises(ObjectDoesNotExist):  # Objek berhasil dihapus
+            EventEmployee.objects.get(id=self.event_employee.id)
+
+        self.assertRedirects(
+            response,
+            f"/event/detail/{self.event.id}",
+            status_code=302,
+            target_status_code=200,
+        )
+
+    def test_delete_employee_to_existing_event_post_id_invalid(self):
+        set_up_event_employee(self)
+        data = {}
+        response = self.client.post("/event/delete-employee/3333", data)
+
+        self.assertTrue(
+            EventEmployee.objects.filter(id=self.event_employee.id).first()
+        )  # Objeknya tidak terhapus
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_delete_employee_to_existing_event_post_id_bukan_int(self):
+        set_up_event_employee(self)
+        data = {}
+        response = self.client.post("/event/delete-employee/asd", data)
+
+        self.assertTrue(
+            EventEmployee.objects.filter(id=self.event_employee.id).first()
+        )  # Objeknya tidak terhapus
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
 
 class RUDEventLoggedInNonCreatorTest(TestCase):
-	def setUp(self) -> None:
-		set_up_login(self, 'User')
-		set_up_akun_dummy(self)
-		self.start_date = '2023-03-22'
-		self.end_date   = '2023-03-25'
-		self.event = Event(
-      creator=self.account_dummy,
-			event_name='Event Paling Baru2',
-			start_date= self.start_date,
-			end_date= self.end_date,
-			expense=20000
-		)
-		self.event.save()
-		self.pegawai = Pegawai(
-			email = 'johndoer51@gmail.com',
-			employee_no = '123',
-			employee_name = 'Jonyz',
-			employee_category = 'Staff',
-			job_status = 'Administrasi',
-			grade_level = '-',
-			employment_status = 'Kontrak',
-			nama_di_rekening = 'karyawankeren',
-			nama_bank = 'Mandiri',
-			nomor_rekening = '4971335367',
-			nomor_npwp = '247128658',
-			alamat_npwp = 'Jl. Hj. Halimah Saerang I No. 90 RT. 004/02 Kukusan Beji Depok'
-		)
-		self.pegawai.save()
-                
+    def setUp(self) -> None:
+        set_up_login(self, "User")
+        set_up_akun_dummy(self)
+        self.start_date = "2023-03-22"
+        self.end_date = "2023-03-25"
+        self.event = Event(
+            creator=self.account_dummy,
+            event_name="Event Paling Baru2",
+            start_date=self.start_date,
+            end_date=self.end_date,
+            expense=20000,
+        )
+        self.event.save()
+        self.pegawai = Pegawai(
+            email="johndoer51@gmail.com",
+            employee_no="123",
+            employee_name="Jonyz",
+            employee_category="Staff",
+            job_status="Administrasi",
+            grade_level="-",
+            employment_status="Kontrak",
+            nama_di_rekening="karyawankeren",
+            nama_bank="Mandiri",
+            nomor_rekening="4971335367",
+            nomor_npwp="247128658",
+            alamat_npwp="Jl. Hj. Halimah Saerang I No. 90 RT. 004/02 Kukusan Beji Depok",
+        )
+        self.pegawai.save()
 
-	def test_detail_event_invalid(self):
-		response = self.client.get(f'/event/detail/{self.event.id}')
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_update_event_get_invalid(self):
-		response = self.client.get(f'/event/update/{self.event.id}')
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_update_event_post_id_invalid(self):
-		new_event_name = 'Updated Event'
-		new_start_date = '2020-01-01'
-		new_end_date   = '2023-01-01'
-		data = {
-			'event_name': new_event_name,
-			'start_date': new_start_date,
-			'end_date': new_end_date
-		}
-		response = self.client.post(f'/event/submit-update/{self.event.id}', data)
-		updated_event = Event.objects.get(id=self.event.id)
-		self.assertEqual(updated_event.event_name, self.event.event_name)
-		self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date)
-		self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date)
-																										
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_input_employee_to_existing_event_get_invalid(self):
-		response = self.client.get(f'/event/add-employee/{self.event.id}')
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_input_employee_to_existing_event_post_invalid(self):
-		role = 'Ketua'
-		honor = 100000
-		pph   = 5
-		employee_no = '123'
-		data = {
-      'num_fields': '1',
-			'role_field_0': role,
-			'honor_field_0': honor,
-			'pph_field_0': pph,
-      'dropdown-select_0': employee_no
-		}
-		response = self.client.post(f'/event/submit-add-employee/{self.event.id}', data)
-		event = Event.objects.get(id=self.event.id)
-		with self.assertRaises(ObjectDoesNotExist):
-			EventEmployee.objects.get(event=event)
-																										
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-                
-	def test_update_employee_to_existing_event_get_invalid(self):
-		set_up_event_employee(self)
-		response = self.client.get(f'/event/update-employee/{self.event_employee.id}')
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_update_employee_to_existing_event_post_invalid(self):
-		set_up_event_employee(self)
-		new_role = 'Ketuanew'
-		new_honor = 100001
-		new_pph   = 6
-		employee_no = '123'
-		data = {
-			'role_field_0': new_role,
-			'honor_field_0': new_honor,
-			'pph_field_0': new_pph,
-      'dropdown-select_0': employee_no
-		}
-		response = self.client.post(f'/event/submit-update-employee/{self.event_employee.id}', data)
-		event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
-		self.assertEqual(event_employee.role, self.event_employee.role)
-		self.assertEqual(event_employee.honor, self.event_employee.honor)
-		self.assertEqual(event_employee.pph, self.event_employee.pph)
-																										
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-                
-	def test_delete_employee_to_existing_event_post_invalid(self):
-		set_up_event_employee(self)
-		data = {}
-		response = self.client.post(f'/event/delete-employee/{self.event_employee.id}', data)
-                
-		self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus
-		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+    def test_detail_event_invalid(self):
+        response = self.client.get(f"/event/detail/{self.event.id}")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_event_get_invalid(self):
+        response = self.client.get(f"/event/update/{self.event.id}")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_event_post_id_invalid(self):
+        new_event_name = "Updated Event"
+        new_start_date = "2020-01-01"
+        new_end_date = "2023-01-01"
+        data = {
+            "event_name": new_event_name,
+            "start_date": new_start_date,
+            "end_date": new_end_date,
+        }
+        response = self.client.post(f"/event/submit-update/{self.event.id}", data)
+        updated_event = Event.objects.get(id=self.event.id)
+        self.assertEqual(updated_event.event_name, self.event.event_name)
+        self.assertEqual(
+            updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date
+        )
+        self.assertEqual(
+            updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date
+        )
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_get_invalid(self):
+        response = self.client.get(f"/event/add-employee/{self.event.id}")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_input_employee_to_existing_event_post_invalid(self):
+        role = "Ketua"
+        honor = 100000
+        pph = 5
+        employee_no = "123"
+        data = {
+            "num_fields": "1",
+            "role_field_0": role,
+            "honor_field_0": honor,
+            "pph_field_0": pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post(f"/event/submit-add-employee/{self.event.id}", data)
+        event = Event.objects.get(id=self.event.id)
+        with self.assertRaises(ObjectDoesNotExist):
+            EventEmployee.objects.get(event=event)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_get_invalid(self):
+        set_up_event_employee(self)
+        response = self.client.get(f"/event/update-employee/{self.event_employee.id}")
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_update_employee_to_existing_event_post_invalid(self):
+        set_up_event_employee(self)
+        new_role = "Ketuanew"
+        new_honor = 100001
+        new_pph = 6
+        employee_no = "123"
+        data = {
+            "role_field_0": new_role,
+            "honor_field_0": new_honor,
+            "pph_field_0": new_pph,
+            "dropdown-select_0": employee_no,
+        }
+        response = self.client.post(
+            f"/event/submit-update-employee/{self.event_employee.id}", data
+        )
+        event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
+        self.assertEqual(event_employee.role, self.event_employee.role)
+        self.assertEqual(event_employee.honor, self.event_employee.honor)
+        self.assertEqual(event_employee.pph, self.event_employee.pph)
+
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
+
+    def test_delete_employee_to_existing_event_post_invalid(self):
+        set_up_event_employee(self)
+        data = {}
+        response = self.client.post(
+            f"/event/delete-employee/{self.event_employee.id}", data
+        )
+
+        self.assertTrue(
+            EventEmployee.objects.filter(id=self.event_employee.id).first()
+        )  # Objeknya tidak terhapus
+        self.assertRedirects(
+            response, FORBIDDEN_URL, status_code=302, target_status_code=200
+        )
