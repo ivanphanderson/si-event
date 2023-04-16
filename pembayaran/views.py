@@ -48,6 +48,9 @@ def filter_honor_view(request):
 
     if account.role == 'Staff Keuangan':
         qs, date_min, date_max, pegawai, event = filter(request)
+        total_pph_in_rp = 0
+        for emp in qs:
+            total_pph_in_rp += emp.pph/100.0 * emp.honor
 
         context = {
             'queryset': qs,
@@ -58,7 +61,7 @@ def filter_honor_view(request):
             'categories': Event.objects.all(),
             'employees': Pegawai.objects.all(),
             'total_bruto': qs.aggregate(Sum('honor'))['honor__sum'],
-            'total_pph': qs.aggregate(Sum('pph'))['pph__sum'],
+            'total_pph': int(total_pph_in_rp),
             'total_netto': qs.aggregate(Sum('netto'))['netto__sum'],
             'role': account.role,
         }
