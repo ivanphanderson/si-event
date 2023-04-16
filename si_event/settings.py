@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'account',
     'log',
     'home',
+    'pembayaran',
 ]
 
 MIDDLEWARE = [

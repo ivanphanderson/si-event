@@ -1,18 +1,16 @@
 from django.shortcuts import render, redirect
 from .models import Event, EventEmployee
 from pegawai.models import Pegawai
-from pegawai.handler import DataCleaner
 from pegawai.views import add_log
 from account.models import Account
-from utils.converter import convert_to_data
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
 from .validators import validate_event_employee_fields
-from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_http_methods
+from django.db.models import Sum
+
 
 CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
@@ -49,8 +47,11 @@ def create_event(request):
       request.session.pop('start_date', None)
       request.session.pop('end_date', None)
       return get_events(request, action)
-  return render(request, CREATE_EVENT)
-
+  account = Account.objects.get(user=request.user)
+  if (account.role == 'User'):
+    return render(request, CREATE_EVENT)
+  else:
+    return redirect(FORBIDDEN_URL)
 
 @login_required(login_url='/login')
 @require_http_methods(['POST'])
@@ -93,14 +94,12 @@ def input_employee_to_event(request):
   
   return get_events(request, action)
 
-
 @require_http_methods(['GET'])
 def get_options(request):
   search_term = request.GET.get('search', '')
   employees = Pegawai.objects.filter(Q(employee_no__icontains=search_term) | Q(employee_name__icontains=search_term))
   employees = [{'employee_no': e.employee_no, 'employee_name': e.employee_name} for e in employees]
   return JsonResponse(employees, safe=False)
-
 
 @login_required(login_url='/login')
 @require_http_methods(['GET', 'POST'])
@@ -110,7 +109,7 @@ def get_events(request, success_message=None):
   owner_data = dict()
     
   for event in event_data:
-    if event.creator == account:
+    if event.creator == account or account.role == 'Staff Keuangan':
       owner_data[f'{event.event_name}'] = True
 
   if success_message is not None:
@@ -122,8 +121,11 @@ def get_events(request, success_message=None):
 @require_http_methods(['GET'])
 def riwayat_events(request):
   account = Account.objects.get(user=request.user)
-  event_data = Event.objects.filter(creator=account).order_by('event_name')
-  return render(request, 'riwayat_event.html', {'event_data':event_data, 'role': account.role})
+  if (account.role == 'User'):
+    event_data = Event.objects.filter(creator=account).order_by('event_name')
+    return render(request, 'riwayat_event.html', {'event_data':event_data, 'role': account.role})
+  else:
+    return redirect(FORBIDDEN_URL)
 
 @login_required(login_url='/login')
 @require_http_methods(['GET'])
@@ -135,13 +137,19 @@ def detail_event(request, id):
 
   if id.isdigit() and Event.objects.filter(id=id).first():
     event = Event.objects.get(id=id)
-    if event.creator != account and account.role != 'Admin':
-        return redirect(FORBIDDEN_URL)
+    if event.creator != account and account.role == 'User':
+      return redirect(FORBIDDEN_URL)
+
     event_employees = EventEmployee.objects.filter(event=event)
     context['event'] = event
     context['event_employees'] = event_employees
+
+    qs = EventEmployee.objects.all().filter(event=event.id)
+    context['total_bruto'] = qs.aggregate(Sum('honor'))['honor__sum']
+    context['total_pph'] = qs.aggregate(Sum('pph'))['pph__sum']
+    context['total_netto'] = qs.aggregate(Sum('netto'))['netto__sum']
+
     return render(request, 'detail_event.html', context)
-  
   return redirect(FORBIDDEN_URL)
 
 @login_required(login_url='/login')
@@ -258,7 +266,6 @@ def update_event_employee_by_id(request, id):
     return render(request, 'update_event_employee.html', context)
   return redirect(FORBIDDEN_URL)    
 
-
 @login_required(login_url='/login')
 @require_http_methods(['POST'])
 def update_employee_to_event_by_id(request,id):
@@ -271,10 +278,10 @@ def update_employee_to_event_by_id(request,id):
     if event.creator != account:
         return redirect(FORBIDDEN_URL)
     
-    employee_no = form_data[f'dropdown-select_0']
-    role        = form_data[f'role_field_0']
-    honor       = form_data[f'honor_field_0']
-    pph         = form_data[f'pph_field_0']
+    employee_no = form_data['dropdown-select_0']
+    role        = form_data['role_field_0']
+    honor       = form_data['honor_field_0']
+    pph         = form_data['pph_field_0']
 
     role, pph, honor  = validate_event_employee_fields(role, pph, honor, 0)
     if str(employee_no).isdigit():
