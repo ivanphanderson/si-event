@@ -88,6 +88,7 @@ Update Account
                             <th scope="col">Nama di rekening</th>
                             <th scope="col">Bank</th>
                             <th scope="col">No Rekening</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -104,6 +105,34 @@ Update Account
                             </td>
                             <td>{{event_employee.employee.nama_bank}}</td>
                             <td>{{event_employee.employee.nomor_rekening}}</td>
+                            <td>
+                                {% if event.creator == account %}
+                                <a href="{% url 'update_event_employee_by_id' id=event_employee.id %}" class="btn btn-warning">Update</a>
+                                <button class="btn btn-danger" type="button" id="delete-event-employee" data-toggle="modal" data-target="#deleteEventEmployeeModal{{event_employee.id}}">Delete</button>
+                                <div class="modal fade" id="deleteEventEmployeeModal{{event_employee.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="deactivateAccountModalLabel">Delete Event Employee</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                            Are you sure to delete {{event_employee.employee.employee_name}} from this event?
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <form method="POST" action="/event/delete-employee/{{event_employee.id}}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                         <div class="rowTotal">
