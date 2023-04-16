@@ -1,138 +1,260 @@
 {% extends 'base.html' %}
-{% block title %}
-  Accounts List
-{%endblock title%}
-{% block meta %}
-  
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
-    
 {% load static %}
+{% block title %}
+Accounts List
+{% endblock title %}
+{% block meta %}
+<link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css"
+/>
 {% endblock meta %}
-
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
-
 <section class="vh-100">
-  <div class="container">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb bg-white">
-        <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Account</li>
-      </ol>
-    </nav>
-    <div class="row justify-content-center">
-      <div class="col-md-6 text-center mb-5">
-        <h2 class="heading-section">All Accounts</h2>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="table-wrap">
-          <div style = "display: flex; justify-content:flex-end; margin-bottom: 10px;">
-            <a href="/account/register" class="btn btn-primary float-right">Register Account</a>
-          </div>        
-          {% if all_account %}
-          <table class="table table-striped" aria-describedby="All Account" id="sortTable">
-            <thead style="background-color: #2A3990; color: white;">
-              <tr>
-              <th scope="col">Username</th>
-              <th scope="col">Role</th>
-              <th scope="col">Status</th>
-              <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for account in all_account %}
-              <tr>
-                <td style="vertical-align: middle;">{{account.username}}</td>
-                <td style="vertical-align: middle;">{{account.role}}</td>
-                <td style="vertical-align: middle;">
-                  {% if account.user.is_active %}
-                    Aktif
-                  {% else %}
-                    Tidak Aktif
-                  {% endif %}
-                </td>
-                {% if account.user.is_superuser or account.user == user %}
-                  <td></td>
-                {% else %}
-                  <td style="vertical-align: middle;"><a href="update/{{account.id}}" class="btn btn-warning">Update</a>
-                  {% if account.user.is_active %}
-                  <button class="btn btn-danger" type="button" id="deactivate-account" data-toggle="modal" data-target="#deactivateAccountModal{{account.id}}">Deactivate</button>
-
-                  <div class="modal fade" id="deactivateAccountModal{{account.id}}" tabindex="-1" role="dialog" aria-labelledby="deactivateAccountModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="deactivateAccountModalLabel">Deactivate Account</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                          Are you sure to deactivate account {{account.username}}?
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                          <form method="POST" action="ganti-status-akun">
-                            {% csrf_token %}
-                            <input type="hidden" name="id_akun" value={{account.id}}>
-                            <button type="submit" class="btn btn-danger">Deactivate</button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {% else %}
-                  <button class="btn btn-success" type="button" id="activate-account" data-toggle="modal" data-target="#aktivasiAccountModal{{account.id}}">Aktivasi</button>
-
-                  <div class="modal fade" id="aktivasiAccountModal{{account.id}}" tabindex="-1" role="dialog" aria-labelledby="aktivasiAccountModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="deleteTaskModalLabel">Aktivasi Akun</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                          Apakah Anda yakin ingin mengaktifkan akun {{account.username}}?
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                          <form method="POST" action="ganti-status-akun">
-                            {% csrf_token %}
-                            <input type="hidden" name="id_akun" value={{account.id}}>
-                            <button type="submit" class="btn btn-success">Aktivasi</button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {% endif %}
-                  </td>
-                {% endif %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% endif %}
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home:home' %}">Home</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Account
+                </li>
+            </ol>
+        </nav>
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center mb-5">
+                <h2 class="heading-section">All Accounts</h2>
+            </div>
         </div>
-      </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-wrap">
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: flex-end;
+                            margin-bottom: 10px;
+                        "
+                    >
+                        <a
+                            href="/account/register"
+                            class="btn btn-primary float-right"
+                            >Register Account</a
+                        >
+                    </div>
+                    {% if all_account %}
+                    <table
+                        class="table table-striped"
+                        aria-describedby="All Account"
+                        id="sortTable"
+                    >
+                        <thead style="background-color: #2a3990; color: white">
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in all_account %}
+                            <tr>
+                                <td style="vertical-align: middle">
+                                    {{account.username}}
+                                </td>
+                                <td style="vertical-align: middle">
+                                    {{account.role}}
+                                </td>
+                                <td style="vertical-align: middle">
+                                    {% if account.user.is_active %}
+                                    Aktif 
+                                    {% else %}
+                                    Tidak Aktif
+                                    {% endif %}
+                                </td>
+                                {% if account.user.is_superuser or account.user == user %}
+                                <td></td>
+                                {% else %}
+                                <td style="vertical-align: middle">
+                                    <a
+                                        href="update/{{account.id}}"
+                                        class="btn btn-warning"
+                                        >Update</a
+                                    >
+                                    {% if account.user.is_active %}
+                                    <button
+                                        class="btn btn-danger"
+                                        type="button"
+                                        id="deactivate-account"
+                                        data-toggle="modal"
+                                        data-target="#deactivateAccountModal{{account.id}}"
+                                    >
+                                        Deactivate
+                                    </button>
+                                    <div
+                                        class="modal fade"
+                                        id="deactivateAccountModal{{account.id}}"
+                                        tabindex="-1"
+                                        role="dialog"
+                                        aria-labelledby="deactivateAccountModalLabel"
+                                        aria-hidden="true"
+                                    >
+                                        <div
+                                            class="modal-dialog"
+                                            role="document"
+                                        >
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5
+                                                        class="modal-title"
+                                                        id="deactivateAccountModalLabel"
+                                                    >
+                                                        Deactivate Account
+                                                    </h5>
+                                                    <button
+                                                        type="button"
+                                                        class="close"
+                                                        data-dismiss="modal"
+                                                        aria-label="Close"
+                                                    >
+                                                        <span aria-hidden="true"
+                                                            >&times;</span
+                                                        >
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure to deactivate
+                                                    account
+                                                    {{account.username}}?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-secondary"
+                                                        data-dismiss="modal"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <form
+                                                        method="POST"
+                                                        action="ganti-status-akun"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <input
+                                                            type="hidden"
+                                                            name="id_akun"
+                                                            value="{{account.id}}"
+                                                        />
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-danger"
+                                                        >
+                                                            Deactivate
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <button
+                                        class="btn btn-success"
+                                        type="button"
+                                        id="activate-account"
+                                        data-toggle="modal"
+                                        data-target="#aktivasiAccountModal{{account.id}}"
+                                    >
+                                        Activate
+                                    </button>
+                                    <div
+                                        class="modal fade"
+                                        id="aktivasiAccountModal{{account.id}}"
+                                        tabindex="-1"
+                                        role="dialog"
+                                        aria-labelledby="aktivasiAccountModalLabel"
+                                        aria-hidden="true"
+                                    >
+                                        <div
+                                            class="modal-dialog"
+                                            role="document"
+                                        >
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5
+                                                        class="modal-title"
+                                                        id="deleteTaskModalLabel"
+                                                    >
+                                                        Aktivasi Akun
+                                                    </h5>
+                                                    <button
+                                                        type="button"
+                                                        class="close"
+                                                        data-dismiss="modal"
+                                                        aria-label="Close"
+                                                    >
+                                                        <span aria-hidden="true"
+                                                            >&times;</span
+                                                        >
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Apakah Anda yakin ingin
+                                                    mengaktifkan akun
+                                                    {{account.username}}?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-secondary"
+                                                        data-dismiss="modal"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <form
+                                                        method="POST"
+                                                        action="ganti-status-akun"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <input
+                                                            type="hidden"
+                                                            name="id_akun"
+                                                            value="{{account.id}}"
+                                                        />
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-success"
+                                                        >
+                                                            Aktivasi
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-
-
-  </section>
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+</section>
+<script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"
+></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
-
 <script>
-  $('#sortTable').DataTable();
+    $("#sortTable").DataTable();
 </script>
-  
 {% endblock content %}
