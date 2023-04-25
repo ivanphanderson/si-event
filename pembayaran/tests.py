@@ -3,7 +3,7 @@ from django.urls import reverse
 from account.tests import set_up_login, set_up_akun_dummy
 from event.models import Event, EventEmployee
 from pegawai.models import Pegawai
-from account.models import Account, User
+from account.models import Account, User, NonSSOAccount
 from django.db.models import Q
 import json
 from io import BytesIO
@@ -55,12 +55,22 @@ class FilterHonorTest(TestCase):
             username=TEST_USERNAME, password=TEST_PASS, email=TEST_EMAIL
         )
 
-        self.account = Account.objects.create(
-            user=self.user,
-            username=TEST_USERNAME,
-            email=TEST_EMAIL,
-            role="Staff Keuangan",
+        nonSSO_account = NonSSOAccount(
+            user = self.user,
+            username = TEST_USERNAME, 
+            email = TEST_EMAIL,
+            role = "Staff Keuangan",
             is_first_login=True,
+
+        )
+        nonSSO_account.save()
+        self.account = Account.objects.create(
+            user = self.user,
+            accNonSSO = nonSSO_account,
+            username = TEST_USERNAME, 
+            email = TEST_EMAIL,
+            role = "Staff Keuangan",
+            accountType = 'Non SSO UI'
         )
 
         self.pegawai = Pegawai.objects.create(

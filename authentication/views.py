@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import PasswordOTP
-from account.models import Account, User
+from account.models import Account, User, NonSSOAccount
 from .forms import ForgetPasswordForm, NewPasswordForm
 from .utils import (
     send_forget_password_email,
@@ -35,24 +35,25 @@ def auto_redirect(request):
 
 @require_http_methods(["GET", "POST"])
 def login_user(request):
-    navbar_admin = []
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            acc = Account.objects.get(user=user)
-            if acc.role == "Admin":
-                navbar_admin.append("Create Account")
-            if acc.is_first_login == True:
-                return redirect("account:ubah_password")
-            else:
-                return redirect("home:home")
+            try:
+                acc = NonSSOAccount.objects.get(user=user)
+                login(request, user)
+                if acc.is_first_login == True:
+                    return redirect("account:ubah_password")
+                else:
+                    return redirect("home:home")
+            except Exception:
+                messages.info(request, "Account has not registered yet.")
+
         else:
             messages.info(request, "Wrong Username or Password!")
 
-    context = {"form": "form", "navbar_admin": navbar_admin}
+    context = {"form": "form"}
     return render(request, "login.html", context)
 
 
@@ -73,7 +74,7 @@ def submit_forget_password(request):
     if forget_password_form.is_valid():
         username = forget_password_form.cleaned_data["username"]
         email = forget_password_form.cleaned_data["email"]
-        if Account.objects.filter(username=username, email=email):
+        if NonSSOAccount.objects.filter(username=username, email=email):
             send_forget_password_email(username, email)
             return redirect("authentication:handle_otp", username=username)
         else:

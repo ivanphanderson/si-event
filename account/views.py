@@ -1,4 +1,4 @@
-from .models import Account, User
+from .models import Account, User, NonSSOAccount
 from .forms import AccountForm, UbahPasswordForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
@@ -10,7 +10,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_http_methods
-
+from auth_sso.models import SSOUIAccount
 
 AKUN_TIDAK_DITEMUKAN = "Account not found"
 HALAMAN_UBAH_PASSWORD_LOGGED_IN_HTML = "halaman_ubah_password_logged_in.html"
@@ -22,7 +22,6 @@ ACCOUNT_CREATION_FAILED = (
 NO_ACCESS_TO_READ_ACCOUNT = "You don't have access to read account!"
 NO_ACCESS_TO_UPDATE_ACCOUNT = "You don't have access to update account!"
 LOGIN_URL = "authentication:login"
-
 
 @login_required(login_url=LOGIN_URL)
 @require_http_methods(["GET", "POST"])
@@ -54,11 +53,25 @@ def register_account(request):
                 user = User.objects.create_user(
                     username=username, password=password, email=email
                 )
-                account = Account(user=user, username=username, email=email, role=role)
+                accountNonSSO = NonSSOAccount(
+                    user = user,
+                    username = username,
+                    email = email,
+                    role = role
+                )
+                acc = Account(
+                    user = user,
+                    accNonSSO = accountNonSSO,
+                    username = username,
+                    email = email,
+                    role = role,
+                    accountType = 'Non SSO'
+                )
                 if role == "Admin":
                     user.is_staff = True
                 user.save()
-                account.save()
+                accountNonSSO.save()
+                acc.save()
                 messages.success(request, "Account is created successfully.")
                 return redirect(HOME_URL)
         else:
@@ -99,7 +112,8 @@ def submit_ubah_password(request):
 
             user.set_password(form.cleaned_data["new_password"])
             user.save()
-            account = Account.objects.get(user=user)
+            # account = Account.objects.get(user=user)
+            account = NonSSOAccount.objects.get(user=user)
             account.is_first_login = False
             account.save()
             messages.info(request, "Password has been changed, please login again.")
@@ -138,6 +152,7 @@ def read_akun(request):
 def update_akun(request, id):
     user = request.user
     account = Account.objects.filter(user=user).first()
+    # account = NonSSOAccount.objects.filter(user=user).first()
     if account.role == "Admin":
         if id.isdigit() and Account.objects.filter(id=id).first():
             account_update = Account.objects.filter(id=id).first()
@@ -167,6 +182,15 @@ def submit_update_akun(request):
             role_baru = request.POST.get("role")
             account_update.role = role_baru
             account_update.save()
+            if account_update.accNonSSO != None:
+                acc_non_SSO = NonSSOAccount.objects.filter(username=account_update.username).first()
+                acc_non_SSO.role = role_baru
+                acc_non_SSO.save()
+            else:
+                acc_SSO = SSOUIAccount.objects.filter(username=account_update.username).first()
+                acc_SSO.role = role_baru
+                acc_SSO.save()
+            messages.success(request, f"Role of {account_update.username}'s account has been changed successfully.")
             return redirect("account:read_akun")
         else:
             return redirect(FORBIDDEN_URL)
