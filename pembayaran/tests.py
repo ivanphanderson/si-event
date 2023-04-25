@@ -19,6 +19,7 @@ DOWNLOAD_EXCEL_BTRMEMO_URL = reverse(
 TEST_EMAIL = "teststaff@gmail.com"
 TEST_USERNAME = "testuser"
 TEST_PASS = "teststaff123"
+NAME = "Test User"
 
 
 class DisplayPembayaranNotAuthenticatedTest(TestCase):
@@ -65,12 +66,12 @@ class FilterHonorTest(TestCase):
         self.pegawai = Pegawai.objects.create(
             email=TEST_EMAIL,
             employee_no="1234567890",
-            employee_name="Test User",
+            employee_name=NAME,
             employee_category="Staff",
             job_status="Administrasi",
             grade_level="-",
             employment_status="Kontrak",
-            nama_di_rekening="Test User",
+            nama_di_rekening=NAME,
             nama_bank="Mandiri",
             nomor_rekening="2222222222",
             nomor_npwp="563780000",
@@ -90,7 +91,7 @@ class FilterHonorTest(TestCase):
         )
 
         EventEmployee.objects.create(
-            employee=Pegawai.objects.get(employee_name="Test User"),
+            employee=Pegawai.objects.get(employee_name=NAME),
             event=Event.objects.get(event_name=self.event_name),
             role="ketua",
         )
