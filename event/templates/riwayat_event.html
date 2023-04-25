@@ -1,110 +1,151 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}
-My Event
-{%endblock title%}
-
+My Events
+{% endblock title %}
 {% block head %}
 <style>
-  .custom-button {
-    background-color: #095d2d; /* green color */
-    color: rgb(249, 248, 248); /* text color */
-  }
-  
-  .custom-modal {
-    background-color: #fff; /* green color */
-    color: rgb(7, 149, 7); /* text color */
-    border-radius: 10px;
-  }
+    .custom-button {
+        background-color: #095d2d;
+        color: rgb(249, 248, 248);
+    }
 
-  
+    .custom-modal {
+        background-color: #fff;
+        color: rgb(7, 149, 7);
+        border-radius: 10px;
+    }
 </style>
 {% endblock %}
-
 {% block meta %}
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
-
-{% load static %}
+<link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css"
+/>
 {% endblock meta %}
-
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
 
-<div style="margin: 50px;">
+<div style="margin: 50px">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-white">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home:home' %}">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">My Events</li>
+        </ol>
+    </nav>
+    <h4 style="text-align: center">My Events</h4>
+    {% if event_data %}
+    <div style="text-align: center">
+        <br />
+        <a
+            href="{% url 'get_events' %}"
+            role="button"
+            class="btn btn-primary"
+            style="margin-right: 1vw"
+        >
+            All Events
+        </a>
+        <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-cloud-upload"
+                viewBox="0 0 16 16"
+            >
+                <path
+                    fill-rule="evenodd"
+                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                />
+                <path
+                    fill-rule="evenodd"
+                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                />
+            </svg>
+            Create Event
+        </a>
+        <br /><br /><br />
+    </div>
 
-  <h4 style="text-align: center;">My Event</h4>
+    <table class="table table-striped" id="eventTable">
+        <caption>
+            Table to show Event List
+        </caption>
 
-  {% if event_data %}
-  <div style="text-align: center;">
-    <br>
-    <a href="/event" role="button" class="btn btn-primary" style="margin-right: 1vw;">
-        All Event
-      </a>
-    <a href="create" role="button" class="btn btn-warning">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-upload" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
-        <path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/>
-      </svg>
-      Add Event
-    </a>
-    <br><br><br>
-  </div>
-
-  <table class="table table-striped" id="eventTable">
-    
-    <caption>Table to show Event List</caption>
-    
-    <thead style="background-color: #2A3990; color: white;">
-      <tr>
-        <th scope="col">Event Name.</th>
-        <th scope="col">Start Date</th>
-        <th scope="col">End Date</th>
-        <th scope="col">Expense</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in event_data %}
-      <tr>
-        <td style="vertical-align: middle;">{{event.event_name}}</td>
-        <td style="vertical-align: middle;">{{event.start_date}}</td>
-        <td style="vertical-align: middle;">{{event.end_date}}</td>
-        <td style="vertical-align: middle;">
-          <script>
-            var expense = {{event.expense}};
-            var expense_format = ((expense).toLocaleString('ID', {
-              style: 'currency',
-              currency: 'IDR',
-            }));
-            document.write(expense_format.slice(0,2) + expense_format.slice(3));
-          </script>
-        </td>
-        <td>
-          <a href="update/{{event.id}}" class="btn btn-warning">Update</a>
-          <a href="detail/{{event.id}}" class="btn btn-dark">Detail</a>
-        </td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="button2" style="text-align: center;">
-    <img src={% static "img/no_event.png" %} width=400 height=300 class="img-fluid" alt="Search image">
-    <br>
-    <a href="create" role="button" class="btn btn-warning 2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-upload" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
-        <path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/>
-      </svg>
-      Create An Event
-    </a>
-    <br>
-    <br>
-  </div>
-  {% endif %}
+        <thead style="background-color: #2a3990; color: white">
+            <tr>
+                <th scope="col">Event Name</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Expense (Total Bruto)</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in event_data %}
+            <tr>
+                <td style="vertical-align: middle">{{event.event_name}}</td>
+                <td style="vertical-align: middle">{{event.start_date}}</td>
+                <td style="vertical-align: middle">{{event.end_date}}</td>
+                <td style="vertical-align: middle">
+                    <script>
+                        var expense = {{ event.expense }};
+                        var expense_format = ((expense).toLocaleString('ID', {
+                          style: 'currency',
+                          currency: 'IDR',
+                        }));
+                        document.write(expense_format.slice(0,2) + expense_format.slice(3));
+                    </script>
+                </td>
+                <td>
+                    <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
+                        >Update</a
+                    >
+                    <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
+                        >Detail</a
+                    >
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="button2" style="text-align: center">
+        <img src="{% static 'img/no_event.png' %}" width=400 height=300
+        class="img-fluid" alt="Search image">
+        <br />
+        <a href="{% url 'create_event' %}" role="button" class="btn btn-warning 2">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-cloud-upload"
+                viewBox="0 0 16 16"
+            >
+                <path
+                    fill-rule="evenodd"
+                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                />
+                <path
+                    fill-rule="evenodd"
+                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                />
+            </svg>
+            Create An Event
+        </a>
+        <br />
+        <br />
+    </div>
+    {% endif %}
 </div>
-
+<script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"
+></script>
 {% endblock content %}

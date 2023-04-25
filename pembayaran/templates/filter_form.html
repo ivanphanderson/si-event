@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load convert_pph %}
 {% load static %}
 
 {% block title %}
@@ -97,12 +98,21 @@ Honors and Payments
     }
 </style>
 {% endblock %}
-
 {% block content %}
-<div style="margin: 50px;">
+<div class="m-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-white">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home:home' %}">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Honor and Payments
+            </li>
+        </ol>
+    </nav>
 
-    <h4 style="text-align: center;">Honors and Payments</h4>
-    <br><br>
+    <h4 style="text-align: center">Honors and Payments</h4>
+    <br /><br />
 
     <form method="GET" action=".">
         <div class="form-group col-md-2 col-lg-2">
@@ -216,15 +226,16 @@ Honors and Payments
     <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
         <thead style="background-color: #2A3990; color: white;">
             <tr>
-                <th scope="col">No.</th>
+                <th scope="col">No</th>
                 <th scope="col">Nama</th>
                 <th scope="col">Tugas</th>
                 <th scope="col">Bruto(Rp.)</th>
-                <th scope="col">Pph (%)</th>
+                <th scope="col">Pph (Rp.)</th>
                 <th scope="col">Netto (Rp.)</th>
                 <th scope="col">Nama di rekening</th>
                 <th scope="col">Bank</th>
                 <th scope="col">No Rekening</th>
+
             </tr>
         </thead>
         <tbody>
@@ -234,7 +245,7 @@ Honors and Payments
                 <td>{{qs.employee.employee_name}}</td>
                 <td>{{qs.role}}</td>
                 <td>{{qs.honor}}</td>
-                <td>{{qs.pph}}</td>
+                <td>{{qs.pph|convert:qs.honor}}</td>
                 <td>{{qs.netto}}</td>
                 <td>{{qs.employee.nama_di_rekening}}</td>
                 <td>{{qs.employee.nama_bank}}</td>
@@ -253,9 +264,9 @@ Honors and Payments
         </tbody>
     </table>
 
-    <div style="text-align: center;">
-        <br>
-        <a href="#" role="button" class="btn btn-warning">
+    <div style="text-align: center">
+        <br />
+        <a id="tombolDownloadExcel" href="#" role="button" class="btn btn-warning">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                 class="bi bi-cloud-download" viewBox="0 0 16 16">
                 <path
@@ -263,9 +274,9 @@ Honors and Payments
                 <path
                     d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z" />
             </svg>
-            Download
+            Download as Excel
         </a>
-        <br><br>
+        <br /><br />
     </div>
 </div>
 
@@ -283,10 +294,10 @@ Honors and Payments
             }
         } else if (startDt.value != '' && endDt.value == '') {
             event.preventDefault();
-            $('#errUntilDate').modal('show');  
+            $('#errUntilDate').modal('show');
         } else if (startDt.value == '' && endDt.value != '') {
             event.preventDefault();
-            $('#errFromDate').modal('show');  
+            $('#errFromDate').modal('show');
         }
     }
 </script>
@@ -369,5 +380,63 @@ Honors and Payments
         }
     })
 </script>
+<script>
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+    document
+        .getElementById("tombolDownloadExcel")
+        .addEventListener("click", downloadAsExcel);
+
+    async function sendDataToBackend(data) {
+        fetch("{% url 'pembayaran:download_as_excel' type='standard' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": window.CSRF_TOKEN,
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(data),
+        })
+            .then((res) => res.blob())
+            .then((blob) => URL.createObjectURL(blob))
+            .then((href) => {
+                Object.assign(document.createElement("a"), {
+                    href,
+                    download: "data_pembayaran_panitia_event.xlsx",
+                }).click();
+            });
+    }
+
+    function downloadAsExcel(event) {
+        event.preventDefault();
+        const table = document.getElementById("table");
+        const numOfRows = table.getElementsByTagName("tr").length;
+        let tableData = {};
+
+        for (let i = 0; i < numOfRows; i++) {
+            const row = table.rows[i];
+            let record = {};
+            if (i !== numOfRows - 1) {
+                record["no"] = row.cells[0].innerHTML;
+                record["nama karyawan"] = row.cells[1].innerHTML;
+                record["tugas"] = row.cells[2].innerHTML;
+                record["bruto"] = row.cells[3].innerHTML;
+                record["pph"] = row.cells[4].innerHTML;
+                record["netto"] = row.cells[5].innerHTML;
+                record["nama di rekening"] = row.cells[6].innerHTML;
+                record["bank"] = row.cells[7].innerHTML;
+                record["nomor rekening"] = row.cells[8].innerHTML;
+                tableData[i] = record;
+            } else {
+                record["total"] = row.cells[0].innerHTML;
+                record["total bruto"] = row.cells[1].innerHTML;
+                record["total pph"] = row.cells[2].innerHTML;
+                record["total netto"] = row.cells[3].innerHTML;
+                tableData[i] = record;
+            }
+        }
+        sendDataToBackend(tableData);
+    }
+</script>
+
 
 {% endblock content %}

@@ -1,28 +1,23 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    Access Forbidden
-{%endblock title%}
-
-{% block meta %}
-
 {% load static %}
+{% block title %}
+Access Forbidden
+{% endblock title %}
+{% block meta %}
 {% endblock meta %}
-
 {% block content %}
 <div>
+    <h1 style="text-align: center; font-weight: bold">403</h1>
+    <h4 style="text-align: center; font-weight: bold">Forbidden</h4>
 
-  <h1 style="text-align: center; font-weight: bold;">403</h1>
-  <h4 style="text-align: center; font-weight: bold;">Forbidden</h4>
-
-  <div style="text-align: center;">
-    <img src={% static "img/oops.png" %} width="350" height="350" class="img-fluid" alt="Search image">
-    <h5>Sorry you're Not Allowed to Access this Page.</h5>
-    <br>
-    <a href="/home/" role="button" class="btn btn-warning">Back</a>
-    <br><br>
-  </div>
+    <div style="text-align: center">
+        <img src="{% static 'img/oops.png' %}" width="350" height="350"
+        class="img-fluid" alt="Search image">
+        <h5>Sorry you're Not Allowed to Access this Page.</h5>
+        <br />
+        <a href="{% url 'home:home' %}" role="button" class="btn btn-warning">Back</a>
+        <br /><br />
+    </div>
 </div>
-
 
 {% endblock content %}
