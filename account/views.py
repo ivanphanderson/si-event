@@ -151,7 +151,6 @@ def read_akun(request):
 def update_akun(request, id):
     user = request.user
     account = Account.objects.filter(user=user).first()
-    # account = NonSSOAccount.objects.filter(user=user).first()
     if account.role == "Admin":
         if id.isdigit() and Account.objects.filter(id=id).first():
             account_update = Account.objects.filter(id=id).first()
