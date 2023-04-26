@@ -12,7 +12,6 @@ class Event(models.Model):
     expense = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     sk_file = models.BinaryField(null=True)
 
-
 class EventEmployee(models.Model):
     employee = models.ForeignKey(Pegawai, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)

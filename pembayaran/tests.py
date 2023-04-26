@@ -3,7 +3,7 @@ from django.urls import reverse
 from account.tests import set_up_login, set_up_akun_dummy
 from event.models import Event, EventEmployee
 from pegawai.models import Pegawai
-from account.models import Account, User
+from account.models import Account, User, NonSSOAccount
 from django.db.models import Q
 import json
 from io import BytesIO
@@ -19,6 +19,8 @@ DOWNLOAD_EXCEL_BTRMEMO_URL = reverse(
 TEST_EMAIL = "teststaff@gmail.com"
 TEST_USERNAME = "testuser"
 TEST_PASS = "teststaff123"
+STAFF_KEUANGAN = 'Staff Keuangan'
+TEST_USER = 'Test User'
 
 
 class DisplayPembayaranNotAuthenticatedTest(TestCase):
@@ -54,23 +56,33 @@ class FilterHonorTest(TestCase):
             username=TEST_USERNAME, password=TEST_PASS, email=TEST_EMAIL
         )
 
-        self.account = Account.objects.create(
-            user=self.user,
-            username=TEST_USERNAME,
-            email=TEST_EMAIL,
-            role="Staff Keuangan",
+        non_sso_account = NonSSOAccount(
+            user = self.user,
+            username = TEST_USERNAME, 
+            email = TEST_EMAIL,
+            role = STAFF_KEUANGAN,
             is_first_login=True,
+
+        )
+        non_sso_account.save()
+        self.account = Account.objects.create(
+            user = self.user,
+            accNonSSO = non_sso_account,
+            username = TEST_USERNAME, 
+            email = TEST_EMAIL,
+            role = STAFF_KEUANGAN,
+            accountType = 'Non SSO UI'
         )
 
         self.pegawai = Pegawai.objects.create(
             email=TEST_EMAIL,
             employee_no="1234567890",
-            employee_name="Test User",
+            employee_name=TEST_USER,
             employee_category="Staff",
             job_status="Administrasi",
             grade_level="-",
             employment_status="Kontrak",
-            nama_di_rekening="Test User",
+            nama_di_rekening=TEST_USER,
             nama_bank="Mandiri",
             nomor_rekening="2222222222",
             nomor_npwp="563780000",
@@ -90,7 +102,7 @@ class FilterHonorTest(TestCase):
         )
 
         EventEmployee.objects.create(
-            employee=Pegawai.objects.get(employee_name="Test User"),
+            employee=Pegawai.objects.get(employee_name=TEST_USER),
             event=Event.objects.get(event_name=self.event_name),
             role="ketua",
         )
@@ -128,7 +140,7 @@ class FilterHonorTest(TestCase):
 
 class DownloadExcelFromData(TestCase):
     def setUp(self) -> None:
-        set_up_login(self, "Staff Keuangan")
+        set_up_login(self, STAFF_KEUANGAN)
         set_up_akun_dummy(self)
         self.data_table = {
             "0": {
