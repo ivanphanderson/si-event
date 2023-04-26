@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'log',
     'home',
     'pembayaran',
+    'auth_sso',
 ]
 
 MIDDLEWARE = [
