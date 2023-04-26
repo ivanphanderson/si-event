@@ -53,7 +53,7 @@ def register_account(request):
                 user = User.objects.create_user(
                     username=username, password=password, email=email
                 )
-                accountNonSSO = NonSSOAccount(
+                account_non_sso = NonSSOAccount(
                     user = user,
                     username = username,
                     email = email,
@@ -61,7 +61,7 @@ def register_account(request):
                 )
                 acc = Account(
                     user = user,
-                    accNonSSO = accountNonSSO,
+                    accNonSSO = account_non_sso,
                     username = username,
                     email = email,
                     role = role,
@@ -70,7 +70,7 @@ def register_account(request):
                 if role == "Admin":
                     user.is_staff = True
                 user.save()
-                accountNonSSO.save()
+                account_non_sso.save()
                 acc.save()
                 messages.success(request, "Account is created successfully.")
                 return redirect(HOME_URL)
@@ -112,7 +112,6 @@ def submit_ubah_password(request):
 
             user.set_password(form.cleaned_data["new_password"])
             user.save()
-            # account = Account.objects.get(user=user)
             account = NonSSOAccount.objects.get(user=user)
             account.is_first_login = False
             account.save()
@@ -183,13 +182,13 @@ def submit_update_akun(request):
             account_update.role = role_baru
             account_update.save()
             if account_update.accNonSSO != None:
-                acc_non_SSO = NonSSOAccount.objects.filter(username=account_update.username).first()
-                acc_non_SSO.role = role_baru
-                acc_non_SSO.save()
+                acc_non_sso = NonSSOAccount.objects.filter(username=account_update.username).first()
+                acc_non_sso.role = role_baru
+                acc_non_sso.save()
             else:
-                acc_SSO = SSOUIAccount.objects.filter(username=account_update.username).first()
-                acc_SSO.role = role_baru
-                acc_SSO.save()
+                acc_sso = SSOUIAccount.objects.filter(username=account_update.username).first()
+                acc_sso.role = role_baru
+                acc_sso.save()
             messages.success(request, f"Role of {account_update.username}'s account has been changed successfully.")
             return redirect("account:read_akun")
         else:

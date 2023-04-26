@@ -17,6 +17,8 @@ TEST_USER_USERNAME = 'test_user'
 TEST_USER_EMAIL = 'test.user@gmail.com'
 TEST_USER_PASSWORD = 'testuser123'
 TEST_SK_EMAIL = 'test.sk@gmail.com'
+TEST_EMAIL = 'tes@gmail.com'
+NON_SSO_UI = 'Non SSO UI'
 
 ACCOUNT_URL = '/account/'
 GANTI_STATUS_AKUN_URL = '/account/ganti-status-akun'
@@ -221,20 +223,20 @@ def set_up_login(self, role):
     user: User = User.objects.create()
     user.username = self.USERNAME2
     user.set_password(self.PASSWORD2)
-    nonSSO_account = NonSSOAccount(
+    non_sso_account = NonSSOAccount(
         user = user,
         username = self.USERNAME2, 
-        email = 'tes@gmail.com',
+        email = TEST_EMAIL,
         role = role
     )
-    nonSSO_account.save()
+    non_sso_account.save()
     self.account = Account(
         user = user,
-        accNonSSO = nonSSO_account,
+        accNonSSO = non_sso_account,
         username = self.USERNAME2, 
-        email = 'tes@gmail.com',
+        email = TEST_EMAIL,
         role = role,
-        accountType = 'Non SSO UI'
+        accountType = NON_SSO_UI
     )
     self.account.user.username=self.USERNAME2
     user.save()
@@ -246,24 +248,24 @@ def set_up_login(self, role):
 def set_up_akun_dummy(self):
     self.USERNAME = 'tesname2'
     self.PASSWORD = PASSWORD_UNTUK_TEST
-    self.EMAIL = 'tes@gmail.com'
+    self.EMAIL = TEST_EMAIL
     user: User = User.objects.create()
     user.username = self.USERNAME
     user.set_password(self.PASSWORD)
-    nonSSO_account = NonSSOAccount(
+    non_sso_account = NonSSOAccount(
         user = user,
         username = self.USERNAME, 
         email = self.EMAIL,
         role = 'Admin'
     )
-    nonSSO_account.save()
+    non_sso_account.save()
     account = Account(
         user = user,
-        accNonSSO = nonSSO_account,
+        accNonSSO = non_sso_account,
         username = self.USERNAME, 
         email = self.EMAIL,
         role = 'Admin',
-        accountType = 'Non SSO UI'
+        accountType = NON_SSO_UI
     )
     account.user.username = self.USERNAME
     user.save()
@@ -600,7 +602,7 @@ class AccountModelTestCase(TestCase):
             username='tesuser',
             email='tesuser@gmail.com',
             role='Admin',
-            accountType='Non SSO UI'
+            accountType=NON_SSO_UI
         )
         expected_str = f'{account.accountType} - {account.username}, {account.role}'
         self.assertEqual(str(account), expected_str)

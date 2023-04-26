@@ -5,12 +5,14 @@ from .utils import get_sso_ui_data
 from account.models import Account, User
 from django.contrib.auth import authenticate, login
 from .models import SSOUIAccount
+from django.views.decorators.http import require_http_methods
 
 import requests
 
 from .utils import get_sso_ui_data
 from django.views.decorators.csrf import csrf_exempt
 
+@require_http_methods(["GET", "POST"])
 def login_sso(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -29,7 +31,7 @@ def login_sso(request):
             if not SSOUIAccount.objects.filter(username=username).exists():
                 email = f'{username}@ui.ac.id'
                 user = User.objects.create_user(username=username, password=password, email=email)
-                accountSSO = SSOUIAccount(
+                account_sso = SSOUIAccount(
                     user = user,
                     kode_identitas = sso_data['kodeidentitas'],
                     nama = sso_data['nama'],
@@ -39,14 +41,14 @@ def login_sso(request):
                 )
                 acc = Account(
                     user = user,
-                    accSSO = accountSSO,
+                    accSSO = account_sso,
                     username = username,
                     email = email,
                     role = 'Guest',
                     accountType = 'SSO UI'
                 )
                 user.save()
-                accountSSO.save()
+                account_sso.save()
                 acc.save()
 
         user = authenticate(request, username=username, password=password)

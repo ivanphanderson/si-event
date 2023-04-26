@@ -6,18 +6,20 @@ from django.urls import reverse
 from django.contrib.messages import get_messages
 from .utils import get_sso_ui_data
 
+SSO_USERNAME = 'rizky.juniastiar'
+
 class LoginSSOTestCase(TestCase):
     
     def setUp(self):
         self.client = Client()
         self.url = reverse('auth_sso:login_sso')
-        self.username = 'rizky.juniastiar'
+        self.username = SSO_USERNAME
         self.password = 'passwordsso'
         
     @patch('auth_sso.views.get_sso_ui_data')
     def test_sso_successfully_login(self, mock_sso_data):
         mock_sso_data.return_value.json.return_value = { 
-            "username": "rizky.juniastiar", 
+            "username": SSO_USERNAME, 
             "nama": "Rizky Juniastiar", 
             "state": 1, 
             "kode_org": "09.00.12.01:mahasiswa", 
@@ -102,13 +104,13 @@ class TestGetSSOUIData(TestCase):
 class SSOUIAccountModelTestCase(TestCase):
 
     def test_sso_ui_account_str_representation(self):
-        user = User.objects.create(username='rizky.juniastiar')
+        user = User.objects.create(username=SSO_USERNAME)
         account = SSOUIAccount.objects.create(
             user=user,
             kode_identitas='2006596043',
             nama='Rizky Juniastiar',
             kode_organisasi='09.00.12.01',
-            username='rizky.juniastiar',
+            username=SSO_USERNAME,
             role='Admin'
         )
         expected_str = f'{account.username} - {account.role}'

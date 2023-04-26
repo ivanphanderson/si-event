@@ -2,7 +2,6 @@ from django.db import models
 from datetime import timedelta
 from django.utils import timezone
 
-
 def now_plus_10_minutes():
     return timezone.now() + timedelta(minutes=10)
 

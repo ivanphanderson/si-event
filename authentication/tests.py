@@ -35,6 +35,7 @@ REVERSE_UBAH_PASSWORD = 'account:ubah_password'
 REVERSE_HOME_HOME = 'home:home'
 LOGIN_HTML = 'login.html'
 USERNAME_ATAU_PW_SALAH = 'Wrong Username or Password!'
+NON_SSO_UI = 'Non SSO UI'
 
 class AutoRedirectViewTest(TestCase):
     def setUp(self):
@@ -89,20 +90,20 @@ class LoginLogoutTest(TestCase):
         user_admin.email = self.ADMIN_EMAIL
         user_admin.set_password(self.ADMIN_PASSWORD)
 
-        nonSSO_acc_admin = NonSSOAccount(
+        non_sso_acc_admin = NonSSOAccount(
             user = user_admin,
             username = self.ADMIN_USERNAME, 
             email = self.ADMIN_EMAIL,
             role = 'Admin'
         )
-        nonSSO_acc_admin.save()
+        non_sso_acc_admin.save()
         admin_acc = Account(
             user = user_admin,
-            accNonSSO = nonSSO_acc_admin,
+            accNonSSO = non_sso_acc_admin,
             username = self.ADMIN_USERNAME, 
             email = self.ADMIN_EMAIL,
             role = 'Admin',
-            accountType = 'Non SSO UI'
+            accountType = NON_SSO_UI
         )
         admin_acc.user.username = self.ADMIN_USERNAME
         admin_acc.save()
@@ -113,20 +114,20 @@ class LoginLogoutTest(TestCase):
         user_user.email = self.USER_EMAIL
         user_user.set_password(self.USER_PASSWORD)
 
-        nonSSO_acc_user = NonSSOAccount(
+        non_sso_acc_user = NonSSOAccount(
             user = user_user,
             username = self.USER_USERNAME, 
             email = self.USER_EMAIL,
             role = 'User'
         )
-        nonSSO_acc_user.save()
+        non_sso_acc_user.save()
         user_acc = Account(
             user = user_user,
-            accNonSSO = nonSSO_acc_user,
+            accNonSSO = non_sso_acc_user,
             username = self.USER_USERNAME, 
             email = self.USER_EMAIL,
             role = 'User',
-            accountType = 'Non SSO UI'
+            accountType = NON_SSO_UI
         )
         user_acc.user.username = self.USER_USERNAME
         user_acc.save()
@@ -137,20 +138,20 @@ class LoginLogoutTest(TestCase):
         user_sk.email = self.STAFF_KEUANGAN_EMAIL
         user_sk.set_password(self.STAFF_KEUANGAN_PASSWORD)
 
-        nonSSO_acc_sk = NonSSOAccount(
+        non_sso_acc_sk = NonSSOAccount(
             user = user_sk,
             username = self.STAFF_KEUANGAN_USERNAME,
             email = self.STAFF_KEUANGAN_EMAIL,
             role = 'Staff Keuangan'
         )
-        nonSSO_acc_sk.save()
+        non_sso_acc_sk.save()
         sk_acc = Account(
             user = user_sk,
-            accNonSSO = nonSSO_acc_sk,
+            accNonSSO = non_sso_acc_sk,
             username = self.STAFF_KEUANGAN_USERNAME,
             email = self.STAFF_KEUANGAN_EMAIL,
             role = 'Staff Keuangan',
-            accountType = 'Non SSO UI'
+            accountType = NON_SSO_UI
         )
         sk_acc.user.username = self.STAFF_KEUANGAN_USERNAME
         sk_acc.save()
@@ -311,26 +312,20 @@ class LupaPasswordTest(TestCase):
         user = User.objects.create()
         user.username = self.USERNAME
         user.set_password(self.PASSWORD)
-        nonSSO_acc = NonSSOAccount(
+        non_sso_acc = NonSSOAccount(
             user = user,
             username = self.USERNAME, 
             email = self.EMAIL,
             role = 'Admin'
         )
-        nonSSO_acc.save()
-        sk_acc = Account(
+        non_sso_acc.save()
+        account = Account(
             user = user,
-            accNonSSO = nonSSO_acc,
+            accNonSSO = non_sso_acc,
             username = self.USERNAME, 
             email = self.EMAIL,
             role = 'Admin',
-            accountType = 'Non SSO UI'
-        )
-        account = Account(
-            user = user,
-            username = self.USERNAME, 
-            email = self.EMAIL,
-            role = 'Admin'
+            accountType = NON_SSO_UI
         )
         account.user.username = self.USERNAME
         account.save()

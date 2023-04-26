@@ -2,11 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from auth_sso.models import SSOUIAccount
 
+STAFF_KEUANGAN = 'Staff Keuangan'
+
 class NonSSOAccount(models.Model):
     ROLE_CHOICES = [
         ('Admin','Admin'),
         ('User','User'),
-        ('Staff Keuangan', 'Staff Keuangan'),
+        (STAFF_KEUANGAN, STAFF_KEUANGAN),
         ('Guest','Guest')
     ]
 
@@ -22,7 +24,7 @@ class Account(models.Model):
     ROLE_CHOICES = [
         ('Admin','Admin'),
         ('User','User'),
-        ('Staff Keuangan', 'Staff Keuangan'),
+        (STAFF_KEUANGAN, STAFF_KEUANGAN),
         ('Guest','Guest')
     ]
 
@@ -40,4 +42,3 @@ class Account(models.Model):
     accountType = models.CharField(max_length=20, choices=ACCOUNT_TYPE_CHOICES, default='')
     def __str__(self):
         return f'{self.accountType} - {self.username}, {self.role}'
-

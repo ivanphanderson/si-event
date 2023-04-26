@@ -22,6 +22,7 @@ CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
 FORBIDDEN_URL = '/home/forbidden/'
 DATE_FORMAT = "%Y-%m-%d"
+NON_SSO_UI = 'Non SSO UI'
 
 class EventCreateViewTestCase(TestCase):
   def setUp(self):
@@ -30,21 +31,21 @@ class EventCreateViewTestCase(TestCase):
         username='testuser', email='testuser@test.com', password='testpassword')
     self.client.login(username='testuser', password='testpassword')
 
-    nonSSO_acc = NonSSOAccount.objects.create(
+    non_sso_acc = NonSSOAccount.objects.create(
       user = self.user,
       username = 'jonikeren',
       email = 'acc1@example.com',
       role = 'User',
       is_first_login = True
     )
-    nonSSO_acc.save()
+    non_sso_acc.save()
     self.account = Account.objects.create(
       user = self.user,
-      accNonSSO = nonSSO_acc,
+      accNonSSO = non_sso_acc,
       username = 'jonikeren',
       email = 'acc1@example.com',
       role = 'User',
-      accountType = 'Non SSO UI'
+      accountType = NON_SSO_UI
     )
     
     self.pegawai1 = Pegawai.objects.create(
@@ -212,21 +213,21 @@ class EventModelTest(TestCase):
       email='adminkece@gmail.com'
     )
 
-    nonSSO_acc = NonSSOAccount.objects.create(
+    non_sso_acc = NonSSOAccount.objects.create(
       user = self.user,
       username = 'jonikeren',
       email = email,
       role = 'User',
       is_first_login = True
     )
-    nonSSO_acc.save()
+    non_sso_acc.save()
     self.account = Account.objects.create(
       user = self.user,
-      accNonSSO = nonSSO_acc,
+      accNonSSO = non_sso_acc,
       username = 'jonikeren',
       email = email,
       role = 'User',
-      accountType = 'Non SSO UI'
+      accountType = NON_SSO_UI
     )
 
     self.pegawai = Pegawai.objects.create(
@@ -318,21 +319,21 @@ class ShowEventListViewTestCase(TestCase):
       email='adminkece@gmail.com'
     )
 
-    nonSSO_acc = NonSSOAccount.objects.create(
+    non_sso_acc = NonSSOAccount.objects.create(
       user = self.user,
       username = 'jonikeren',
       email = email,
       role = 'User',
       is_first_login = True
     )
-    nonSSO_acc.save()
+    non_sso_acc.save()
     self.account = Account.objects.create(
       user = self.user,
-      accNonSSO = nonSSO_acc,
+      accNonSSO = non_sso_acc,
       username = 'jonikeren',
       email = email,
       role = 'User',
-      accountType = 'Non SSO UI'
+      accountType = NON_SSO_UI
     )
 
     self.event_name_1 = 'Event 1'
@@ -430,21 +431,21 @@ class EventEmployeeModelTestCase(TestCase):
       email='adminkocak@gmail.com'
     )
 
-    nonSSO_acc = NonSSOAccount.objects.create(
+    non_sso_acc = NonSSOAccount.objects.create(
       user = cls.user,
       username = 'jonikeren',
       email = email,
       role = 'User',
       is_first_login = True
     )
-    nonSSO_acc.save()
+    non_sso_acc.save()
     cls.account = Account.objects.create(
       user = cls.user,
-      accNonSSO = nonSSO_acc,
+      accNonSSO = non_sso_acc,
       username = 'jonikeren',
       email = email,
       role = 'User',
-      accountType = 'Non SSO UI'
+      accountType = NON_SSO_UI
     )
 
     cls.event = Event.objects.create(
@@ -543,21 +544,21 @@ class InputEmployeeToEventTestCase(TestCase):
       password='admin345', 
       email='adminkacok@gmail.com'
     )
-    nonSSO_acc = NonSSOAccount.objects.create(
+    non_sso_acc = NonSSOAccount.objects.create(
       user = self.user,
       username = 'jonakeren',
       email = 'jokimak@gmail.com',
       role = 'User',
       is_first_login = True
     )
-    nonSSO_acc.save()
+    non_sso_acc.save()
     self.account = Account.objects.create(
       user = self.user,
-      accNonSSO = nonSSO_acc,
+      accNonSSO = non_sso_acc,
       username = 'jonakeren',
       email = 'jokimak@gmail.com',
       role = 'User',
-      accountType = 'Non SSO UI'
+      accountType = NON_SSO_UI
     )
 
     self.sess_data = {
