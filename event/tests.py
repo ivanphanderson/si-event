@@ -1003,3 +1003,15 @@ class RUDEventLoggedInNonCreatorTest(TestCase):
                 
 		self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus
 		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+class CEventLoggedInAdminExtraTest(TestCase):
+	def setUp(self) -> None:
+		set_up_login(self, 'Admin')
+
+	def test_create_event_invalid_role(self):
+		response = self.client.get('/event/create')
+		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+		
+	def test_riwayat_event_invalid_role(self):
+		response = self.client.get('/event/my-event')
+		self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)

@@ -73,7 +73,7 @@ def register_account(request):
                 account_non_sso.save()
                 acc.save()
                 messages.success(request, "Account is created successfully.")
-                return redirect(HOME_URL)
+                return redirect("/account")
         else:
             msg.append(ACCOUNT_CREATION_FAILED)
             error_lst = list(form.errors.values())

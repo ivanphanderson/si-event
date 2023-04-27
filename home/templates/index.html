@@ -158,23 +158,46 @@ Home
                                     </h4>
                                 </div>
                             </div>
+                            {% if role == 'Staff Keuangan' %}
                             <div
-                                class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-2"
-                            >
+                                        class="u-align-center u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-2"
+                                        onclick="window.location.href = '/pembayaran';"
+                                    >
+                                        <div
+                                            class="u-container-layout u-similar-container u-valign-top u-container-layout-4"
+                                        >
+                                            <span
+                                                class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"
+                                                ><img
+                                                    src="/static/homecss/icons/payment.png"
+                                                    alt=""
+                                            /></span>
+                                            <h4
+                                                class="u-align-center u-text u-text-3"
+                                            >
+                                                Honors
+                                            </h4>
+                                        </div>
+                                    </div>
+                            {% else %}
                                 <div
-                                    class="u-container-layout u-similar-container u-valign-top u-container-layout-4"
+                                    class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-2"
                                 >
-                                    <span
-                                        class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"
-                                        ><img
-                                            src="/static/homecss/icons/coming-soon.png"
-                                            alt=""
-                                    /></span>
-                                    <h4 class="u-align-center u-text u-text-3">
-                                        Coming Soon
-                                    </h4>
+                                    <div
+                                        class="u-container-layout u-similar-container u-valign-top u-container-layout-4"
+                                    >
+                                        <span
+                                            class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"
+                                            ><img
+                                                src="/static/homecss/icons/coming-soon.png"
+                                                alt=""
+                                        /></span>
+                                        <h4 class="u-align-center u-text u-text-3">
+                                            Coming Soon
+                                        </h4>
+                                    </div>
                                 </div>
-                            </div>
+                            {% endif %}
                             <div
                                 class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-3"
                             >

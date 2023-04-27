@@ -274,6 +274,37 @@ def set_up_akun_dummy(self):
     self.user_dummy = user
     self.account_dummy = account
 
+def set_up_akun_sso(self):
+    self.USERNAME3 = 'tesname3'
+    self.PASSWORD3 = PASSWORD_UNTUK_TEST
+    self.EMAIL3 = TEST_EMAIL
+    user: User = User.objects.create()
+    user.username = self.USERNAME3
+    user.set_password(self.PASSWORD3)
+    user = User.objects.create(username=self.USERNAME3)
+    sso_account = SSOUIAccount.objects.create(
+            user=user,
+            kode_identitas='2006596043',
+            nama='Rizky Juniastiar',
+            kode_organisasi='09.00.12.01',
+            username=self.USERNAME3,
+            role='Admin'
+        )
+    account = Account(
+        user = user,
+        accSSO = sso_account,
+        username = self.USERNAME3, 
+        email = self.EMAIL3,
+        role = 'Admin',
+        accountType = NON_SSO_UI
+    )
+    account.user.username = self.USERNAME3
+    user.save()
+    account.save()
+
+    self.user_dummy2 = user
+    self.account_dummy2 = account
+
 class UbahPasswordSudahLoginTest(TestCase):
     def setUp(self) -> None:
         set_up_login(self, 'Admin')
@@ -373,6 +404,7 @@ class AccountSudahLoginAdminTest(TestCase):
     def setUp(self) -> None:
         set_up_login(self, 'Admin')
         set_up_akun_dummy(self)
+        set_up_akun_sso(self)
 
     def test_admin_read_akun_is_exist(self):
         response = self.client.get(ACCOUNT_URL)
@@ -406,6 +438,17 @@ class AccountSudahLoginAdminTest(TestCase):
         self.assertRedirects(response, ACCOUNT_URL, status_code=302, target_status_code=200)
         
         updated_account = Account.objects.get(user=self.user_dummy)
+        self.assertEqual(updated_account.role, "User")
+
+    def test_admin_update_akun_post_sso_is_exist(self):
+        data = {
+            'id_akun': self.account_dummy2.id,
+            'role': "User"
+        }
+        response = self.client.post(f'/account/update/submit/submit', data)
+        self.assertRedirects(response, ACCOUNT_URL, status_code=302, target_status_code=200)
+        
+        updated_account = Account.objects.get(user=self.user_dummy2)
         self.assertEqual(updated_account.role, "User")
 
     def test_admin_update_akun_post_akun_sendiri_tidak_bisa(self):

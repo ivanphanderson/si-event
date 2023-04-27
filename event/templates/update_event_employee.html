@@ -126,13 +126,12 @@ Update Event Employee
 
     const input = document.getElementById(`search_field_0`);
     input.addEventListener("input", function () {
-        const searchTerm = input.value;
         const xhr = new XMLHttpRequest();
+        const searchTerm = input.value;
         xhr.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 const options = JSON.parse(this.responseText);
                 dropdown.innerHTML = "";
-
                 const defaultOptions = document.createElement("option");
                 defaultOptions.innerHTML =
                     "Click here to choose available employee based on input above";

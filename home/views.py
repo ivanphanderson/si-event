@@ -13,6 +13,8 @@ def home(request):
     context = {
         "role": acc.role,
     }
+    if acc.role == "Guest":
+        return render(request, "home.html", context)
     return render(request, "index.html", context)
 
 

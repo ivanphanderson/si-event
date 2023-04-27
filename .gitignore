@@ -81,3 +81,5 @@ $RECYCLE.BIN/
 .scannerwork
 
 sonar-project.properties
+
+.vscode
