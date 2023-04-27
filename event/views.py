@@ -121,7 +121,7 @@ def get_events(request, success_message=None):
     owner_data = dict()
 
     for event in event_data:
-        if event.creator == account or account.role == "Staff Keuangan":
+        if event.creator == account:
             owner_data[f"{event.event_name}"] = True
 
     if success_message is not None:

@@ -122,9 +122,9 @@ All Events
                 <td style="vertical-align: middle">{{ event.event_name }}</td>
                 <td style="vertical-align: middle">{{ event.start_date }}</td>
                 <td style="vertical-align: middle">{{ event.end_date }}</td>
-                {% if event.event_name in owner_data or role == 'Admin' %}
+                {% if event.event_name in owner_data or role == 'Admin' or role == 'Staff Keuangan' %}
                 <td style="vertical-align: middle">
-                    {% if event.event_name in owner_data and role == 'User' %}
+                    {% if event.event_name in owner_data %}
                     <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
                         >Update</a
                     >
