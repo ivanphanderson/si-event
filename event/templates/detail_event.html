@@ -29,30 +29,30 @@ Update Account
     <h1 class="font-weight-bold">{{event.event_name}}</h1>
 </div>
 <br />
-{% if messages %}
-{% for message in messages %}
-<div
-    class="alert alert-warning"
-    style="margin-left: 6vw; margin-right: 6vw"
-    role="alert"
->
-    {{ message }}
-</div>
-{% endfor %}
-{% endif %}
 
-<div class="container detail" style="margin-left: 6vw">
-    <h5>Start date: {{event.start_date}}</h5>
-    <h5>End date: {{event.end_date}}</h5>
-    <br />
-    <br />
+<div style="padding-left: 7vw; padding-right: 7vw;">
+    <div class="row">
+        <div class="col-md-12">
+            <h5>Start date: {{event.start_date}}</h5>
+            <h5>End date: {{event.end_date}}</h5>
+            <br />
+            <br />
+        </div>
+    </div>
 </div>
-<div class="container" style="margin-bottom: 50px">
+<div class="" style="margin-bottom: 50px; padding-left: 7vw; padding-right: 7vw;">
     <div class="row justify-content-center">
         <div class="col-md-6 text-center mb-5">
             <h3 class="heading-section">Event Employee</h3>
         </div>
     </div>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %} 
     <div class="row">
         <div class="col-md-12">
             <div class="table-wrap">
@@ -221,8 +221,8 @@ Update Account
                 "Content-Type": "application/json",
                 "X-CSRFToken": window.CSRF_TOKEN,
             },
-            credentials: "same-origin",
             body: JSON.stringify(data),
+            credentials: "same-origin",
         })
             .then((res) => res.blob())
             .then((blob) => URL.createObjectURL(blob))
@@ -242,24 +242,24 @@ Update Account
 
         for (let i = 0; i < numOfRows; i++) {
             const row = table.rows[i];
-            let record = {};
+            let record2 = {};
             if (i !== numOfRows - 1) {
-                record["no"] = row.cells[0].innerHTML;
-                record["nama karyawan"] = row.cells[1].innerHTML;
-                record["tugas"] = row.cells[2].innerHTML;
-                record["bruto"] = row.cells[3].innerHTML;
-                record["pph"] = row.cells[4].innerHTML;
-                record["netto"] = row.cells[5].innerHTML;
-                record["nama di rekening"] = row.cells[6].innerHTML;
-                record["bank"] = row.cells[7].innerHTML;
-                record["nomor rekening"] = row.cells[8].innerHTML;
-                tableData[i] = record;
+                record2["no"] = row.cells[0].innerHTML;
+                record2["nama karyawan"] = row.cells[1].innerHTML;
+                record2["tugas"] = row.cells[2].innerHTML;
+                record2["bruto"] = row.cells[3].innerHTML;
+                record2["pph"] = row.cells[4].innerHTML;
+                record2["netto"] = row.cells[5].innerHTML;
+                record2["nama di rekening"] = row.cells[6].innerHTML;
+                record2["bank"] = row.cells[7].innerHTML;
+                record2["nomor rekening"] = row.cells[8].innerHTML;
+                tableData[i] = record2;
             } else {
-                record["total"] = row.cells[0].innerHTML;
-                record["total bruto"] = row.cells[1].innerHTML;
-                record["total pph"] = row.cells[2].innerHTML;
-                record["total netto"] = row.cells[3].innerHTML;
-                tableData[i] = record;
+                record2["total"] = row.cells[0].innerHTML;
+                record2["total bruto"] = row.cells[1].innerHTML;
+                record2["total pph"] = row.cells[2].innerHTML;
+                record2["total netto"] = row.cells[3].innerHTML;
+                tableData[i] = record2;
             }
         }
         sendDataToBackend(tableData);

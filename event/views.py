@@ -220,6 +220,7 @@ def submit_update_event(request, id):
 
         action = f"Updated {event.event_name} event"
         add_log(Account.objects.get(user=request.user), action)
+        messages.success(request, "Event is updated successfully.")
         return redirect(f"/event/detail/{id}")
     return redirect(FORBIDDEN_URL)
 

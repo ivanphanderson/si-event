@@ -272,6 +272,23 @@ class LoginLogoutTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(LOGIN_HTML)
 
+    def test_exception_in_login(self):
+        self.USERNAME2 = 'tesname'
+        self.PASSWORD2 = PASSWORD_UNTUK_TEST
+        user: User = User.objects.create()
+        user.username = self.USERNAME2
+        user.set_password(self.PASSWORD2)
+        user.save()
+
+        url = reverse(REVERSE_AUTH_LOGIN)
+        response = Client().post(url, {'username':self.USERNAME2, 'password':self.PASSWORD2})
+        self.assertFalse(response.context['user'].is_authenticated)
+
+        messages = [msg.message for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(messages[0], "Account has not registered yet.")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)   
+
     def test_logout_success(self):
         self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
         url = reverse('authentication:logout')

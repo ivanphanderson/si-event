@@ -37,8 +37,9 @@
                     <img src={% static "img/logo.png" %} width="50" height="50"
                         alt="" style="float: left;">
                 </a>
-                <span style="color: #263F6B; font-weight: bold; font-size:
+                <a href="/"><span style="color: #263F6B; font-weight: bold; font-size:
                     larger;">SiEvent</span>
+                </a>    
             </div>
             <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -66,9 +67,9 @@
                             <a class="nav-link" href="/log" style="color: #263F6B;">Log</a>
                         </li>
                         {% endif %}
-                        {% if role == 'User' %}
+                        {% if role != 'Guest' %}
                         <li class="nav-item active">
-                            <a class="nav-link" href="/event/create" style="color: #263F6B;">Event<span
+                            <a class="nav-link" href="/event" style="color: #263F6B;">Event<span
                                     class="sr-only">(current)</span></a>
                         </li>
                         {% endif %}

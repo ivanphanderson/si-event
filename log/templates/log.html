@@ -21,30 +21,6 @@ Log
         </ol>
     </nav>
 
-<<<<<<< HEAD
-  <h4 style="text-align: center;">Log</h4>
-  <br><br>
-  <table class="table table-striped" id="sortTable" aria-describedby="All Logs">
-    <thead style="background-color: #2A3990; color: white;">
-      <tr>
-        <th scope="col">Date</th>
-        <th scope="col">Timestamp</th>
-        <th scope="col">Action taken by</th>
-        <th scope="col">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for log in data %}
-      <tr>
-        <td>{{log.date}}</td>
-        <td>{{log.timestamp}}</td>
-        <td>{{log.user.username}}</td>
-        <td>{{log.action}}</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-=======
     <h4 style="text-align: center">Log</h4>
     <br /><br />
     <table
@@ -71,7 +47,6 @@ Log
             {% endfor %}
         </tbody>
     </table>
->>>>>>> 3f12a54eec56e14f6e0cf4d46c2759476c9d2893
 </div>
 <script
     src="https://code.jquery.com/jquery-3.6.4.min.js"

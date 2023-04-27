@@ -39,3 +39,18 @@ class DisplayTestAdmin(TestCase):
         response = self.client.get(URL_FORBIDDEN)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "forbidden.html")
+
+class DisplayTestGuest(TestCase):
+    def setUp(self) -> None:
+        set_up_login(self, "Guest")
+        set_up_akun_dummy(self)
+
+    def test_guest_display_home_template(self):
+        response = self.client.get(URL_HOME)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "home.html")
+
+    def test_guest_permissions_to_access_display_forbidden(self):
+        response = self.client.get(URL_FORBIDDEN)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "forbidden.html")
