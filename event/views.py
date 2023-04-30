@@ -10,12 +10,20 @@ from django.http import JsonResponse
 from .validators import validate_event_employee_fields
 from django.views.decorators.http import require_http_methods
 from django.db.models import Sum
+from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
+from docx.shared import Pt
+import docx
+from io import BytesIO
+from django.http import HttpResponse
+
 
 
 CREATE_EVENT = "create_event.html"
 EVENT_LIST = "event_list.html"
 FORBIDDEN_URL = "home:forbidden"
 LOGIN_URL = "authentication:login"
+LIST_NUMBER = 'List Number'
 
 
 @login_required(login_url=LOGIN_URL)
@@ -368,3 +376,189 @@ def delete_event_employee_by_id(request, id):
         )
         return redirect(f"/event/detail/{event.id}")
     return redirect(FORBIDDEN_URL)
+
+class GenerateDocs:
+    def set_font(self, run, bold=False, underline=False):
+        font = run.font
+        font.name = 'Times New Roman'
+        font.size = Pt(12)
+        font.bold = bold
+        font.underline = WD_UNDERLINE.SINGLE if underline else WD_UNDERLINE.NONE
+
+    def set_paragraph_format(self, paragraph, alignment=WD_ALIGN_PARAGRAPH.LEFT, left_indent=0):
+        paragraph_format = paragraph.paragraph_format
+        paragraph_format.alignment = alignment
+        paragraph_format.left_indent = Pt(left_indent)
+
+    def create_docs(self, event_id):
+        document = Document()
+        event_name = self.get_event_name(event_id)
+        start_date = self.get_start_date(event_id)
+        employee = self.get_event_employee(event_id)
+
+        paragraph1 = document.add_paragraph("SURAT TUGAS")
+        self.set_font(paragraph1.runs[0], True, True)
+        self.set_paragraph_format(paragraph1, WD_ALIGN_PARAGRAPH.CENTER)
+
+        paragraph2 = document.add_paragraph("No.: ST-             /UN2.F11.D/HKP.02.04/2019")
+        self.set_font(paragraph2.runs[0])
+        self.set_paragraph_format(paragraph2, WD_ALIGN_PARAGRAPH.CENTER)
+
+        document.add_paragraph()
+
+        paragraph3 = document.add_paragraph("Yang bertanda tangan di bawah ini:")
+        self.set_font(paragraph3.runs[0])
+
+        paragraph4 = document.add_paragraph("Nama:")
+        self.set_font(paragraph4.runs[0])
+        self.set_paragraph_format(paragraph4, left_indent=36)
+
+        run = paragraph4.add_run() 
+        run.add_break(docx.text.run.WD_BREAK.LINE)
+        run2 = paragraph4.add_run('Jabatan:')
+        self.set_font(run2)
+
+        paragraph6 = document.add_paragraph(f"dengan ini menugaskan kepada nama-nama staf dan karyawan terlampir untuk menjadi Panitia {event_name}")
+        self.set_font(paragraph6.runs[0])
+        self.set_paragraph_format(paragraph6)
+
+        paragraph7 = document.add_paragraph(f"Jadwal Kegiatan: {start_date}", style = LIST_NUMBER)
+        self.set_font(paragraph7.runs[0])
+
+        paragraph8 = document.add_paragraph("Tugas Panitia", style = LIST_NUMBER)
+        self.set_font(paragraph8.runs[0])
+
+        paragraph8_1 = document.add_paragraph("Melaksanakan koordinasi dengan pihak terkait di Universitas Indonesia", style = 'List Number 2')
+        self.set_font(paragraph8_1.runs[0])
+
+        paragraph8_2 = document.add_paragraph("Memastikan kinerja para anggota dalam keadaan baik", style = 'List Number 2')
+        self.set_font(paragraph8_2.runs[0])
+
+        paragraph9 = document.add_paragraph("Pengeluaran biaya yang ditimbulkan", style = LIST_NUMBER)
+        self.set_font(paragraph9.runs[0])
+
+        paragraph10 = document.add_paragraph("Surat Tugas ini berlaku sejak tanggal ditetapkan", style = LIST_NUMBER)
+        self.set_font(paragraph10.runs[0])
+
+        paragraph11 = document.add_paragraph("Demikian Surat Tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab. Apabila di kemudian hari ternyata terdapat kekeliruan dalam Surat Tugas ini, akan diadakan perbaikan seperlunya.")
+        self.set_font(paragraph11.runs[0])
+
+        document.add_paragraph()
+
+        paragraph12 = document.add_paragraph("Ditetapkan di	:	Jakarta")
+        self.set_font(paragraph12.runs[0])
+        self.set_paragraph_format(paragraph12, left_indent=216)
+
+        run12 = paragraph12.add_run() 
+        run12.add_break(docx.text.run.WD_BREAK.LINE)
+        run12_1 = paragraph12.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
+        self.set_font(run12_1)
+
+        paragraph13 = document.add_paragraph("Dekan")
+        self.set_font(paragraph13.runs[0])
+        self.set_paragraph_format(paragraph13, left_indent=216)
+
+        document.add_paragraph()
+        document.add_paragraph()
+
+        paragraph14 = document.add_paragraph("Nama Dekan")
+        self.set_font(paragraph14.runs[0], True)
+        self.set_paragraph_format(paragraph14, left_indent=216)
+
+        document.add_page_break()
+
+        paragraph1_2 = document.add_paragraph("Lampiran Surat Tugas Dekan Fakultas Ilmu Komputer Universitas Indonesia")
+        self.set_font(paragraph1_2.runs[0])
+
+        paragraph2_2 = document.add_paragraph("No.		:	ST-           /UN2.F11.D/HKP.02.04/2019")
+        self.set_font(paragraph2_2.runs[0])
+
+        paragraph3_2 = document.add_paragraph(f"Perihal	:   {event_name}")
+        self.set_font(paragraph3_2.runs[0])
+
+        employee_dict = {}
+        for emp in employee:
+            if emp[0] not in employee_dict:
+                employee_dict[emp[0]] = []
+            employee_dict[emp[0]].append(emp[1])
+        
+        for role, employees in employee_dict.items():
+            paragraph = document.add_paragraph(f"{role}      :       {employees[0]}", style="List Bullet")
+            self.set_font(paragraph.runs[0])
+            self.set_paragraph_format(paragraph, left_indent=36)
+            for i in range(1, len(employees)):
+                run = paragraph.add_run()
+                run.add_break(docx.text.run.WD_BREAK.LINE)
+                run.add_text(f"{employees[i]}")
+                self.set_font(run)
+                
+        document.add_paragraph()
+
+        paragraph9_2 = document.add_paragraph("Ditetapkan di	:	Jakarta")
+        self.set_font(paragraph9_2.runs[0])
+        self.set_paragraph_format(paragraph9_2, left_indent=216)
+
+        run12 = paragraph9_2.add_run() 
+        run12.add_break(docx.text.run.WD_BREAK.LINE)
+        run12_1 = paragraph9_2.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
+        self.set_font(run12_1)
+
+        paragraph10_2 = document.add_paragraph("Dekan")
+        self.set_font(paragraph10_2.runs[0])
+        self.set_paragraph_format(paragraph10_2, left_indent=216)
+
+        document.add_paragraph()
+        document.add_paragraph()
+
+        paragraph11_2 = document.add_paragraph("Nama Dekan")
+        self.set_font(paragraph11_2.runs[0], True)
+        self.set_paragraph_format(paragraph11_2, left_indent=216)
+
+        return document
+
+    def download_file(self, request, event_id):
+        # Create a new Word document
+        document = self.create_docs(event_id)
+
+        # Create a BytesIO object to write the document to
+        output = BytesIO()
+        document.save(output)
+        output.seek(0)
+
+        # Create an HttpResponse object with the correct MIME type
+        response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        response['Content-Disposition'] = 'attachment; filename=SURAT TUGAS.docx'
+
+        return response
+    
+    def get_event_name(self, event_id):
+        if Event.objects.filter(id=event_id).first():
+            event = Event.objects.get(id=event_id)
+            return event.event_name
+        
+    def get_event_employee(self, event_id):
+        event = Event.objects.get(id=event_id)
+        event_employees = EventEmployee.objects.filter(event=event)
+        lst = []
+        for event_employee in event_employees:
+            lst.append([ event_employee.role, event_employee.employee.employee_name])
+        return lst
+    
+    def get_start_date(self, event_id):
+        if Event.objects.filter(id=event_id).first():
+            event = Event.objects.get(id=event_id)
+            return event.start_date
+        
+    def get_end_date(self, event_id):
+        if Event.objects.filter(id=event_id).first():
+            event = Event.objects.get(id=event_id)
+            return event.end_date
+
+def generate_docs(request, event_id):
+    generate_docs_file = GenerateDocs()
+
+    # Call the download_file method to generate and download the document
+    response = generate_docs_file.download_file(request, event_id)
+
+    # Return the response object to the user
+    return response
