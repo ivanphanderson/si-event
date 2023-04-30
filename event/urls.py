@@ -13,6 +13,7 @@ from .views import (
     delete_event_employee_by_id,
     submit_input_employee_to_existing_event,
     input_employee_to_existing_event,
+    generate_docs
 )
 
 urlpatterns = [
@@ -48,5 +49,8 @@ urlpatterns = [
         "delete-employee/<id>",
         delete_event_employee_by_id,
         name="delete_Event_employee_by_id",
+    ),
+    path(
+        "download-docx/<event_id>", generate_docs, name="download_as_docx"
     ),
 ]
