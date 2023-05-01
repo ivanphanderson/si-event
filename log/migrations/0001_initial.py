@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Log',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.DateField(auto_now_add=True)),
                 ('timestamp', models.TimeField(auto_now_add=True)),
                 ('action', models.CharField(max_length=150)),

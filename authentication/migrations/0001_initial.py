@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PasswordOTP',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('username', models.CharField(default='', max_length=150)),
                 ('OTP', models.IntegerField()),
                 ('valid_until', models.DateTimeField(blank=True, default=authentication.models.now_plus_10_minutes)),

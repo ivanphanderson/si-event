@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('auth_sso', '__first__'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('auth_sso', '0001_initial'),
     ]
@@ -29,7 +30,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Account',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('username', models.CharField(default='', max_length=150)),
                 ('email', models.EmailField(default='', max_length=254)),
                 ('role', models.CharField(choices=[('Admin', 'Admin'), ('User', 'User'), ('Staff Keuangan', 'Staff Keuangan'), ('Guest', 'Guest')], max_length=20)),

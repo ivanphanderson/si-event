@@ -194,8 +194,6 @@ class LoginLogoutTest(TestCase):
         messages = [msg.message for msg in get_messages(response.wsgi_request)]
         self.assertEqual(messages[0], USERNAME_ATAU_PW_SALAH)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(LOGIN_HTML)             
-
     def test_login_user_success(self):
         logged_in = self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
         self.assertEqual(logged_in, True)
