@@ -50,6 +50,7 @@
               <th scope="col">Username</th>
               <th scope="col">Role</th>
               <th scope="col">Status</th>
+              <th scope="col">Account Type</th>
               <th scope="col">Action</th>
               </tr>
             </thead>
@@ -60,11 +61,12 @@
                 <td style="vertical-align: middle;">{{account.role}}</td>
                 <td style="vertical-align: middle;">
                   {% if account.user.is_active %}
-                    Aktif
+                  Aktif
                   {% else %}
-                    Tidak Aktif
+                  Tidak Aktif
                   {% endif %}
                 </td>
+                <td style="vertical-align: middle;">{{account.accountType}}</td>
                 {% if account.user.is_superuser or account.user == user %}
                   <td></td>
                 {% else %}
