@@ -11,8 +11,8 @@ class NewPasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirmation_password = cleaned_data.get('confirmation_password')
+        password = cleaned_data.get("password")
+        confirmation_password = cleaned_data.get("confirmation_password")
 
         if password != confirmation_password:
-            raise forms.ValidationError('Passwords do not match')
+            raise forms.ValidationError("Passwords do not match")

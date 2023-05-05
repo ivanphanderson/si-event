@@ -26,4 +26,6 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('log/', include('log.urls')),
     path('home/', include('home.urls')),
+    path('pembayaran/', include('pembayaran.urls')),
+    path('auth-sso/', include('auth_sso.urls')),
 ]

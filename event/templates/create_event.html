@@ -1,57 +1,191 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block title %}
 Create Event
 {% endblock %}
-
+{% block head %}
+<style>
+    #warningMsg {
+        color: red;
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="container">
-        <div class="row">
-          <div class="col text-center">
-            <h3>Create Event</h3>
-          </div>
-        </div>
-      </div>
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="event_name"> Event Name:</label>
-          <input type="text" class="form-control" id="event_name" name="event_name" required>
-        </div>
-        <div class="form-group">
-          <label for="start_date">Start Date:</label>
-          <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
-        </div>
-        <div class="form-group">
-          <label for="end_date">End Date:</label>
-          <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
-        </div>
-        <div class="form-group">
-          <label for="expense">Expense:</label>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Rp</span>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-white">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'home:home' %}">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'get_events' %}">Event</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Create
+                        </li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col text-center">
+                        <h3>Create Event</h3>
+                    </div>
+                </div>
             </div>
-            <input type="number" class="form-control" id="expense" name="expense" required>
-          </div>
+            <div class="modal" id="errDateModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="warningMsg">Warning</h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            The start date cannot be later than the end date
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                I understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal" id="errEmpModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="warningMsg">Warning</h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Please fill in all required fields
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                I understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form method="post" enctype="multipart/form-data" id="dataForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="event_name"> Event Name:</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="event_name"
+                        name="event_name"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="start_date"
+                        name="start_date"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="end_date"
+                        name="end_date"
+                        required
+                    />
+                </div>
+                <input type="hidden" name="action" id="form_action" />
+                <button type="submit" class="btn btn-primary" id="create_event">
+                    Create Event
+                </button>
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="add_role"
+                    name="add_role"
+                    value="true"
+                >
+                    Add Roles
+                </button>
+            </form>
         </div>
-        <div class="form-group">
-          <label for="tax">Tax (%):</label>
-          <input type="number" class="form-control" id="tax" name="tax" step="0.01" required>
-        </div>
-        <div class="form-group">
-          <label for="pegawai_file">List Pegawai (CSV or XLSX):</label>
-          <input id="pegawai_file" class="form-control-file" name="pegawai_file" type="file" accept=".csv, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
-          <br><p> atau isi dengan nomor pegawai: </p>
-          <input type="text" class="form-control" id="list_employee_no" name="list_employee_no" placeholder="ex: 1234567 1293040593">
-        </div>
-        <button type="submit" class="btn btn-primary">Create Event</button>
-      </form>
     </div>
-  </div>
 </div>
+<script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"
+></script>
+<script>
+    $(document).ready(function () {
+        var successMessage = "{{ success_message }}";
+        if (successMessage) {
+            $("#succModal").modal("show");
+        }
+    });
+
+    const nextBtn = document.getElementById("add_role");
+    const createBtn = document.getElementById("create_event");
+    const formAction = document.getElementById("form_action");
+
+    function validateForm(action) {
+        const startDt = document.getElementById("start_date");
+        const endDt = document.getElementById("end_date");
+        const eventName = document.getElementById("event_name");
+        if (
+            eventName.value == "" ||
+            eventName.value == null ||
+            startDt.value == "" ||
+            startDt.value == null ||
+            endDt.value == "" ||
+            endDt.value == null
+        ) {
+            $("#errEmpModal").modal("show");
+        } else if (startDt.value > endDt.value) {
+            $("#errDateModal").modal("show");
+        } else {
+            formAction.value = action;
+            document.getElementById("dataForm").submit();
+        }
+    }
+
+    nextBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        validateForm("add_roles");
+    });
+
+    createBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        validateForm("create_event");
+    });
+</script>
 {% endblock %}
