@@ -1,8 +1,9 @@
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
-from .models import Account, User
+from .models import Account, User, NonSSOAccount
 from .views import register_account, read_akun, update_akun, ubah_password
 import environ
+from auth_sso.models import SSOUIAccount
 
 env = environ.Env()
 environ.Env.read_env()
@@ -16,6 +17,8 @@ TEST_USER_USERNAME = 'test_user'
 TEST_USER_EMAIL = 'test.user@gmail.com'
 TEST_USER_PASSWORD = 'testuser123'
 TEST_SK_EMAIL = 'test.sk@gmail.com'
+TEST_EMAIL = 'tes@gmail.com'
+NON_SSO_UI = 'Non SSO UI'
 
 ACCOUNT_URL = '/account/'
 GANTI_STATUS_AKUN_URL = '/account/ganti-status-akun'
@@ -220,11 +223,20 @@ def set_up_login(self, role):
     user: User = User.objects.create()
     user.username = self.USERNAME2
     user.set_password(self.PASSWORD2)
-    self.account = Account(
+    non_sso_account = NonSSOAccount(
         user = user,
         username = self.USERNAME2, 
-        email = 'tes@gmail.com',
+        email = TEST_EMAIL,
         role = role
+    )
+    non_sso_account.save()
+    self.account = Account(
+        user = user,
+        accNonSSO = non_sso_account,
+        username = self.USERNAME2, 
+        email = TEST_EMAIL,
+        role = role,
+        accountType = NON_SSO_UI
     )
     self.account.user.username=self.USERNAME2
     user.save()
@@ -236,15 +248,24 @@ def set_up_login(self, role):
 def set_up_akun_dummy(self):
     self.USERNAME = 'tesname2'
     self.PASSWORD = PASSWORD_UNTUK_TEST
-    self.EMAIL = 'tes@gmail.com'
+    self.EMAIL = TEST_EMAIL
     user: User = User.objects.create()
     user.username = self.USERNAME
     user.set_password(self.PASSWORD)
-    account = Account(
+    non_sso_account = NonSSOAccount(
         user = user,
         username = self.USERNAME, 
         email = self.EMAIL,
         role = 'Admin'
+    )
+    non_sso_account.save()
+    account = Account(
+        user = user,
+        accNonSSO = non_sso_account,
+        username = self.USERNAME, 
+        email = self.EMAIL,
+        role = 'Admin',
+        accountType = NON_SSO_UI
     )
     account.user.username = self.USERNAME
     user.save()
@@ -252,6 +273,37 @@ def set_up_akun_dummy(self):
 
     self.user_dummy = user
     self.account_dummy = account
+
+def set_up_akun_sso(self):
+    self.USERNAME3 = 'tesname3'
+    self.PASSWORD3 = PASSWORD_UNTUK_TEST
+    self.EMAIL3 = TEST_EMAIL
+    user: User = User.objects.create()
+    user.username = self.USERNAME3
+    user.set_password(self.PASSWORD3)
+    user = User.objects.create(username=self.USERNAME3)
+    sso_account = SSOUIAccount.objects.create(
+            user=user,
+            kode_identitas='2006596043',
+            nama='Rizky Juniastiar',
+            kode_organisasi='09.00.12.01',
+            username=self.USERNAME3,
+            role='Admin'
+        )
+    account = Account(
+        user = user,
+        accSSO = sso_account,
+        username = self.USERNAME3, 
+        email = self.EMAIL3,
+        role = 'Admin',
+        accountType = NON_SSO_UI
+    )
+    account.user.username = self.USERNAME3
+    user.save()
+    account.save()
+
+    self.user_dummy2 = user
+    self.account_dummy2 = account
 
 class UbahPasswordSudahLoginTest(TestCase):
     def setUp(self) -> None:
@@ -352,6 +404,7 @@ class AccountSudahLoginAdminTest(TestCase):
     def setUp(self) -> None:
         set_up_login(self, 'Admin')
         set_up_akun_dummy(self)
+        set_up_akun_sso(self)
 
     def test_admin_read_akun_is_exist(self):
         response = self.client.get(ACCOUNT_URL)
@@ -385,6 +438,17 @@ class AccountSudahLoginAdminTest(TestCase):
         self.assertRedirects(response, ACCOUNT_URL, status_code=302, target_status_code=200)
         
         updated_account = Account.objects.get(user=self.user_dummy)
+        self.assertEqual(updated_account.role, "User")
+
+    def test_admin_update_akun_post_sso_is_exist(self):
+        data = {
+            'id_akun': self.account_dummy2.id,
+            'role': "User"
+        }
+        response = self.client.post(f'/account/update/submit/submit', data)
+        self.assertRedirects(response, ACCOUNT_URL, status_code=302, target_status_code=200)
+        
+        updated_account = Account.objects.get(user=self.user_dummy2)
         self.assertEqual(updated_account.role, "User")
 
     def test_admin_update_akun_post_akun_sendiri_tidak_bisa(self):
@@ -560,3 +624,28 @@ class AccountSudahLoginStaffKeuanganTest(TestCase):
     def test_staff_keuangan_ganti_status_akun_id_bukan_int(self):
         response = self.client.post(GANTI_STATUS_AKUN_URL, {'id_akun': 'aassdd'})
         self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+class AccountModelTestCase(TestCase):
+
+    def test_non_sso_ui_account_str_representation(self):
+        user = User.objects.create(username='tesuser')
+        account = NonSSOAccount.objects.create(
+            user=user,
+            username='tesuser',
+            email='tesuser@gmail.com',
+            role='Admin'
+        )
+        expected_str = f'{account.username} - {account.role}'
+        self.assertEqual(str(account), expected_str)
+
+    def test_account_str_representation(self):
+        user = User.objects.create(username='tesuser')
+        account = Account.objects.create(
+            user=user,
+            username='tesuser',
+            email='tesuser@gmail.com',
+            role='Admin',
+            accountType=NON_SSO_UI
+        )
+        expected_str = f'{account.accountType} - {account.username}, {account.role}'
+        self.assertEqual(str(account), expected_str)

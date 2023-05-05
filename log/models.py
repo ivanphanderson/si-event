@@ -6,4 +6,4 @@ class Log(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="log")
     date = models.DateField(auto_now_add=True, blank=True)
     timestamp = models.TimeField(auto_now_add=True, blank=True)
-    action = models.CharField(max_length = 150)
+    action = models.CharField(max_length=150)

@@ -64,6 +64,11 @@
                 {% else %}
                   <option value="Staff Keuangan">Staff Keuangan</option>
                 {% endif %}
+                {% if account.role == "Guest" %}
+                  <option value="Guest" selected>Guest</option>
+                {% else %}
+                  <option value="Guest">Guest</option>
+                {% endif %}
             </select>
 
             </div>

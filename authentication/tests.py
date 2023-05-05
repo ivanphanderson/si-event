@@ -1,7 +1,7 @@
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse, resolve
 from django.contrib.auth.models import User, AnonymousUser
-from account.models import Account, User
+from account.models import Account, User, NonSSOAccount
 from django.contrib.messages import get_messages
 from .views import forget_password, ubah_password, handle_otp, auto_redirect
 from .models import PasswordOTP
@@ -35,6 +35,7 @@ REVERSE_UBAH_PASSWORD = 'account:ubah_password'
 REVERSE_HOME_HOME = 'home:home'
 LOGIN_HTML = 'login.html'
 USERNAME_ATAU_PW_SALAH = 'Wrong Username or Password!'
+NON_SSO_UI = 'Non SSO UI'
 
 class AutoRedirectViewTest(TestCase):
     def setUp(self):
@@ -52,7 +53,7 @@ class AutoRedirectViewTest(TestCase):
         request = self.factory.get(reverse('authentication:auto_redirect'))
         request.user = self.user
         response = auto_redirect(request)
-        self.assertEqual(response.url, '/home')
+        self.assertEqual(response.url, reverse('home:home'))
         self.assertEqual(response.status_code, 302)
 
     def test_auto_redirect_anonymous_user(self):
@@ -88,11 +89,21 @@ class LoginLogoutTest(TestCase):
         user_admin.username = self.ADMIN_USERNAME
         user_admin.email = self.ADMIN_EMAIL
         user_admin.set_password(self.ADMIN_PASSWORD)
-        admin_acc = Account(
+
+        non_sso_acc_admin = NonSSOAccount(
             user = user_admin,
-            username = self.ADMIN_USERNAME,
+            username = self.ADMIN_USERNAME, 
             email = self.ADMIN_EMAIL,
             role = 'Admin'
+        )
+        non_sso_acc_admin.save()
+        admin_acc = Account(
+            user = user_admin,
+            accNonSSO = non_sso_acc_admin,
+            username = self.ADMIN_USERNAME, 
+            email = self.ADMIN_EMAIL,
+            role = 'Admin',
+            accountType = NON_SSO_UI
         )
         admin_acc.user.username = self.ADMIN_USERNAME
         admin_acc.save()
@@ -102,11 +113,21 @@ class LoginLogoutTest(TestCase):
         user_user.username = self.USER_USERNAME
         user_user.email = self.USER_EMAIL
         user_user.set_password(self.USER_PASSWORD)
-        user_acc = Account(
+
+        non_sso_acc_user = NonSSOAccount(
             user = user_user,
-            username = self.USER_USERNAME,
+            username = self.USER_USERNAME, 
             email = self.USER_EMAIL,
             role = 'User'
+        )
+        non_sso_acc_user.save()
+        user_acc = Account(
+            user = user_user,
+            accNonSSO = non_sso_acc_user,
+            username = self.USER_USERNAME, 
+            email = self.USER_EMAIL,
+            role = 'User',
+            accountType = NON_SSO_UI
         )
         user_acc.user.username = self.USER_USERNAME
         user_acc.save()
@@ -116,11 +137,21 @@ class LoginLogoutTest(TestCase):
         user_sk.username = self.STAFF_KEUANGAN_USERNAME
         user_sk.email = self.STAFF_KEUANGAN_EMAIL
         user_sk.set_password(self.STAFF_KEUANGAN_PASSWORD)
-        sk_acc = Account(
+
+        non_sso_acc_sk = NonSSOAccount(
             user = user_sk,
             username = self.STAFF_KEUANGAN_USERNAME,
             email = self.STAFF_KEUANGAN_EMAIL,
             role = 'Staff Keuangan'
+        )
+        non_sso_acc_sk.save()
+        sk_acc = Account(
+            user = user_sk,
+            accNonSSO = non_sso_acc_sk,
+            username = self.STAFF_KEUANGAN_USERNAME,
+            email = self.STAFF_KEUANGAN_EMAIL,
+            role = 'Staff Keuangan',
+            accountType = NON_SSO_UI
         )
         sk_acc.user.username = self.STAFF_KEUANGAN_USERNAME
         sk_acc.save()
@@ -163,8 +194,6 @@ class LoginLogoutTest(TestCase):
         messages = [msg.message for msg in get_messages(response.wsgi_request)]
         self.assertEqual(messages[0], USERNAME_ATAU_PW_SALAH)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(LOGIN_HTML)             
-
     def test_login_user_success(self):
         logged_in = self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
         self.assertEqual(logged_in, True)
@@ -241,6 +270,23 @@ class LoginLogoutTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(LOGIN_HTML)
 
+    def test_exception_in_login(self):
+        self.USERNAME2 = 'tesname'
+        self.PASSWORD2 = PASSWORD_UNTUK_TEST
+        user: User = User.objects.create()
+        user.username = self.USERNAME2
+        user.set_password(self.PASSWORD2)
+        user.save()
+
+        url = reverse(REVERSE_AUTH_LOGIN)
+        response = Client().post(url, {'username':self.USERNAME2, 'password':self.PASSWORD2})
+        self.assertFalse(response.context['user'].is_authenticated)
+
+        messages = [msg.message for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(messages[0], "Account has not registered yet.")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(LOGIN_HTML)   
+
     def test_logout_success(self):
         self.client.login(username=self.USER_USERNAME, password=self.USER_PASSWORD)
         url = reverse('authentication:logout')
@@ -281,11 +327,20 @@ class LupaPasswordTest(TestCase):
         user = User.objects.create()
         user.username = self.USERNAME
         user.set_password(self.PASSWORD)
-        account = Account(
+        non_sso_acc = NonSSOAccount(
             user = user,
             username = self.USERNAME, 
             email = self.EMAIL,
             role = 'Admin'
+        )
+        non_sso_acc.save()
+        account = Account(
+            user = user,
+            accNonSSO = non_sso_acc,
+            username = self.USERNAME, 
+            email = self.EMAIL,
+            role = 'Admin',
+            accountType = NON_SSO_UI
         )
         account.user.username = self.USERNAME
         account.save()

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Add Employee
+{% endblock %}
+{% block head %}
+<style>
+    #confirmBtn:hover {
+        color: #212529;
+        background-color: #52bebe;
+        border-color: #8ad3d3;
+    }
+    #confirmBtn {
+        color: #212529;
+        background-color: #7cc;
+        border-color: #5bc2c2;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="container">
+                <div class="row a">
+                    <div class="col text-center">
+                        <h3>Add Employee to Event</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="modal b" id="confirmModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title c">Confirmation</h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body d">
+                            Please make sure your data is correct
+                            <br />
+                            Note:
+                            <br />
+                            - Empty number of role will make no staff to the
+                            event
+                            <br />
+                            - Any negative value for pph and honor will be
+                            converted automatically to non negative value.
+                            <br />
+                            - Any empty role name will be named as Role_idx
+                            <br />
+                            - Any empty employee target will not be input as a
+                            staff
+                        </div>
+                        <div class="modal-footer e">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="confirmBtn"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form
+                action="{% url 'submit_input_employee_to_existing_event' id=event.id %}"
+                method="POST"
+                enctype="multipart/form-data"
+                id="empForm"
+            >
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="num_fields"> Number Of Role:</label>
+                    <input
+                        required
+                        type="number"
+                        class="form-control"
+                        id="num_fields"
+                        name="num_fields"
+                    />
+                </div>
+                <div id="fields" class="form-group f"></div>
+                <button
+                    type="submit"
+                    class="btn btn-primary mb-3"
+                    id="submitBtn"
+                >
+                    Add Employee
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    const confirmBtn = document.getElementById("confirmBtn");
+    const numFields = document.getElementById("num_fields");
+    const fieldsContainer = document.getElementById("fields");
+    const submitBtn = document.getElementById("submitBtn");
+
+    confirmBtn.addEventListener("click", function (event) {
+        document.getElementById("empForm").submit();
+    });
+
+    submitBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        $("#confirmModal").modal("show");
+    });
+
+    numFields.addEventListener("input", (event) => {
+        while (fieldsContainer.firstChild) {
+            fieldsContainer.removeChild(fieldsContainer.firstChild);
+        }
+
+        const numSelected = event.target.value;
+
+        for (let i = 0; i < numSelected; i++) {
+            const wrapper2 = document.createElement("div");
+            const role_name = document.createElement("input");
+            const label = document.createElement("label");
+            const input_eno = document.createElement("input");
+            const labelEmp = document.createElement("label");
+            const labelHonor = document.createElement("label");
+            const honor = document.createElement("input");
+            const pphLabel = document.createElement("label");
+            const searchTerm = document.createElement("input");
+            const pph = document.createElement("input");
+            const dropdown = document.createElement("select");
+
+            wrapper2.className = "border border-primary rounded p-3";
+
+            label.for = `field_${i}`;
+            label.innerText = `Role ${i + 1}:  `;
+            labelEmp.innerText = `Employee: (find and select by employee number or employee name)`;
+            labelHonor.innerText = `Honor (BRUTO)`;
+            pphLabel.innerText = `Pph`;
+
+            role_name.type = "text";
+            role_name.name = `role_field_${i}`;
+            role_name.id = `role_field_${i}`;
+            role_name.className = "form-control mb-3";
+            role_name.placeholder = "Role Name (ex: bendahara)";
+            role_name.required = true;
+
+            honor.type = "number";
+            honor.name = `honor_field_${i}`;
+            honor.id = `honor_field_${i}`;
+            honor.className = "form-control mb-3";
+            honor.placeholder = "Honor (BRUTO) in rupiah (ex: 2000000)";
+            honor.required = true;
+
+            pph.type = "number";
+            pph.name = `pph_field_${i}`;
+            pph.id = `pph_field_${i}`;
+            pph.className = "form-control mb-5";
+            pph.placeholder = "Pph dalam persen (ex: 5)";
+            pph.required = true;
+
+            searchTerm.type = "text";
+            searchTerm.name = `search_field_${i}`;
+            searchTerm.id = `search_field_${i}`;
+            searchTerm.className = "form-control mb-3";
+            searchTerm.placeholder = "Find By Name or Employee Number";
+            searchTerm.required = true;
+
+            dropdown.id = `dropdown-select_${i}`;
+            dropdown.name = `dropdown-select_${i}`;
+            dropdown.className = "form-control";
+
+            wrapper2.appendChild(label);
+            wrapper2.appendChild(role_name);
+            wrapper2.appendChild(labelHonor);
+            wrapper2.appendChild(honor);
+            wrapper2.appendChild(pphLabel);
+            wrapper2.appendChild(pph);
+            wrapper2.appendChild(labelEmp);
+            wrapper2.appendChild(searchTerm);
+            wrapper2.appendChild(dropdown);
+
+            fieldsContainer.appendChild(wrapper2);
+
+            fieldsContainer.appendChild(document.createElement("br"));
+            fieldsContainer.appendChild(document.createElement("br"));
+
+            const input = document.getElementById(`search_field_${i}`);
+            input.addEventListener("input", function () {
+                const xhr = new XMLHttpRequest();
+                const searchTerm = input.value;
+                xhr.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        dropdown.innerHTML = "";
+                        const options = JSON.parse(this.responseText);
+
+                        const defaultOptions = document.createElement("option");
+                        defaultOptions.innerHTML =
+                            "Click here to choose available employee based on input above";
+                        dropdown.appendChild(defaultOptions);
+
+                        options.forEach(function (option) {
+                            const opt = document.createElement("option");
+                            opt.innerHTML = `${option.employee_name} (${option.employee_no})`;
+                            opt.value = option.employee_no;
+                            dropdown.appendChild(opt);
+                        });
+                    }
+                };
+                xhr.open("GET", `/event/get-options/?search=${searchTerm}`);
+                xhr.send();
+            });
+
+            dropdown.addEventListener("change", function () {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                searchTerm.value = selectedOption.text;
+            });
+        }
+    });
+</script>
+{% endblock %}

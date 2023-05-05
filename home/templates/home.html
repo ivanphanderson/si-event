@@ -1,29 +1,21 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    Home
-{%endblock title%}
-
-{% block meta %}
 {% load static %}
-{% endblock meta %}
-
+{% block title %}
+Home
+{% endblock title %}
 {% block content %}
 {% block navbar %}
 {% endblock navbar %}
-<section class="vh-100">
+<section>
     <div class="container py-5 h-100">
-        <h3 class="font-weight-bold">Homepage si-event</h3>
-        <br>
+        <h3 class="font-weight-bold">Welcome to SI-Event. Please contact administrator to get access to SI-Event features</h3>
+        <br />
         {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-warning" role="alert">
-                        {{ message }}
-                      </div>
-                {% endfor %}
-            {% endif %} 
-      </div>
+        {% for message in messages %}
+        <div class="alert alert-warning" role="alert">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
     </div>
-  </section>
+</section>
 
 {% endblock content %}
