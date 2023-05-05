@@ -1,10 +1,8 @@
 from django import forms
 
-
 class ForgetPasswordForm(forms.Form):
     username = forms.CharField(max_length=150)
     email = forms.EmailField()
-
 
 class NewPasswordForm(forms.Form):
     username = forms.CharField(max_length=150)

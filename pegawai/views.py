@@ -202,7 +202,6 @@ class SaveUpdatePegawai(TemplateView):
 
                     employee_category = data[row][3].strip()
                     self.update_employee_category(pegawai, employee_category)
-
                     job_status = data[row][4].strip()
                     self.update_job_status(pegawai, job_status)
 

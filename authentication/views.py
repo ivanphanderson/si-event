@@ -62,11 +62,9 @@ def logout_user(request):
     logout(request)
     return redirect(LOGIN_URL)
 
-
 @require_GET
 def forget_password(request):
     return render(request, FORGET_PASSWORD_HTML)
-
 
 @require_POST
 def submit_forget_password(request):

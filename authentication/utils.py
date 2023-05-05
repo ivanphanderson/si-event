@@ -6,12 +6,10 @@ import secrets
 MIN_OTP = 10000000
 MAX_OTP = 99999999
 
-
 def create_otp(username):
     OTP = secrets.choice(range(MIN_OTP, MAX_OTP))
     PasswordOTP.objects.create(username=username, OTP=OTP)
     return OTP
-
 
 def send_forget_password_email(username, recipient_email):
     OTP = create_otp(username)

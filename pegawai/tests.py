@@ -91,7 +91,6 @@ class AddPegawaiTest(BaseTestCase):
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
 
         self.assertEqual(response.status_code, 302)
-
     def test_add_pegawai_not_logged_in_no_template(self):
         self.client.logout()
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
@@ -357,7 +356,6 @@ class UpdatePegawaiTest(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertTemplateUsed(response, UPDATE_PEGAWAI_ERROR_HTML)
         self.assertEqual(len(Pegawai.objects.all()), 0)
-
     def test_update_pegawai_empty(self):
         """
         Make sure system handle empty file with correct status code and nothing changed in database
