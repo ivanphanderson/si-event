@@ -139,11 +139,19 @@ Home
             >
                 <div class="u-container-layout u-container-layout-2">
                     <div class="u-list u-list-1">
-                        <div class="u-repeater u-repeater-1">
-                            <div
+                        {% if role == 'Staff Keuangan' %}
+                            <div class="u-repeater u-repeater-1" style="padding-top: 107px; padding-bottom: 107px;">
+                                <div
                                 class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1"
                                 onclick="window.location.href = '/event';"
-                            >
+                                >
+                        {% else %}
+                            <div class="u-repeater u-repeater-1" style="padding-top: 107px; padding-bottom: 107px; margin-left: 200px;">
+                                <div
+                                class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1"
+                                onclick="window.location.href = '/event';" style="margin-left: -100px;"
+                                >
+                        {% endif %}
                                 <div
                                     class="u-container-layout u-similar-container u-valign-top u-container-layout-3"
                                 >
@@ -179,59 +187,7 @@ Home
                                             </h4>
                                         </div>
                                     </div>
-                            {% else %}
-                                <div
-                                    class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-2"
-                                >
-                                    <div
-                                        class="u-container-layout u-similar-container u-valign-top u-container-layout-4"
-                                    >
-                                        <span
-                                            class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"
-                                            ><img
-                                                src="/static/homecss/icons/coming-soon.png"
-                                                alt=""
-                                        /></span>
-                                        <h4 class="u-align-center u-text u-text-3">
-                                            Coming Soon
-                                        </h4>
-                                    </div>
-                                </div>
                             {% endif %}
-                            <div
-                                class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-3"
-                            >
-                                <div
-                                    class="u-container-layout u-similar-container u-valign-top u-container-layout-5"
-                                >
-                                    <span
-                                        class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-3"
-                                        ><img
-                                            src="/static/homecss/icons/coming-soon.png"
-                                            alt=""
-                                    /></span>
-                                    <h4 class="u-align-center u-text u-text-4">
-                                        Coming Soon
-                                    </h4>
-                                </div>
-                            </div>
-                            <div
-                                class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-4"
-                            >
-                                <div
-                                    class="u-container-layout u-similar-container u-valign-top u-container-layout-6"
-                                >
-                                    <span
-                                        class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-4"
-                                        ><img
-                                            src="/static/homecss/icons/coming-soon.png"
-                                            alt=""
-                                    /></span>
-                                    <h4 class="u-align-center u-text u-text-5">
-                                        Coming Soon
-                                    </h4>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
