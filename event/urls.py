@@ -13,7 +13,11 @@ from .views import (
     delete_event_employee_by_id,
     submit_input_employee_to_existing_event,
     input_employee_to_existing_event,
-    generate_docs
+    generate_docs,
+    validate_event,
+    reject_event,
+    upload_surat_tugas,
+    reupload_surat_tugas
 )
 
 urlpatterns = [
@@ -52,5 +56,25 @@ urlpatterns = [
     ),
     path(
         "download-docx/<event_id>", generate_docs, name="download_as_docx"
+    ),
+    path(
+        "validate-event/<id>",
+        validate_event,
+        name="validate_event",
+    ),
+    path(
+        "reject-event/<id>",
+        reject_event,
+        name="reject_event",
+    ),
+    path(
+        "upload-surat-tugas/<id>",
+        upload_surat_tugas,
+        name="upload_surat_tugas",
+    ),
+    path(
+        "reupload-surat-tugas/<id>/<file_id>",
+        reupload_surat_tugas,
+        name="reupload_surat_tugas",
     ),
 ]

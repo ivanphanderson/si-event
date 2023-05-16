@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Event, EventEmployee
+from .models import Event, EventEmployee, ValidationFile
 from pegawai.models import Pegawai
 from pegawai.views import add_log
 from account.models import Account
@@ -16,6 +16,7 @@ from docx.shared import Pt
 import docx
 from io import BytesIO
 from django.http import HttpResponse
+from django.urls import reverse
 
 
 
@@ -24,7 +25,19 @@ EVENT_LIST = "event_list.html"
 FORBIDDEN_URL = "home:forbidden"
 LOGIN_URL = "authentication:login"
 LIST_NUMBER = 'List Number'
+DETAIL_EVENT_HTML = "detail_event.html"
 
+def get_event_data(event):
+    event_employees = EventEmployee.objects.filter(event=event)
+    event_emps = EventEmployee.objects.all().filter(event=event.id)
+    pph_in_rp = 0
+    for emp in event_emps:
+        pph_in_rp += emp.pph/100.0 * emp.honor
+    total_bruto = event_emps.aggregate(Sum("honor"))["honor__sum"]
+    total_pph = int(pph_in_rp)
+    total_netto = event_emps.aggregate(Sum("netto"))["netto__sum"]
+
+    return event_employees, total_bruto, total_pph, total_netto
 
 @login_required(login_url=LOGIN_URL)
 @require_http_methods(["GET", "POST"])
@@ -167,7 +180,7 @@ def riwayat_events(request):
 
 
 @login_required(login_url=LOGIN_URL)
-@require_http_methods(["GET"])
+@require_http_methods(["GET","POST"])
 def detail_event(request, id):
     context = {}
     account = Account.objects.get(user=request.user)
@@ -191,7 +204,11 @@ def detail_event(request, id):
         context["total_pph"] = int(pph_in_rp)
         context["total_netto"] = event_emps.aggregate(Sum("netto"))["netto__sum"]
 
-        return render(request, "detail_event.html", context)
+        if event.signed_file:
+            submitted_file = ValidationFile.objects.filter(event=event).first()
+            context['file_id'] = submitted_file.id
+
+        return render(request, DETAIL_EVENT_HTML, context)
     return redirect(FORBIDDEN_URL)
 
 
@@ -562,3 +579,124 @@ def generate_docs(request, event_id):
 
     # Return the response object to the user
     return response
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(["GET","POST"])
+def validate_event(request, id):
+
+    context = {}
+    account = Account.objects.get(user=request.user)
+    context["account"] = account
+    context["role"] = account.role
+
+    if id.isdigit() and Event.objects.filter(id=id).first():
+        event = Event.objects.get(id=id)
+        if event.creator != account and account.role == "User":
+            return redirect(FORBIDDEN_URL)
+
+        context["event"] = event
+        event.status = 'Validated'
+        event.save()
+
+        event_employees, total_bruto, total_pph, total_netto = get_event_data(event)
+
+        context["event_employees"] = event_employees
+        context["total_bruto"] = total_bruto
+        context["total_pph"] = total_pph
+        context["total_netto"] = total_netto
+
+        return render(request, DETAIL_EVENT_HTML, context)
+    return redirect(FORBIDDEN_URL)
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(["POST"])
+def reject_event(request, id):
+
+    context = {}
+    account = Account.objects.get(user=request.user)
+    context["account"] = account
+    context["role"] = account.role
+
+    if id.isdigit() and Event.objects.filter(id=id).first():
+        event = Event.objects.get(id=id)
+        if event.creator != account and account.role == "User":
+            return redirect(FORBIDDEN_URL)
+
+        context["event"] = event
+        event.status = 'Rejected'
+        rejection_reason = request.POST.get('rejection_reason')
+        event.rejection_reason = rejection_reason
+        event.save()
+
+        event_employees, total_bruto, total_pph, total_netto = get_event_data(event)
+        
+        context["event_employees"] = event_employees
+        context["total_bruto"] = total_bruto
+        context["total_pph"] = total_pph
+        context["total_netto"] = total_netto
+
+        return render(request, DETAIL_EVENT_HTML, context)
+    return redirect(FORBIDDEN_URL)
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(["GET", "POST"])
+def upload_surat_tugas(request, id):
+    context = {}
+    account = Account.objects.get(user=request.user)
+    context["account"] = account
+    context["role"] = account.role
+
+    if id.isdigit() and Event.objects.filter(id=id).first():
+        event = Event.objects.get(id=id)
+        if event.creator != account and account.role == "User":
+            return redirect(FORBIDDEN_URL)
+
+        context["event"] = event
+
+        if request.method == 'POST':
+            signed_file = request.FILES.get('signedSuratTugas')
+            validation_file = ValidationFile(
+                creator = account,
+                event=event,
+                surat_tugas = signed_file
+            )
+            validation_file.save()
+            event.signed_file = signed_file
+            event.status = 'Waiting for validation'
+            event.save()
+
+            return redirect(reverse('detail_event', args=[event.id]))
+
+        return render(request, 'upload_surat_tugas.html', context)
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(["GET", "POST"])
+def reupload_surat_tugas(request, id, file_id):
+    context = {}
+    account = Account.objects.get(user=request.user)
+    context["account"] = account
+    context["role"] = account.role
+
+    if id.isdigit() and Event.objects.filter(id=id).first():
+        event = Event.objects.get(id=id)
+        if event.creator != account and account.role == "User":
+            return redirect(FORBIDDEN_URL)
+
+        context["event"] = event
+        submitted_file = ValidationFile.objects.filter(id=file_id).first()
+        context['file_id'] = submitted_file.id
+
+        if request.method == 'POST':
+            signed_file = request.FILES.get('signedSuratTugas')
+
+            submitted_file.surat_tugas = signed_file
+
+            submitted_file.save()
+            event.signed_file = signed_file
+            event.status = 'Waiting for validation'
+            event.rejection_reason = ''
+            event.save()
+
+            return redirect(reverse('detail_event', args=[event.id]))
+
+        return render(request, 'reupload_surat_tugas.html', context)

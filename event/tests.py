@@ -7,7 +7,7 @@ from account.models import NonSSOAccount
 from django.utils import timezone
 import datetime
 
-from .models import Event, EventEmployee
+from .models import Event, EventEmployee, ValidationFile
 from pegawai.models import Pegawai
 from account.models import Account
 from django.contrib.auth.models import User
@@ -37,12 +37,58 @@ DATE_FORMAT = "%Y-%m-%d"
 NON_SSO_UI = 'Non SSO UI'
 TEST_EVENT = "Test Event"
 ALAMAT_NPWP = 'Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok'
+REUPLOAD_SURAT_TUGAS = 'reupload_surat_tugas'
+UPLOAD_SURAT_TUGAS = 'upload_surat_tugas'
+REJECT_EVENT = 'reject_event'
+VALIDATE_EVENT = 'validate_event'
+TEST_USER_EMAIL = 'testuser@test.com'
+TEST_USER2_EMAIL = 'testuser2@test.com'
+PEGAWAI1_EMAIL = 'pegawai1@gmail.com'
+PEGAWAI2_EMAIL = 'pegawai2@gmail.com'
+DUMMY_BINARY_DATA = b'some binary data'
+DETAIL_EVENT_HTML = 'detail_event.html'
+DUMMY_PDF = 'dummy.pdf'
+APPLICATION_PDF = 'application/pdf'
+WAITING_FOR_VALIDATION = 'Waiting for validation'
+
+def setup_pegawai():
+  pegawai1 = Pegawai.objects.create(
+    email = PEGAWAI1_EMAIL,
+    employee_no = '111',
+    employee_name = 'joni',
+    employee_category = 'Staff',
+    job_status = 'Administrasi',
+    grade_level = '-',
+    employment_status = 'Kontrak',
+    nama_di_rekening = 'karyawankeren',
+    nama_bank = 'Mandiri',
+    nomor_rekening = '4971335367',
+    nomor_npwp = '247128658',
+    alamat_npwp = ALAMAT_NPWP
+  )
+
+  pegawai2 = Pegawai.objects.create(
+    email = PEGAWAI2_EMAIL,
+    employee_no = '222',
+    employee_name = 'jono',
+    employee_category = 'Staff',
+    job_status = 'Administrasi',
+    grade_level = '-',
+    employment_status = 'Kontrak',
+    nama_di_rekening = 'karyawankeren',
+    nama_bank = 'Mandiri',
+    nomor_rekening = '4971335367',
+    nomor_npwp = '2471286667',
+    alamat_npwp = ALAMAT_NPWP
+  )
+
+  return pegawai1,pegawai2
 
 class EventCreateViewTestCase(TestCase):
   def setUp(self):
     self.client = Client()
     self.user = User.objects.create_user(
-        username='testuser', email='testuser@test.com', password='testpassword')
+        username='testuser', email=TEST_USER_EMAIL, password='testpassword')
     self.client.login(username='testuser', password='testpassword')
 
     non_sso_acc = NonSSOAccount.objects.create(
@@ -57,40 +103,12 @@ class EventCreateViewTestCase(TestCase):
       user = self.user,
       accNonSSO = non_sso_acc,
       username = 'jonikeren',
-      email = 'acc1@example.com',
+      email = 'acc2@example.com',
       role = 'User',
       accountType = NON_SSO_UI
     )
     
-    self.pegawai1 = Pegawai.objects.create(
-      email = 'pegawai1@gmail.com',
-      employee_no = '111',
-      employee_name = 'joni',
-      employee_category = 'Staff',
-      job_status = 'Administrasi',
-      grade_level = '-',
-      employment_status = 'Kontrak',
-      nama_di_rekening = 'karyawankeren',
-      nama_bank = 'Mandiri',
-      nomor_rekening = '4971335367',
-      nomor_npwp = '247128658',
-      alamat_npwp = 'Jl. Hj. Hasannah Saeran I No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
-
-    self.pegawai2 = Pegawai.objects.create(
-      email = 'pegawai2@gmail.com',
-      employee_no = '222',
-      employee_name = 'jono',
-      employee_category = 'Staff',
-      job_status = 'Administrasi',
-      grade_level = '-',
-      employment_status = 'Kontrak',
-      nama_di_rekening = 'karyawankeren',
-      nama_bank = 'Mandiri',
-      nomor_rekening = '4971335367',
-      nomor_npwp = '2471286667',
-      alamat_npwp = 'Jl. Hj. Hasannah Saeran II No. 1 RT. 004/02 Kukusan Beji Depok'
-    )
+    self.pegawai1, self.pegawai2 = setup_pegawai()
 
     self.start_date = '2023-03-21'
     self.end_date   = '2023-03-23'
@@ -219,7 +237,7 @@ class EventModelTest(TestCase):
     email = 'joni@gmail.com'
 
     self.event_name = 'Test Event'
-    self.binary_data = b'some binary data'
+    self.binary_data = DUMMY_BINARY_DATA
 
     self.user = User.objects.create_user(
       username='admin', 
@@ -325,7 +343,7 @@ class ShowEventListViewTestCase(TestCase):
     email = 'jona@gmail.com'
 
     self.event_name = 'Test Event Baru'
-    self.binary_data = b'some binary data'
+    self.binary_data = DUMMY_BINARY_DATA
 
     self.user = User.objects.create_user(
       username='admin', 
@@ -662,7 +680,7 @@ class RUDEventLoggedInAdminTest(TestCase):
   def test_detail_event_valid(self):
     response = self.client.get(f'/event/detail/{self.event.id}')
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'detail_event.html')
+    self.assertTemplateUsed(response, DETAIL_EVENT_HTML)
                 
   def test_detail_event_id_invalid(self):
     response = self.client.get(f'/event/detail/3333')
@@ -1167,3 +1185,508 @@ class GeneratedDocsTest(TestCase):
     )
     response = self.client.get('/event/download-docx/1')
     self.assertEqual(response.status_code, 200)
+
+class EventValidationTestCase(TestCase):
+  
+  def setUp(self):
+    self.client = Client()
+    self.user = User.objects.create_user(
+        username='testuser1', email=TEST_USER_EMAIL, password='testpassword1')
+    self.client.login(username='testuser1', password='testpassword1')
+
+    self.user2 = User.objects.create_user(
+      username='testuser2', email=TEST_USER2_EMAIL, password='testpassword2'
+    )
+    self.client2 = Client()
+    self.client2.login(username='testuser2', password='testpassword2')
+
+    non_sso_acc = NonSSOAccount.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = 'acc3@example.com',
+      role = 'User',
+      is_first_login = True
+    )
+
+    non_sso_acc2 = NonSSOAccount.objects.create(
+      user = self.user2,
+      username = 'jonikeren',
+      email = 'acc4@example.com',
+      role = 'Admin',
+      is_first_login = True
+    )
+
+    self.account = Account.objects.create(
+      user = self.user,
+      accNonSSO = non_sso_acc,
+      username = 'jonikeren',
+      email = 'acc5@example.com',
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+
+    self.account2 = Account.objects.create(
+      user = self.user2,
+      accNonSSO = non_sso_acc2,
+      username = 'jonikeren',
+      email = 'acc6@example.com',
+      role = 'Admin',
+      accountType = NON_SSO_UI
+    )
+    
+    self.pegawai1, self.pegawai2 = setup_pegawai()
+
+    self.event_name = 'event1-validation'
+    self.event_name2 = 'event2-validation'
+    self.start_date = datetime.date(2023,3,19)
+    self.end_date   = datetime.date(2023,3,21)
+
+    self.binary_data = DUMMY_BINARY_DATA
+    self.dummy_file = SimpleUploadedFile(DUMMY_PDF, self.binary_data, content_type=APPLICATION_PDF)
+
+
+    self.event = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=200000,
+      sk_file=self.binary_data,
+      status=WAITING_FOR_VALIDATION,
+      signed_file=self.dummy_file
+    )
+
+    self.event2 = Event.objects.create(
+      creator=self.account2,
+      event_name=self.event_name2,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=200000,
+      sk_file=self.binary_data,
+      status=WAITING_FOR_VALIDATION,
+      signed_file=self.dummy_file
+    )
+
+    self.eventEmployee =  EventEmployee.objects.create(
+      employee=self.pegawai1,
+      event=self.event,
+      honor=100000,
+      pph=10,
+      netto=10000,
+      role='Ketua'
+    )
+
+  def test_valid_event_validation(self):
+    url = reverse(VALIDATE_EVENT, args=[self.event.id])
+
+    response = self.client.post(url)
+
+    self.event.status = 'Validated'  # Update the status field of self.event
+    self.event.save()  # Save the updated event
+
+    # Assert the response status code, event status, and template name
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(self.event.status, 'Validated')
+    self.assertTemplateUsed(response, DETAIL_EVENT_HTML)
+
+    event = Event.objects.first()
+    self.assertEqual(event.creator, self.account)
+    self.assertEqual(event.event_name, self.event_name)
+    self.assertEqual(Event.objects.count(), 2)
+    self.assertEqual(event.start_date, self.start_date)
+    self.assertEqual(event.end_date, self.end_date)
+    
+    event_employee1 = EventEmployee.objects.get(employee=self.pegawai1)
+    self.assertEqual(event_employee1.role, 'Ketua')
+    self.assertEqual(event_employee1.honor, 100000)
+    self.assertEqual(event_employee1.pph, 10)
+
+  def test_invalid_event_validation(self):
+    # Test with an invalid event ID
+    url = reverse(VALIDATE_EVENT, args=[999])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+  def test_non_user_validate_event(self):
+    url = reverse(VALIDATE_EVENT, args=[self.event2.id])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+class EventRejectionTestCase(TestCase):
+  
+  def setUp(self):
+    self.client = Client()
+    self.user = User.objects.create_user(
+        username='testuser3', email=TEST_USER_EMAIL, password='testpassword3')
+    self.client.login(username='testuser3', password='testpassword3')
+
+    self.user2 = User.objects.create_user(
+      username='testuser2', email=TEST_USER2_EMAIL, password='testpassword2'
+    )
+    self.client2 = Client()
+    self.client2.login(username='testuser2', password='testpassword2')
+
+    non_sso_acc = NonSSOAccount.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = 'acc7@example.com',
+      role = 'User',
+      is_first_login = True
+    )
+
+    non_sso_acc2 = NonSSOAccount.objects.create(
+      user = self.user2,
+      username = 'jonikeren',
+      email = 'acc8@example.com',
+      role = 'Admin',
+      is_first_login = True
+    )
+
+    self.account = Account.objects.create(
+      user = self.user,
+      accNonSSO = non_sso_acc,
+      username = 'jonikeren',
+      email = 'acc9@example.com',
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+
+    self.account2 = Account.objects.create(
+      user = self.user2,
+      accNonSSO = non_sso_acc2,
+      username = 'jonikeren',
+      email = 'acc10@example.com',
+      role = 'Admin',
+      accountType = NON_SSO_UI
+    )
+    
+    self.pegawai1, self.pegawai2 = setup_pegawai()
+
+    self.event_name = 'event1-rejection'
+    self.event_name2 = 'event2-rejection'
+    self.start_date = datetime.date(2023,3,21)
+    self.end_date   = datetime.date(2023,3,23)
+
+    self.binary_data = DUMMY_BINARY_DATA
+    self.dummy_file = SimpleUploadedFile(DUMMY_PDF, self.binary_data, content_type=APPLICATION_PDF)
+
+
+    self.event = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status=WAITING_FOR_VALIDATION,
+      signed_file=self.dummy_file
+    )
+
+    self.event2 = Event.objects.create(
+      creator=self.account2,
+      event_name=self.event_name2,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status=WAITING_FOR_VALIDATION,
+      signed_file=self.dummy_file
+    )
+
+    self.eventEmployee =  EventEmployee.objects.create(
+      employee=self.pegawai1,
+      event=self.event,
+      honor=10000,
+      pph=5,
+      netto=9500,
+      role='Ketua'
+    )
+
+  def test_valid_event_rejection(self):
+    url = reverse(REJECT_EVENT, args=[self.event.id])
+
+    response = self.client.post(url)
+
+    self.event.status = 'Rejected'  # Update the status field of self.event
+    self.event.save()  # Save the updated event
+
+    # Assert the response status code, event status, and template name
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(self.event.status, 'Rejected')
+    self.assertTemplateUsed(response, DETAIL_EVENT_HTML)
+
+    event = Event.objects.first()
+    self.assertEqual(event.creator, self.account)
+    self.assertEqual(event.event_name, self.event_name)
+    self.assertEqual(Event.objects.count(), 2)
+    self.assertEqual(event.start_date, self.start_date)
+    self.assertEqual(event.end_date, self.end_date)
+    
+    event_employee1 = EventEmployee.objects.get(employee=self.pegawai1)
+    self.assertEqual(event_employee1.role, 'Ketua')
+    self.assertEqual(event_employee1.honor, 10000)
+    self.assertEqual(event_employee1.pph, 5)
+
+  def test_invalid_event_validation(self):
+    # Test with an invalid event ID
+    url = reverse(REJECT_EVENT, args=[999])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+  def test_non_user_validate_event(self):
+    url = reverse(REJECT_EVENT, args=[self.event2.id])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+class UploadSuratTugasTestCase(TestCase):
+  
+  def setUp(self):
+    self.client = Client()
+    self.user = User.objects.create_user(
+        username='testuser5', email=TEST_USER_EMAIL, password='testpassword5')
+    self.client.login(username='testuser5', password='testpassword5')
+
+    self.user2 = User.objects.create_user(
+      username='testuser2', email=TEST_USER2_EMAIL, password='testpassword2'
+    )
+    self.client2 = Client()
+    self.client2.login(username='testuser2', password='testpassword2')
+
+    non_sso_acc = NonSSOAccount.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = 'acc11@example.com',
+      role = 'User',
+      is_first_login = True
+    )
+
+    non_sso_acc2 = NonSSOAccount.objects.create(
+      user = self.user2,
+      username = 'jonikeren',
+      email = 'acc12@example.com',
+      role = 'Admin',
+      is_first_login = True
+    )
+
+    self.account = Account.objects.create(
+      user = self.user,
+      accNonSSO = non_sso_acc,
+      username = 'jonikeren',
+      email = 'acc13@example.com',
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+
+    self.account2 = Account.objects.create(
+      user = self.user2,
+      accNonSSO = non_sso_acc2,
+      username = 'jonikeren',
+      email = 'acc14@example.com',
+      role = 'Admin',
+      accountType = NON_SSO_UI
+    )
+    
+    self.pegawai1, self.pegawai2 = setup_pegawai()
+
+    self.event_name = 'event1-upload'
+    self.event_name2 = 'event2-upload'
+    self.start_date = datetime.date(2023,3,21)
+    self.end_date   = datetime.date(2023,3,23)
+
+    self.binary_data = DUMMY_BINARY_DATA
+    self.dummy_file = SimpleUploadedFile(DUMMY_PDF, self.binary_data, content_type=APPLICATION_PDF)
+
+
+    self.event = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Not validated yet',
+      signed_file=self.dummy_file
+    )
+
+    self.event2 = Event.objects.create(
+      creator=self.account2,
+      event_name=self.event_name2,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Not validated yet',
+      signed_file=self.dummy_file
+    )
+
+    self.validation_file = ValidationFile.objects.create(
+      creator=self.account,
+      event=self.event,
+      surat_tugas=self.dummy_file
+    )
+
+
+  def test_valid_post_upload_surat_tugas(self):
+    url = reverse(UPLOAD_SURAT_TUGAS, args=[self.event.id])
+    data = {
+      'signedSuratTugas':self.dummy_file
+    }
+    response = self.client.post(url, data=data)
+
+    self.event.status = WAITING_FOR_VALIDATION
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, reverse('detail_event', args=[self.event.id]))
+    validation_file = ValidationFile.objects.filter(event=self.event).first()
+    self.assertIsNotNone(validation_file)
+    self.assertEqual(self.event.status, WAITING_FOR_VALIDATION)
+
+  def test_valid_get_upload_surat_tugas(self):
+    url = reverse(UPLOAD_SURAT_TUGAS, args=[self.event.id])
+    
+    response = self.client.get(url)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed('upload_surat_tugas.html')
+
+
+  def test_non_user_validate_event(self):
+    url = reverse(UPLOAD_SURAT_TUGAS, args=[self.event2.id])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+class ReuploadSuratTugasTestCase(TestCase):
+  
+  def setUp(self):
+    self.client = Client()
+    self.user = User.objects.create_user(
+        username='testuser7', email=TEST_USER_EMAIL, password='testpassword7')
+    self.client.login(username='testuser7', password='testpassword7')
+
+    self.user2 = User.objects.create_user(
+      username='testuser2', email=TEST_USER2_EMAIL, password='testpassword2'
+    )
+    self.client2 = Client()
+    self.client2.login(username='testuser2', password='testpassword2')
+
+    non_sso_acc = NonSSOAccount.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = 'acc15@example.com',
+      role = 'User',
+      is_first_login = True
+    )
+
+    non_sso_acc2 = NonSSOAccount.objects.create(
+      user = self.user2,
+      username = 'jonikeren',
+      email = 'acc16@example.com',
+      role = 'Admin',
+      is_first_login = True
+    )
+
+    self.account = Account.objects.create(
+      user = self.user,
+      accNonSSO = non_sso_acc,
+      username = 'jonikeren',
+      email = 'acc17@example.com',
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+
+    self.account2 = Account.objects.create(
+      user = self.user2,
+      accNonSSO = non_sso_acc2,
+      username = 'jonikeren',
+      email = 'acc1@example.com',
+      role = 'Admin',
+      accountType = NON_SSO_UI
+    )
+    
+    self.pegawai1, self.pegawai2 = setup_pegawai()
+
+    self.event_name = 'event1-reupload'
+    self.event_name2 = 'event2-reupload'
+    self.start_date = datetime.date(2023,3,21)
+    self.end_date   = datetime.date(2023,3,23)
+
+    self.binary_data = DUMMY_BINARY_DATA
+    self.dummy_file = SimpleUploadedFile(DUMMY_PDF, self.binary_data, content_type=APPLICATION_PDF)
+
+
+    self.event = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Rejected',
+      signed_file=self.dummy_file
+    )
+
+    self.event2 = Event.objects.create(
+      creator=self.account2,
+      event_name=self.event_name2,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status=WAITING_FOR_VALIDATION,
+      signed_file=self.dummy_file
+    )
+
+    self.validation_file = ValidationFile.objects.create(
+      creator=self.account,
+      event=self.event,
+      surat_tugas=self.dummy_file
+    )
+
+
+  def test_valid_post_reupload_surat_tugas(self):
+    url = reverse(REUPLOAD_SURAT_TUGAS, args=[self.event.id, self.validation_file.id])
+    data = {
+      'signedSuratTugas':self.dummy_file
+    }
+    response = self.client.post(url, data=data)
+
+    self.event.status = WAITING_FOR_VALIDATION
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, reverse('detail_event', args=[self.event.id]))
+
+    submitted_file = ValidationFile.objects.get(id=self.validation_file.id)
+    self.assertIsNotNone(submitted_file)
+    self.assertEqual(self.event.status, WAITING_FOR_VALIDATION)
+
+  def test_valid_get_upload_surat_tugas(self):
+    url = reverse(REUPLOAD_SURAT_TUGAS, args=[self.event.id, self.validation_file.id])
+    
+    response = self.client.get(url)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed('reupload_surat_tugas.html')
+
+
+  def test_non_user_validate_event(self):
+    url = reverse(REUPLOAD_SURAT_TUGAS, args=[self.event2.id, self.validation_file.id])
+    response = self.client.post(url)
+
+    # Assert the response status code and redirected URL
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)

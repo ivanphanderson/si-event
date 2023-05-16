@@ -82,6 +82,7 @@ My Events
                 <th scope="col">Start Date</th>
                 <th scope="col">End Date</th>
                 <th scope="col">Expense (Total Bruto)</th>
+                <th scope="col">Event Status</th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
@@ -100,6 +101,9 @@ My Events
                         }));
                         document.write(expense_format.slice(0,2) + expense_format.slice(3));
                     </script>
+                </td>
+                <td style="vertical-align: middle">
+                    {% include 'event_status_badge.html' with status=event.status %}
                 </td>
                 <td>
                     <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
