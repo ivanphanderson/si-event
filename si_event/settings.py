@@ -98,6 +98,8 @@ WSGI_APPLICATION = 'si_event.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 if os.environ.get('ENVIRONMENT') == 'PRODUCTION':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -109,6 +111,8 @@ if os.environ.get('ENVIRONMENT') == 'PRODUCTION':
         }
     }
 elif os.environ.get('ENVIRONMENT') == 'STAGING':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
