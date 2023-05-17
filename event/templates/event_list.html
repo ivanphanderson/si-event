@@ -104,46 +104,48 @@ All Events
         {% endif %}
         <br /><br /><br />
     </div>
-    <table class="table table-striped" id="eventTable">
-        <caption>
-            Table to show Event List
-        </caption>
-        <thead style="background-color: #2a3990; color: white">
-            <tr>
-                <th scope="col">Event Name</th>
-                <th scope="col">Start Date</th>
-                <th scope="col">End Date</th>
-                <th scope="col">Event Status</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in event_data %}
-            <tr>
-                <td style="vertical-align: middle">{{ event.event_name }}</td>
-                <td style="vertical-align: middle">{{ event.start_date }}</td>
-                <td style="vertical-align: middle">{{ event.end_date }}</td>
-                <td style="vertical-align: middle">
-                    {% include 'event_status_badge.html' with status=event.status %}
-                </td>
-                {% if event.event_name in owner_data or role == 'Admin' or role == 'Staff Keuangan' %}
-                <td style="vertical-align: middle">
-                    {% if event.event_name in owner_data %}
-                    <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
-                        >Update</a
-                    >
+    <div class="table-responsive">
+        <table class="table table-striped" id="eventTable">
+            <caption>
+                Table to show Event List
+            </caption>
+            <thead style="background-color: #2a3990; color: white">
+                <tr>
+                    <th scope="col">Event Name</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Event Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in event_data %}
+                <tr>
+                    <td style="vertical-align: middle">{{ event.event_name }}</td>
+                    <td style="vertical-align: middle">{{ event.start_date }}</td>
+                    <td style="vertical-align: middle">{{ event.end_date }}</td>
+                    <td style="vertical-align: middle">
+                        {% include 'event_status_badge.html' with status=event.status %}
+                    </td>
+                    {% if event.event_name in owner_data or role == 'Admin' or role == 'Staff Keuangan' %}
+                    <td style="vertical-align: middle">
+                        {% if event.event_name in owner_data %}
+                        <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
+                            >Update</a
+                        >
+                        {% endif %}
+                        <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
+                            >Detail</a
+                        >
+                    </td>
+                    {% else %}
+                    <td></td>
                     {% endif %}
-                    <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
-                        >Detail</a
-                    >
-                </td>
-                {% else %}
-                <td></td>
-                {% endif %}
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <div style="text-align: center">
         <img src="{% static 'img/no_event.png' %}" width=400 height=300
