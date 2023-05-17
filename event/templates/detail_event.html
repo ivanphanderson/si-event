@@ -295,7 +295,7 @@
                     </a>
                     <a
                     id="tombolDownloadDocx"
-                    href="{% url 'download_as_docx' event_id=event.id  %}"
+                    href="{% url 'form_surat_tugas'  event_id=event.id%}"
                     role="button"
                     class="btn btn-info"
                   >
@@ -314,7 +314,7 @@
                         d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"
                       />
                     </svg>
-                    Download Surat Tugas
+                    Create Surat Tugas
                   </a>
 
                   {% if event.status == 'Waiting for validation' %}
