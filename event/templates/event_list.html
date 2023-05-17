@@ -49,6 +49,7 @@ All Events
                         class="close"
                         data-dismiss="modal"
                         aria-label="Close"
+                        id="dismiss0"
                     >
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -61,6 +62,7 @@ All Events
                         type="button"
                         class="btn btn-secondary custom-button"
                         data-dismiss="modal"
+                        id="dismiss1"
                     >
                         OK
                     </button>
@@ -129,10 +131,10 @@ All Events
                     </td>
                     {% if event.event_name in owner_data or role == 'Admin' or role == 'Staff Keuangan' %}
                     <td style="vertical-align: middle">
-                        {% if event.event_name in owner_data %}
+                        {% if event.event_name in owner_data and event.status != 'Validated' %}
                         <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
                             >Update</a
-                        >
+                            >
                         {% endif %}
                         <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
                             >Detail</a
@@ -189,6 +191,20 @@ All Events
             $("#succModal").modal("show");
         }
     });
+
+    document
+        .getElementById("dismiss0")
+        .addEventListener("click", dismissModal);
+
+    document
+        .getElementById("dismiss1")
+        .addEventListener("click", dismissModal);
+
+    function dismissModal() {
+        var modal = document.getElementById('succModal');
+        $("#succModal").modal("hide");
+    }
+
 </script>
 <script>
     $("#eventTable").DataTable();

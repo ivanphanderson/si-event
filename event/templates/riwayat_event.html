@@ -106,9 +106,11 @@ My Events
                     {% include 'event_status_badge.html' with status=event.status %}
                 </td>
                 <td>
+                    {% if event.status != 'Validated' %}
                     <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
                         >Update</a
                     >
+                    {% endif %}
                     <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
                         >Detail</a
                     >
