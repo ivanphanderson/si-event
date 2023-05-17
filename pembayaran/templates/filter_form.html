@@ -114,17 +114,17 @@ Honors and Payments
     <h4 style="text-align: center">Honors and Payments</h4>
     <br /><br />
 
-    <form method="GET" action=".">
-        <div class="form-group col-md-2 col-lg-2">
-            <label for="publishDateMin">From Date</label>
+    <form method="GET" action="." class="row">
+        <div class="form-group col-md-2">
+            <label for="publishDateMin"> Starting Date</label>
             <input type="date" class="form-control" id="publishDateMin" name="publishDateMin" value="{{date_min}}">
         </div>
-        <div class="form-group col-md-2 col-lg-2">
-            <label for="publishDateMax">Until Date</label>
+        <div class="form-group col-md-2">
+            <label for="publishDateMax"> Ending Date</label>
             <input type="date" class="form-control" id="publishDateMax" name="publishDateMax" value="{{date_max}}">
         </div>
-        <div class="form-group col-md-4">
-            <label for="pegawai">Employee</label>
+        <div class="form-group col-md-3">
+            <label for="pegawai"> Employee Name</label>
             <div class="select-box">
                 <div class="select-option">
                     <input type="text" placeholder="Choose.." id="soValue" readonly name="pegawai" value="{{pegawai}}">
@@ -142,8 +142,8 @@ Honors and Payments
                 </div>
             </div>
         </div>
-        <div class="form-group col-md-4">
-            <label for="event">Event</label>
+        <div class="form-group col-md-3">
+            <label for="event"> Event Name</label>
             <div class="select-box-event">
                 <div class="select-option-event">
                     <input type="text" placeholder="Choose.." id="soValueEvent" readonly name="event" value="{{event}}">
@@ -162,8 +162,15 @@ Honors and Payments
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="myBtn">Search</button>
-        <p id="demo"></p>
+        <div style="text-align: center" class="form-group col-md-2">
+            <br />
+            <button type="submit" class="btn btn-primary" id="myBtn"><svg xmlns="http://www.w3.org/2000/svg"
+                    width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                </svg> Search</button>
+            <p id="demo"></p>
+        </div>
 
         <div class="modal" id="errDateModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -175,7 +182,8 @@ Honors and Payments
                         </button>
                     </div>
                     <div class="modal-body">
-                        The from date cannot be later than the until date
+                        <p>The starting date cannot be later than the ending date.</p>
+                        <p>Please switch the input for the starting date with the ending date.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
@@ -193,7 +201,8 @@ Honors and Payments
                         </button>
                     </div>
                     <div class="modal-body">
-                        The from date cannot be empty
+                        <p>The starting date cannot be empty.</p>
+                        <p>Please fill the starting date input.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
@@ -211,7 +220,8 @@ Honors and Payments
                         </button>
                     </div>
                     <div class="modal-body">
-                        The until date cannot be empty
+                        <p>The ending date cannot be empty.</p>
+                        <p>Please fill the ending date input.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
@@ -221,50 +231,51 @@ Honors and Payments
         </div>
     </form>
 
-    <br><br><br>
+    <br><br>
 
-    <div class="table-responsive">
-        <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
-            <thead style="background-color: #2A3990; color: white;">
-                <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Nama</th>
-                    <th scope="col">Tugas</th>
-                    <th scope="col">Bruto(Rp.)</th>
-                    <th scope="col">Pph (Rp.)</th>
-                    <th scope="col">Netto (Rp.)</th>
-                    <th scope="col">Nama di rekening</th>
-                    <th scope="col">Bank</th>
-                    <th scope="col">No Rekening</th>
+     {% if not queryset == None %}
+    <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
+        <thead style="background-color: #2A3990; color: white;">
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Nama</th>
+                 <th scope="col">Event</th>
+                <th scope="col">Tugas</th>
+                <th scope="col">Bruto(Rp.)</th>
+                <th scope="col">Pph (Rp.)</th>
+                <th scope="col">Netto (Rp.)</th>
+                <th scope="col">Nama di rekening</th>
+                <th scope="col">Bank</th>
+                <th scope="col">No Rekening</th>
 
-                </tr>
-            </thead>
-            <tbody>
-                {% for qs in queryset %}
-                <tr>
-                    <th scope="row" id="number"></th>
-                    <td>{{qs.employee.employee_name}}</td>
-                    <td>{{qs.role}}</td>
-                    <td>{{qs.honor}}</td>
-                    <td>{{qs.pph|convert:qs.honor}}</td>
-                    <td>{{qs.netto}}</td>
-                    <td>{{qs.employee.nama_di_rekening}}</td>
-                    <td>{{qs.employee.nama_bank}}</td>
-                    <td>{{qs.employee.nomor_rekening}}</td>
-                </tr>
-                {%endfor%}
-                <tr>
-                    <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
-                    <th scope="col">{{ total_bruto }}</th>
-                    <th scope="col">{{ total_pph }}</th>
-                    <th scope="col">{{ total_netto }}</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            </tr>
+        </thead>
+        <tbody>
+            {% for qs in queryset %}
+            <tr>
+                <th scope="row" id="number"></th>
+                <td>{{qs.employee.employee_name}}</td>
+                <td>{{qs.event.event_name}}</td>
+                <td>{{qs.role}}</td>
+                <td>{{qs.honor}}</td>
+                <td>{{qs.pph|convert:qs.honor}}</td>
+                <td>{{qs.netto}}</td>
+                <td>{{qs.employee.nama_di_rekening}}</td>
+                <td>{{qs.employee.nama_bank}}</td>
+                <td>{{qs.employee.nomor_rekening}}</td>
+            </tr>
+            {%endfor%}
+            <tr>
+                <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
+                <th scope="col">{{ total_bruto }}</th>
+                <th scope="col">{{ total_pph }}</th>
+                <th scope="col">{{ total_netto }}</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </tbody>
+    </table>
 
     <div style="text-align: center">
         <br />
@@ -280,6 +291,7 @@ Honors and Payments
         </a>
         <br /><br />
     </div>
+     {% endif %}
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
