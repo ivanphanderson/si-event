@@ -223,46 +223,48 @@ Honors and Payments
 
     <br><br><br>
 
-    <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
-        <thead style="background-color: #2A3990; color: white;">
-            <tr>
-                <th scope="col">No</th>
-                <th scope="col">Nama</th>
-                <th scope="col">Tugas</th>
-                <th scope="col">Bruto(Rp.)</th>
-                <th scope="col">Pph (Rp.)</th>
-                <th scope="col">Netto (Rp.)</th>
-                <th scope="col">Nama di rekening</th>
-                <th scope="col">Bank</th>
-                <th scope="col">No Rekening</th>
+    <div class="table-responsive">
+        <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
+            <thead style="background-color: #2A3990; color: white;">
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Tugas</th>
+                    <th scope="col">Bruto(Rp.)</th>
+                    <th scope="col">Pph (Rp.)</th>
+                    <th scope="col">Netto (Rp.)</th>
+                    <th scope="col">Nama di rekening</th>
+                    <th scope="col">Bank</th>
+                    <th scope="col">No Rekening</th>
 
-            </tr>
-        </thead>
-        <tbody>
-            {% for qs in queryset %}
-            <tr>
-                <th scope="row" id="number"></th>
-                <td>{{qs.employee.employee_name}}</td>
-                <td>{{qs.role}}</td>
-                <td>{{qs.honor}}</td>
-                <td>{{qs.pph|convert:qs.honor}}</td>
-                <td>{{qs.netto}}</td>
-                <td>{{qs.employee.nama_di_rekening}}</td>
-                <td>{{qs.employee.nama_bank}}</td>
-                <td>{{qs.employee.nomor_rekening}}</td>
-            </tr>
-            {%endfor%}
-            <tr>
-                <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
-                <th scope="col">{{ total_bruto }}</th>
-                <th scope="col">{{ total_pph }}</th>
-                <th scope="col">{{ total_netto }}</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr>
-        </tbody>
-    </table>
+                </tr>
+            </thead>
+            <tbody>
+                {% for qs in queryset %}
+                <tr>
+                    <th scope="row" id="number"></th>
+                    <td>{{qs.employee.employee_name}}</td>
+                    <td>{{qs.role}}</td>
+                    <td>{{qs.honor}}</td>
+                    <td>{{qs.pph|convert:qs.honor}}</td>
+                    <td>{{qs.netto}}</td>
+                    <td>{{qs.employee.nama_di_rekening}}</td>
+                    <td>{{qs.employee.nama_bank}}</td>
+                    <td>{{qs.employee.nomor_rekening}}</td>
+                </tr>
+                {%endfor%}
+                <tr>
+                    <th scope="col" colspan="3" style="text-align: center;">TOTAL</th>
+                    <th scope="col">{{ total_bruto }}</th>
+                    <th scope="col">{{ total_pph }}</th>
+                    <th scope="col">{{ total_netto }}</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <div style="text-align: center">
         <br />

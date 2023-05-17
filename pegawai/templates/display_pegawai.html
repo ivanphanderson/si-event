@@ -51,30 +51,32 @@ Employee List
         <br /><br /><br />
     </div>
 
-    <table
-        class="table table-striped"
-        id="sortTable"
-        aria-describedby="All Employee"
-    >
-        <thead style="background-color: #2a3990; color: white">
-            <tr>
-                <th scope="col">Employee No.</th>
-                <th scope="col">Employee Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Job Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for emp in data %}
-            <tr>
-                <td>{{emp.employee_no}}</td>
-                <td>{{emp.employee_name}}</td>
-                <td>{{emp.email}}</td>
-                <td>{{emp.get_job_status_display}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table
+            class="table table-striped"
+            id="sortTable"
+            aria-describedby="All Employee"
+        >
+            <thead style="background-color: #2a3990; color: white">
+                <tr>
+                    <th scope="col">Employee No.</th>
+                    <th scope="col">Employee Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Job Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in data %}
+                <tr>
+                    <td>{{emp.employee_no}}</td>
+                    <td>{{emp.employee_name}}</td>
+                    <td>{{emp.email}}</td>
+                    <td>{{emp.get_job_status_display}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <div style="text-align: center">
         <img src={% static "img/search.png" %} width=350 height=350
