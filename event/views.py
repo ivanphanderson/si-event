@@ -407,17 +407,22 @@ class GenerateDocs:
         paragraph_format.alignment = alignment
         paragraph_format.left_indent = Pt(left_indent)
 
-    def create_docs(self, event_id):
+    def create_docs(self, body, event_id):
         document = Document()
-        event_name = self.get_event_name(event_id)
         start_date = self.get_start_date(event_id)
         employee = self.get_event_employee(event_id)
+        nomor_surat_tugas = body.get("nomor_surat_tugas")
+        nama_pj = body.get("nama_pj")
+        jabatan_pj = body.get("jabatan_pj")
+        perihal_event = body.get("perihal_event")
+        tugas_panitia = body.get("tugas_panitia")
+        target_anggaran = body.get("target_anggaran")
 
         paragraph1 = document.add_paragraph("SURAT TUGAS")
         self.set_font(paragraph1.runs[0], True, True)
         self.set_paragraph_format(paragraph1, WD_ALIGN_PARAGRAPH.CENTER)
 
-        paragraph2 = document.add_paragraph("No.: ST-             /UN2.F11.D/HKP.02.04/2019")
+        paragraph2 = document.add_paragraph(f"No.: ST-{nomor_surat_tugas}/UN2.F11.D/HKP.02.04/2019")
         self.set_font(paragraph2.runs[0])
         self.set_paragraph_format(paragraph2, WD_ALIGN_PARAGRAPH.CENTER)
 
@@ -426,16 +431,16 @@ class GenerateDocs:
         paragraph3 = document.add_paragraph("Yang bertanda tangan di bawah ini:")
         self.set_font(paragraph3.runs[0])
 
-        paragraph4 = document.add_paragraph("Nama:")
+        paragraph4 = document.add_paragraph(f"Nama: {nama_pj}")
         self.set_font(paragraph4.runs[0])
         self.set_paragraph_format(paragraph4, left_indent=36)
 
         run = paragraph4.add_run() 
         run.add_break(docx.text.run.WD_BREAK.LINE)
-        run2 = paragraph4.add_run('Jabatan:')
+        run2 = paragraph4.add_run(f'Jabatan: {jabatan_pj}')
         self.set_font(run2)
 
-        paragraph6 = document.add_paragraph(f"dengan ini menugaskan kepada nama-nama staf dan karyawan terlampir untuk menjadi Panitia {event_name}")
+        paragraph6 = document.add_paragraph(f"dengan ini menugaskan kepada nama-nama staf dan karyawan terlampir untuk menjadi Panitia {perihal_event}")
         self.set_font(paragraph6.runs[0])
         self.set_paragraph_format(paragraph6)
 
@@ -445,16 +450,16 @@ class GenerateDocs:
         paragraph8 = document.add_paragraph("Tugas Panitia", style = LIST_NUMBER)
         self.set_font(paragraph8.runs[0])
 
-        paragraph8_1 = document.add_paragraph("Melaksanakan koordinasi dengan pihak terkait di Universitas Indonesia", style = 'List Number 2')
-        self.set_font(paragraph8_1.runs[0])
+        list_tugas_panitia = tugas_panitia.split('\n')
 
-        paragraph8_2 = document.add_paragraph("Memastikan kinerja para anggota dalam keadaan baik", style = 'List Number 2')
-        self.set_font(paragraph8_2.runs[0])
-
-        paragraph9 = document.add_paragraph("Pengeluaran biaya yang ditimbulkan", style = LIST_NUMBER)
+        for i in range(len(list_tugas_panitia)):
+            paragraph8_3 = document.add_paragraph(f"{list_tugas_panitia[i].strip()}", style = 'List Number 2')
+            self.set_font(paragraph8_3.runs[0])
+        
+        paragraph9 = document.add_paragraph(f"Pengeluaran biaya yang ditimbulkan akibat pemberlakuan Surat Tugas ini dibebankan secara proporsional pada {target_anggaran}", style = LIST_NUMBER)
         self.set_font(paragraph9.runs[0])
 
-        paragraph10 = document.add_paragraph("Surat Tugas ini berlaku sejak tanggal ditetapkan", style = LIST_NUMBER)
+        paragraph10 = document.add_paragraph(f"Surat Tugas ini berlaku sejak tanggal ditetapkan sampai berakhirnya kegiatan {perihal_event}", style = LIST_NUMBER)
         self.set_font(paragraph10.runs[0])
 
         paragraph11 = document.add_paragraph("Demikian Surat Tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab. Apabila di kemudian hari ternyata terdapat kekeliruan dalam Surat Tugas ini, akan diadakan perbaikan seperlunya.")
@@ -471,14 +476,14 @@ class GenerateDocs:
         run12_1 = paragraph12.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
         self.set_font(run12_1)
 
-        paragraph13 = document.add_paragraph("Dekan")
+        paragraph13 = document.add_paragraph(f"{jabatan_pj}")
         self.set_font(paragraph13.runs[0])
         self.set_paragraph_format(paragraph13, left_indent=216)
 
         document.add_paragraph()
         document.add_paragraph()
 
-        paragraph14 = document.add_paragraph("Nama Dekan")
+        paragraph14 = document.add_paragraph(f"{nama_pj}")
         self.set_font(paragraph14.runs[0], True)
         self.set_paragraph_format(paragraph14, left_indent=216)
 
@@ -487,10 +492,10 @@ class GenerateDocs:
         paragraph1_2 = document.add_paragraph("Lampiran Surat Tugas Dekan Fakultas Ilmu Komputer Universitas Indonesia")
         self.set_font(paragraph1_2.runs[0])
 
-        paragraph2_2 = document.add_paragraph("No.		:	ST-           /UN2.F11.D/HKP.02.04/2019")
+        paragraph2_2 = document.add_paragraph(f"No.: ST-{nomor_surat_tugas}/UN2.F11.D/HKP.02.04/2019")
         self.set_font(paragraph2_2.runs[0])
 
-        paragraph3_2 = document.add_paragraph(f"Perihal	:   {event_name}")
+        paragraph3_2 = document.add_paragraph(f"Perihal	:   {perihal_event}")
         self.set_font(paragraph3_2.runs[0])
 
         employee_dict = {}
@@ -520,22 +525,22 @@ class GenerateDocs:
         run12_1 = paragraph9_2.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
         self.set_font(run12_1)
 
-        paragraph10_2 = document.add_paragraph("Dekan")
+        paragraph10_2 = document.add_paragraph(f"{jabatan_pj}")
         self.set_font(paragraph10_2.runs[0])
         self.set_paragraph_format(paragraph10_2, left_indent=216)
 
         document.add_paragraph()
         document.add_paragraph()
 
-        paragraph11_2 = document.add_paragraph("Nama Dekan")
+        paragraph11_2 = document.add_paragraph(f"{nama_pj}")
         self.set_font(paragraph11_2.runs[0], True)
         self.set_paragraph_format(paragraph11_2, left_indent=216)
 
         return document
 
-    def download_file(self, request, event_id):
+    def download_file(self, body, event_id):
         # Create a new Word document
-        document = self.create_docs(event_id)
+        document = self.create_docs(body, event_id)
 
         # Create a BytesIO object to write the document to
         output = BytesIO()
@@ -571,19 +576,41 @@ class GenerateDocs:
             event = Event.objects.get(id=event_id)
             return event.end_date
 
-def generate_docs(request, event_id):
+def generate_docs(body, event_id):
     generate_docs_file = GenerateDocs()
 
     # Call the download_file method to generate and download the document
-    response = generate_docs_file.download_file(request, event_id)
+    response = generate_docs_file.download_file(body, event_id)
 
     # Return the response object to the user
     return response
 
 @login_required(login_url=LOGIN_URL)
+@require_http_methods(["GET", "POST"])
+def form_surat_tugas(request, event_id):
+    context = {}
+    account = Account.objects.get(user=request.user)
+    context["account"] = account
+    context["role"] = account.role
+
+    if request.method == 'POST':
+        body = request.POST
+        return generate_docs(body, event_id)
+
+    if Event.objects.filter(id=event_id).first():
+        event = Event.objects.get(id=event_id)
+        context["event"] = event
+
+        if event.creator != account:
+            return redirect(FORBIDDEN_URL)
+
+        return render(request, 'form_surat_tugas.html', context)
+    
+    return redirect(FORBIDDEN_URL)
+
 @require_http_methods(["GET","POST"])
 def validate_event(request, id):
-
+    
     context = {}
     account = Account.objects.get(user=request.user)
     context["account"] = account

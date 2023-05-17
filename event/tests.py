@@ -37,6 +37,10 @@ DATE_FORMAT = "%Y-%m-%d"
 NON_SSO_UI = 'Non SSO UI'
 TEST_EVENT = "Test Event"
 ALAMAT_NPWP = 'Jl. Hj. Halimah Saerang I No. 9 RT. 004/02 Kukusan Beji Depok'
+FORM_SURAT_TUGAS = '/event/form-surat-tugas/1'
+ACC1_EXAMPLE = 'acc1@example.com'
+EMAIL_PEGAWAI = 'johndoer5@gmail.com'
+EVENT_NAME = 'Event Paling Baru'
 REUPLOAD_SURAT_TUGAS = 'reupload_surat_tugas'
 UPLOAD_SURAT_TUGAS = 'upload_surat_tugas'
 REJECT_EVENT = 'reject_event'
@@ -94,7 +98,7 @@ class EventCreateViewTestCase(TestCase):
     non_sso_acc = NonSSOAccount.objects.create(
       user = self.user,
       username = 'jonikeren',
-      email = 'acc1@example.com',
+      email = ACC1_EXAMPLE,
       role = 'User',
       is_first_login = True
     )
@@ -594,13 +598,13 @@ class InputEmployeeToEventTestCase(TestCase):
     )
 
     self.sess_data = {
-      'event_name': 'Event Paling Baru',
+      'event_name': EVENT_NAME,
       'start_date': self.start_date,
       'end_date': self.end_date,
       'action': 'add_roles'
     }
     self.pegawai = Pegawai.objects.create(
-      email = 'johndoer5@gmail.com',
+      email = EMAIL_PEGAWAI,
       employee_no = '123',
       employee_name = 'Jonyz',
       employee_category = 'Staff',
@@ -648,14 +652,14 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.end_date   = '2023-03-25'
     self.event = Event(
       creator=self.account,
-      event_name='Event Paling Baru',
+      event_name=EVENT_NAME,
       start_date= self.start_date,
       end_date= self.end_date,
       expense=20000
     )
     self.event.save()
     self.pegawai = Pegawai(
-      email = 'johndoer5@gmail.com',
+      email = EMAIL_PEGAWAI,
       employee_no = '123',
       employee_name = 'Jonyz',
       employee_category = 'Staff',
@@ -683,11 +687,11 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.assertTemplateUsed(response, DETAIL_EVENT_HTML)
                 
   def test_detail_event_id_invalid(self):
-    response = self.client.get(f'/event/detail/3333')
+    response = self.client.get('/event/detail/3333')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_detail_event_id_bukan_int(self):
-    response = self.client.get(f'/event/detail/asd')
+    response = self.client.get('/event/detail/asd')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_event_get_valid(self):
@@ -696,11 +700,11 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.assertTemplateUsed(response, 'update_event.html')
                 
   def test_update_event_id_invalid(self):
-    response = self.client.get(f'/event/update/3333')
+    response = self.client.get('/event/update/3333')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_event_id_bukan_int(self):
-    response = self.client.get(f'/event/update/asd')
+    response = self.client.get('/event/update/asd')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_event_post_valid(self):
@@ -729,7 +733,7 @@ class RUDEventLoggedInAdminTest(TestCase):
       'start_date': new_start_date,
       'end_date': new_end_date
     }
-    response = self.client.post(f'/event/submit-update/3333', data)
+    response = self.client.post('/event/submit-update/3333', data)
     updated_event = Event.objects.get(id=self.event.id)
     self.assertEqual(updated_event.event_name, self.event.event_name)
     self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date)
@@ -743,11 +747,11 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.assertTemplateUsed(response, 'input_employee_to_existing_event.html')
                 
   def test_input_employee_to_existing_event_get_id_invalid(self):
-    response = self.client.get(f'/event/add-employee/3333')
+    response = self.client.get('/event/add-employee/3333')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_input_employee_to_existing_event_get_id_bukan_int(self):
-    response = self.client.get(f'/event/add-employee/asd')
+    response = self.client.get('/event/add-employee/asd')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_input_employee_to_existing_event_post(self):
@@ -794,7 +798,7 @@ class RUDEventLoggedInAdminTest(TestCase):
       'pph_field_0': pph,
       'dropdown-select_0': employee_no
     }
-    response = self.client.post(f'/event/submit-add-employee/3333', data)
+    response = self.client.post('/event/submit-add-employee/3333', data)
     event = Event.objects.get(id=self.event.id)
     with self.assertRaises(ObjectDoesNotExist):
       EventEmployee.objects.get(event=event)
@@ -813,7 +817,7 @@ class RUDEventLoggedInAdminTest(TestCase):
       'pph_field_0': pph,
       'dropdown-select_0': employee_no
     }
-    response = self.client.post(f'/event/submit-add-employee/asd', data)
+    response = self.client.post('/event/submit-add-employee/asd', data)
     event = Event.objects.get(id=self.event.id)
     with self.assertRaises(ObjectDoesNotExist):
       EventEmployee.objects.get(event=event)
@@ -828,12 +832,12 @@ class RUDEventLoggedInAdminTest(TestCase):
                 
   def test_update_employee_to_existing_event_get_id_invalid(self):
     set_up_event_employee(self)
-    response = self.client.get(f'/event/update-employee/3333')
+    response = self.client.get('/event/update-employee/3333')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
     
   def test_update_employee_to_existing_event_get_id_bukan_int(self):
     set_up_event_employee(self)
-    response = self.client.get(f'/event/update-employee/asd')
+    response = self.client.get('/event/update-employee/asd')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_employee_to_existing_event_post(self):
@@ -868,7 +872,7 @@ class RUDEventLoggedInAdminTest(TestCase):
       'pph_field_0': new_pph,
       'dropdown-select_0': employee_no
     }
-    response = self.client.post(f'/event/submit-update-employee/3333', data)
+    response = self.client.post('/event/submit-update-employee/3333', data)
     event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
     self.assertEqual(event_employee.role, self.event_employee.role)
     self.assertEqual(event_employee.honor, self.event_employee.honor)
@@ -888,7 +892,7 @@ class RUDEventLoggedInAdminTest(TestCase):
       'pph_field_0': new_pph,
       'dropdown-select_0': employee_no
     }
-    response = self.client.post(f'/event/submit-update-employee/asd', data)
+    response = self.client.post('/event/submit-update-employee/asd', data)
     event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
     self.assertEqual(event_employee.role, self.event_employee.role)
     self.assertEqual(event_employee.honor, self.event_employee.honor)
@@ -908,7 +912,7 @@ class RUDEventLoggedInAdminTest(TestCase):
   def test_delete_employee_to_existing_event_post_id_invalid(self):
     set_up_event_employee(self)
     data = {}
-    response = self.client.post(f'/event/delete-employee/3333', data)
+    response = self.client.post('/event/delete-employee/3333', data)
                 
     self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
@@ -916,7 +920,7 @@ class RUDEventLoggedInAdminTest(TestCase):
   def test_delete_employee_to_existing_event_post_id_bukan_int(self):
     set_up_event_employee(self)
     data = {}
-    response = self.client.post(f'/event/delete-employee/asd', data)
+    response = self.client.post('/event/delete-employee/asd', data)
                 
     self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus																		
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
@@ -1183,8 +1187,138 @@ class GeneratedDocsTest(TestCase):
       employee=self.pegawai2,
       event=event
     )
-    response = self.client.get('/event/download-docx/1')
+    response = self.client.get(FORM_SURAT_TUGAS)
+    self.assertEqual(response.status_code, 302)
+
+class GenerateFormDetailSuratTugasTest(TestCase):
+  def setUp(self) -> None:
+    set_up_login(self, 'User')
+    self.start_date = '2023-03-22'
+    self.end_date   = '2023-03-25'
+    self.event = Event(
+      creator=self.account,
+      event_name=EVENT_NAME,
+      start_date= self.start_date,
+      end_date= self.end_date,
+      expense=20000
+    )
+    self.event.save()
+    self.pegawai = Pegawai(
+      email = EMAIL_PEGAWAI,
+      employee_no = '123',
+      employee_name = 'Jonyz',
+      employee_category = 'Staff',
+      job_status = 'Administrasi',
+      grade_level = '-',
+      employment_status = 'Kontrak',
+      nama_di_rekening = 'karyawankeren',
+      nama_bank = 'Mandiri',
+      nomor_rekening = '4971335367',
+      nomor_npwp = '247128658',
+      alamat_npwp = ALAMAT_NPWP
+    )
+    self.pegawai.save()
+
+    self.pegawai1 = Pegawai(
+      email = 'konbab@gmail.com',
+      employee_no = '1322323',
+      employee_name = 'Jonyzgung',
+      employee_category = 'Staff',
+      job_status = 'Administrasi',
+      grade_level = '-',
+      employment_status = 'Kontrak',
+      nama_di_rekening = 'karyawankeren',
+      nama_bank = 'Mandiri',
+      nomor_rekening = '4971335367',
+      nomor_npwp = '247128658',
+      alamat_npwp = ALAMAT_NPWP
+    )
+    self.pegawai1.save()
+
+    self.pegawai2 = Pegawai(
+      email = 'johndower6@gmail.com',
+      employee_no = '125',
+      employee_name = 'Jony',
+      employee_category = 'Staff',
+      job_status = 'Administrasi2',
+      grade_level = '-',
+      employment_status = 'Kontraks',
+      nama_di_rekening = 'karyawankeren2',
+      nama_bank = 'BCA',
+      nomor_rekening = '4971235367',
+      nomor_npwp = '247128658',
+      alamat_npwp = 'Jl. Hj. Halimah Saerang I No. 9 RT. 004/03 Kukusan Beji Depok'
+    )
+    self.pegawai2.save()
+
+  def test_event_creator_can_post(self):
+    EventEmployee.objects.create(
+      employee=self.pegawai1,
+      event=self.event
+    )
+    EventEmployee.objects.create(
+      employee=self.pegawai2,
+      event=self.event
+    )
+    data = {
+      'nomor_surat_tugas': '12345',
+      'nama_pj': 'Mirna',
+      'jabatan_pj': 'Dekan',
+      'perihal_event': 'Wisuda',
+      'tugas_panitia': 'Memastikan event lancar',
+      'target_anggaran': 'Anggaran fasilkom 2020'
+    }
+    response = self.client.post(FORM_SURAT_TUGAS, data)
     self.assertEqual(response.status_code, 200)
+
+  def test_event_creator_can_get(self):
+    response = self.client.get(FORM_SURAT_TUGAS)
+    self.assertEqual(response.status_code, 200)
+
+  def test_not_event_creator(self):
+    self.user = User.objects.create_user(
+        username='testuser', email=TEST_USER_EMAIL, password='testpassword')
+    self.account = Account.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = ACC1_EXAMPLE,
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+    
+    self.event = Event(
+      creator=self.account,
+      event_name=EVENT_NAME,
+      start_date= self.start_date,
+      end_date= self.end_date,
+      expense=20000
+    )
+
+    response = self.client.get('/event/form-surat-tugas/2')
+    self.assertEqual(response.status_code, 302)
+
+  def test_not_event_creator_forbidden(self):
+    self.user = User.objects.create_user(
+        username='testuser', email=TEST_USER_EMAIL, password='testpassword')
+    self.account = Account.objects.create(
+      user = self.user,
+      username = 'jonikeren',
+      email = ACC1_EXAMPLE,
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+    
+    self.event = Event(
+      creator=self.account,
+      event_name=EVENT_NAME,
+      start_date= self.start_date,
+      end_date= self.end_date,
+      expense=20000
+    )
+    self.event.save()
+
+    response = self.client.get(f'/event/form-surat-tugas/{self.event.id}')
+    self.assertEqual(response.status_code, 302)
 
 class EventValidationTestCase(TestCase):
   

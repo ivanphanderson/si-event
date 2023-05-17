@@ -14,6 +14,7 @@ from .views import (
     submit_input_employee_to_existing_event,
     input_employee_to_existing_event,
     generate_docs,
+    form_surat_tugas,
     validate_event,
     reject_event,
     upload_surat_tugas,
@@ -57,6 +58,7 @@ urlpatterns = [
     path(
         "download-docx/<event_id>", generate_docs, name="download_as_docx"
     ),
+    path("form-surat-tugas/<event_id>", form_surat_tugas, name="form_surat_tugas"),
     path(
         "validate-event/<id>",
         validate_event,
