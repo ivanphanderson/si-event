@@ -2,7 +2,7 @@
 {% load static %}
 {% load convert_pph %}
 {% block title %}
-    Detail Event
+{{event.event_name}}
 {% endblock title %}
 {% block meta %}
 <link
@@ -171,7 +171,7 @@
         <div class="col-md-12">
             <div class="table-wrap">
                 {% if event_employees %}
-                {% if event.creator == account %}
+                {% if event.creator == account and event.status != 'Validated' %}
                 <div
                     style="
                         display: flex;
@@ -202,7 +202,9 @@
                             <th scope="col">Nama di rekening</th>
                             <th scope="col">Bank</th>
                             <th scope="col">No Rekening</th>
-                            <th scope="col">Action</th>
+                            {% if event.creator == account and event.status != 'Validated' %}
+                                <th scope="col">Action</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -219,8 +221,9 @@
                             </td>
                             <td>{{event_employee.employee.nama_bank}}</td>
                             <td>{{event_employee.employee.nomor_rekening}}</td>
+                            
+                            {% if event.creator == account and event.status != 'Validated' %}
                             <td>
-                                {% if event.creator == account %}
                                 <a href="{% url 'update_event_employee_by_id' id=event_employee.id %}" class="btn btn-warning">Update</a>
                                 <button class="btn btn-danger" type="button" id="delete-event-employee" data-toggle="modal" data-target="#deleteEventEmployeeModal{{event_employee.id}}">Delete</button>
                                 <div class="modal fade" id="deleteEventEmployeeModal{{event_employee.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
@@ -245,8 +248,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                             </td>
+                            {% endif %}
+                            
                         </tr>
                         {% endfor %}
                         <div class="rowTotal">

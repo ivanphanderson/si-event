@@ -702,6 +702,12 @@ class RUDEventLoggedInAdminTest(TestCase):
   def test_update_event_id_bukan_int(self):
     response = self.client.get(f'/event/update/asd')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_update_validated_event_fail_get(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    response = self.client.get(f'/event/update/{self.event.id}')
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_event_post_valid(self):
     new_event_name = 'Updated Event2'
@@ -736,6 +742,25 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date)
                                                     
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_update_validated_event_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    new_event_name = 'Updated Events'
+    new_start_date = '2020-01-01'
+    new_end_date   = '2023-01-02'
+    data = {
+      'event_name': new_event_name,
+      'start_date': new_start_date,
+      'end_date': new_end_date
+    }
+    response = self.client.post(f'/event/submit-update/{self.event.id}', data)
+    updated_event = Event.objects.get(id=self.event.id)
+    self.assertEqual(updated_event.event_name, self.event.event_name)
+    self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date)
+    self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date)
+                                                    
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_input_employee_to_existing_event_get(self):
     response = self.client.get(f'/event/add-employee/{self.event.id}')
@@ -748,6 +773,12 @@ class RUDEventLoggedInAdminTest(TestCase):
                 
   def test_input_employee_to_existing_event_get_id_bukan_int(self):
     response = self.client.get(f'/event/add-employee/asd')
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_input_employee_to_existing_validated_event_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    response = self.client.get(f'/event/add-employee/{self.event.id}')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_input_employee_to_existing_event_post(self):
@@ -819,6 +850,27 @@ class RUDEventLoggedInAdminTest(TestCase):
       EventEmployee.objects.get(event=event)
                                                     
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_input_employee_to_existing_validated_event_post_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    role = 'Ketua'
+    honor = 100000
+    pph   = 5
+    employee_no = '123'
+    data = {
+      'num_fields': '1',
+      'role_field_0': role,
+      'honor_field_0': honor,
+      'pph_field_0': pph,
+      'dropdown-select_0': employee_no
+    }
+    response = self.client.post(f'/event/submit-add-employee/{self.event.id}', data)
+    event = Event.objects.get(id=self.event.id)
+    with self.assertRaises(ObjectDoesNotExist):
+      EventEmployee.objects.get(event=event)
+                                                    
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_employee_to_existing_event_get(self):
     set_up_event_employee(self)
@@ -834,6 +886,13 @@ class RUDEventLoggedInAdminTest(TestCase):
   def test_update_employee_to_existing_event_get_id_bukan_int(self):
     set_up_event_employee(self)
     response = self.client.get(f'/event/update-employee/asd')
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_update_employee_to_existing_validated_event_get_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    set_up_event_employee(self)
+    response = self.client.get(f'/event/update-employee/{self.event.id}')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_update_employee_to_existing_event_post(self):
@@ -895,6 +954,28 @@ class RUDEventLoggedInAdminTest(TestCase):
     self.assertEqual(event_employee.pph, self.event_employee.pph)
                                                     
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_update_employee_to_existing_validated_event_post_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    set_up_event_employee(self)
+    new_role = 'Ketuanew'
+    new_honor = 100001
+    new_pph   = 6
+    employee_no = '123'
+    data = {
+      'role_field_0': new_role,
+      'honor_field_0': new_honor,
+      'pph_field_0': new_pph,
+      'dropdown-select_0': employee_no
+    }
+    response = self.client.post(f'/event/submit-update-employee/{self.event.id}', data)
+    event_employee = EventEmployee.objects.filter(id=self.event_employee.id).first()
+    self.assertEqual(event_employee.role, self.event_employee.role)
+    self.assertEqual(event_employee.honor, self.event_employee.honor)
+    self.assertEqual(event_employee.pph, self.event_employee.pph)
+                                                    
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
                 
   def test_delete_employee_to_existing_event_post(self):
     set_up_event_employee(self)
@@ -917,6 +998,16 @@ class RUDEventLoggedInAdminTest(TestCase):
     set_up_event_employee(self)
     data = {}
     response = self.client.post(f'/event/delete-employee/asd', data)
+                
+    self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus																		
+    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
+  def test_delete_employee_to_existing_validated_event_post_fail(self):
+    self.event.status = 'Validated'
+    self.event.save()
+    set_up_event_employee(self)
+    data = {}
+    response = self.client.post(f'/event/delete-employee/{self.event.id}', data)
                 
     self.assertTrue(EventEmployee.objects.filter(id=self.event_employee.id).first()) # Objeknya tidak terhapus																		
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
@@ -973,8 +1064,8 @@ class RUDEventLoggedInNonCreatorTest(TestCase):
     }
     response = self.client.post(f'/event/submit-update/{self.event.id}', data)
     updated_event = Event.objects.get(id=self.event.id)
-    self.assertEqual(updated_event.event_name, self.event.event_name)
     self.assertEqual(updated_event.start_date.strftime(DATE_FORMAT), self.event.start_date)
+    self.assertEqual(updated_event.event_name, self.event.event_name)
     self.assertEqual(updated_event.end_date.strftime(DATE_FORMAT), self.event.end_date)
                                                     
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)

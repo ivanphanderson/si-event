@@ -220,7 +220,7 @@ def update_event(request, id):
     context["role"] = account.role
     if id.isdigit() and Event.objects.filter(id=id).first():
         event = Event.objects.get(id=id)
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         context["event"] = event
         return render(request, "update_event.html", context)
@@ -235,7 +235,7 @@ def submit_update_event(request, id):
     context["role"] = account.role
     if id.isdigit() and Event.objects.filter(id=id).first():
         event = Event.objects.get(id=id)
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         body = request.POST
         event.event_name = body.get("event_name")
@@ -258,7 +258,7 @@ def input_employee_to_existing_event(request, id):
     context["role"] = account.role
     if id.isdigit() and Event.objects.filter(id=id).first():
         event = Event.objects.get(id=id)
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         context["event"] = event
         return render(request, "input_employee_to_existing_event.html", context)
@@ -271,7 +271,7 @@ def submit_input_employee_to_existing_event(request, id):
     account = Account.objects.get(user=request.user)
     if id.isdigit() and Event.objects.filter(id=id).first():
         event = Event.objects.get(id=id)
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         form_data = request.POST
 
@@ -292,7 +292,7 @@ def submit_input_employee_to_existing_event(request, id):
             if f"dropdown-select_{idx}" in form_data:
                 process_employee_data(event, form_data, idx)
 
-        messages.success(request, "Employees is added successfully.")
+        messages.success(request, "Employees added successfully.")
         return redirect(f"/event/detail/{id}")
     return redirect(FORBIDDEN_URL)
 
@@ -328,7 +328,7 @@ def update_event_employee_by_id(request, id):
     if id.isdigit() and EventEmployee.objects.filter(id=id).first():
         event_employee = EventEmployee.objects.get(id=id)
         context["event_employee"] = event_employee
-        if event_employee.event.creator != account:
+        if event_employee.event.creator != account or event_employee.event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         return render(request, "update_event_employee.html", context)
     return redirect(FORBIDDEN_URL)
@@ -343,7 +343,7 @@ def update_employee_to_event_by_id(request, id):
         event_employee = EventEmployee.objects.get(id=id)
         event = event_employee.event
 
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
 
         employee_no = form_data["dropdown-select_0"]
@@ -381,7 +381,7 @@ def delete_event_employee_by_id(request, id):
     if id.isdigit() and EventEmployee.objects.filter(id=id).first():
         event_employee = EventEmployee.objects.get(id=id)
         event = event_employee.event
-        if event.creator != account:
+        if event.creator != account or event.status == 'Validated':
             return redirect(FORBIDDEN_URL)
         event_employee.delete()
 
