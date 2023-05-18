@@ -32,7 +32,8 @@ Home
     <div class="row rounded" style="background-image: url('/static/img/back.png'); background-size: 100%;">
         <h1 class="ml-2" style="color: #263f6b">Welcome {{user}}</h1>
     </div>
-    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3">
+    {% if role == 'Admin' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/account';">
         <h1 class="mr-3">Account</h1>
         <img
             src="/static/homecss/icons/account.png"
@@ -42,7 +43,7 @@ Home
             class="mt-2"
         />
     </div>
-    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3">
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/pegawai';">
         <h1 class="mr-3">Employee</h1>
         <img
             src="/static/homecss/icons/employee.png"
@@ -52,7 +53,8 @@ Home
             class="mt-2"
         />
     </div>
-    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3">
+    {% endif %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/event';">
         <h1 class="mr-3">Event</h1>
         <img
             src="/static/homecss/icons/event.png"
@@ -62,7 +64,8 @@ Home
             class="mt-2"
         />
     </div>
-    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3">
+    {% if role == 'Admin' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/log';">
         <h1 class="mr-3">Logs</h1>
         <img
             src="/static/homecss/icons/log.png"
@@ -72,6 +75,19 @@ Home
             class="mt-2"
         />
     </div>
+    {% endif %}
+    {% if role == 'Staff Keuangan' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/pembayaran';">
+        <h1 class="mr-3">Honors</h1>
+        <img
+            src="/static/homecss/icons/payment.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    {% endif %}
 </div>
 <div class="d-none d-lg-block">
     <section class="u-clearfix u-section-1" id="sec-d6a4">
