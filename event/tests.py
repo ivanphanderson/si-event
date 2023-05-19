@@ -32,6 +32,7 @@ from unittest.mock import MagicMock
 
 CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
+DELETE_EVENT = 'delete_event'
 FORBIDDEN_URL = '/home/forbidden/'
 DATE_FORMAT = "%Y-%m-%d"
 NON_SSO_UI = 'Non SSO UI'
@@ -293,12 +294,24 @@ class EventModelTest(TestCase):
       expense=100000,
       sk_file=self.binary_data
     )
+
+    event2 = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date='2022-08-27',
+      end_date='2022-09-28',
+      expense=100000,
+      sk_file=self.binary_data
+    )
+
     self.assertIsInstance(event, Event)
     self.assertEqual(event.creator, self.account)
     self.assertEqual(event.event_name, self.event_name)
     self.assertLess(event.start_date, event.end_date)
     self.assertEqual(event.expense, 100000)
     self.assertEqual(event.sk_file, self.binary_data)
+    self.assertEqual(event.terms, 'GENAP-2021/2022')
+    self.assertEqual(event2.terms, 'GASAL-2022/2023')
     
   def test_create_event_will_add_log(self):
     sess_data = {
@@ -393,7 +406,7 @@ class ShowEventListViewTestCase(TestCase):
     self.client.login(username='admin', password='admin123')
     response = self.client.get(reverse('get_events'))
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'event_list.html')
+    self.assertTemplateUsed(response, EVENT_LIST)
     self.assertContains(response, self.event_name_1)
     self.assertContains(response, 'Event 2')
     self.assertDictEqual(response.context['owner_data'], {self.event_name_1: True})
@@ -1914,4 +1927,87 @@ class ReuploadSuratTugasTestCase(TestCase):
 
     # Assert the response status code and redirected URL
     self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+
+class DeleteEventTest(TestCase):
+  def setUp(self):
+    self.client = Client()
+    self.user = User.objects.create_user(
+      username='testuser', email=TEST_USER_EMAIL, password='testpassword')
+    self.another_user = User.objects.create_user(
+      username='anotheruser', email='a'+TEST_USER_EMAIL, password='anotherpassword')
+    
+    self.account = Account.objects.create(
+      user = self.user,
+      username = 'jonakeren',
+      email = ACC1_EXAMPLE,
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+    self.another_account = Account.objects.create(
+      user = self.another_user,
+      username = 'janokeren',
+      email = 'a'+ACC1_EXAMPLE,
+      role = 'User',
+      accountType = NON_SSO_UI
+    )
+
+    self.binary_data = DUMMY_BINARY_DATA
+    self.event_name  = 'test_delete_event'
+    self.dummy_file  = SimpleUploadedFile(DUMMY_PDF, self.binary_data, content_type=APPLICATION_PDF)
+
+    self.start_date = '2023-03-21'
+    self.end_date   = '2023-03-23'
+
+    self.event = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name,
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Validated',
+      signed_file=self.dummy_file
+    )
+
+    self.event2 = Event.objects.create(
+      creator=self.account,
+      event_name=self.event_name+'a',
+      start_date=self.start_date,
+      end_date=self.end_date,
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Validated',
+      signed_file=self.dummy_file
+    )
+
+
+  def test_delete_event(self):
+    # Test with authenticated user
+    self.client.login(username='testuser', password='testpassword')
+
+    # Test GET request
+    response = self.client.post(reverse(DELETE_EVENT, args=[self.event.id]))
+    self.assertEqual(response.status_code, 302)
+    self.assertFalse(Event.objects.filter(id=self.event.id).exists())
+
+    # Test event deletion by a different user (forbidden)
+    event = Event.objects.create(
+      creator=self.another_account,
+      event_name=self.event_name+'_baru',
+      start_date='2023-03-22',
+      end_date='2023-03-24',
+      expense=100000,
+      sk_file=self.binary_data,
+      status='Validated',
+      signed_file=self.dummy_file
+    )
+    response = self.client.post(reverse(DELETE_EVENT, args=[event.id]))
+    self.assertEqual(response.status_code, 302)  # Redirect to forbidden page
+    self.assertRedirects(response, FORBIDDEN_URL)
+
+    # Test invalid event id
+    response = self.client.post(reverse(DELETE_EVENT, args=['asd']))
+    self.assertEqual(response.status_code, 302)  # Redirect to forbidden page
     self.assertRedirects(response, FORBIDDEN_URL)
