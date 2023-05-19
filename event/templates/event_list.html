@@ -114,6 +114,7 @@ All Events
             <thead style="background-color: #2a3990; color: white">
                 <tr>
                     <th scope="col">Event Name</th>
+                    <th scope="col">Term</th>
                     <th scope="col">Start Date</th>
                     <th scope="col">End Date</th>
                     <th scope="col">Event Status</th>
@@ -124,6 +125,7 @@ All Events
                 {% for event in event_data %}
                 <tr>
                     <td style="vertical-align: middle">{{ event.event_name }}</td>
+                    <td style="vertical-align: middle">{{ event.terms }}</td>
                     <td style="vertical-align: middle">{{ event.start_date }}</td>
                     <td style="vertical-align: middle">{{ event.end_date }}</td>
                     <td style="vertical-align: middle">
@@ -134,14 +136,49 @@ All Events
                         {% if event.event_name in owner_data and event.status != 'Validated' %}
                         <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
                             >Update</a
-                            >
+                        >
+                            {% if role == 'Admin' or event.event_name in owner_data %}
+                            <button class="btn btn-danger" type="button" id="delete-event" data-toggle="modal" data-target="#deleteEventModal{{event.id}}">Delete</button>
+                            <div class="modal fade" id="deleteEventModal{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteEventModalLabel">Delete Event</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                        Are you sure to delete {{event.event_name}} from this list?
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <form method="POST" action="{% url 'delete_event' event.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                         {% endif %}
                         <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
                             >Detail</a
                         >
                     </td>
                     {% else %}
-                    <td></td>
+                    <td>
+                        <a href="{% url 'update_event' id=event.id %}" class="btn disabled"
+                            >Update</a
+                        >
+                        <a href="{% url 'delete_event' id=event.id %}" class="btn disabled"
+                            >Delete</a
+                        >
+                        <a href="{% url 'detail_event' id=event.id %}" class="btn disabled"
+                            >Detail</a
+                        >
+                    </td>
                     {% endif %}
                 </tr>
                 {%endfor%}

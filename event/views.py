@@ -228,6 +228,19 @@ def update_event(request, id):
 
 
 @login_required(login_url=LOGIN_URL)
+@require_http_methods(["POST", "GET"])
+def delete_event(request, id):
+    account = Account.objects.get(user=request.user)
+    if id.isdigit() and Event.objects.filter(id=id).first():
+        event = Event.objects.get(id=id)
+        if event.creator != account:
+            return redirect(FORBIDDEN_URL)
+        Event.objects.filter(id=id).delete()
+        return redirect('get_events')
+    return redirect(FORBIDDEN_URL)
+
+
+@login_required(login_url=LOGIN_URL)
 @require_http_methods(["POST"])
 def submit_update_event(request, id):
     context = {}

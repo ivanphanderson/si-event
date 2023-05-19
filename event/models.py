@@ -23,6 +23,17 @@ class Event(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=NOT_VALIDATED_YET)
     signed_file = models.FileField(upload_to='pdfs/', null=True, blank=True)
     rejection_reason = models.TextField(default='', blank=True, null=True)
+    terms = models.CharField(max_length=50, default='GASAL-XXXX/XXXX')
+
+    def save(self, *args, **kwargs):
+        year  = int(str(self.start_date)[:4])
+        month = int(str(self.start_date)[5:7])
+
+        if month >= 8 and month <= 12:
+            self.terms = f'GASAL-{year}/{year+1}'
+        else:
+            self.terms = f'GENAP-{year-1}/{year}'
+        super().save(*args, **kwargs)
 
 class EventEmployee(models.Model):
     employee = models.ForeignKey(Pegawai, on_delete=models.CASCADE)

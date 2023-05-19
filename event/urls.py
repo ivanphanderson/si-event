@@ -7,6 +7,7 @@ from .views import (
     riwayat_events,
     detail_event,
     update_event,
+    delete_event,
     submit_update_event,
     update_event_employee_by_id,
     update_employee_to_event_by_id,
@@ -29,6 +30,7 @@ urlpatterns = [
     path("my-event", riwayat_events, name="riwayat_events"),
     path("detail/<id>", detail_event, name="detail_event"),
     path("update/<id>", update_event, name="update_event"),
+    path("delete/<id>", delete_event, name="delete_event"),
     path("submit-update/<id>", submit_update_event, name="submit_update_event"),
     path(
         "add-employee/<id>",
