@@ -1252,12 +1252,12 @@ class GeneratedDocsTest(TestCase):
     self.pegawai1 = Pegawai(
       email = 'konbab@gmail.com',
       employee_no = '1322323',
-      employee_name = 'Jonyzgung',
+      employee_name = 'Jonyzgungs',
       employee_category = 'Staff',
       job_status = 'Administrasi',
       grade_level = '-',
       employment_status = 'Kontrak',
-      nama_di_rekening = 'karyawankeren',
+      nama_di_rekening = 'karyawankeren1',
       nama_bank = 'Mandiri',
       nomor_rekening = '4971335367',
       nomor_npwp = '247128658',
@@ -1274,7 +1274,7 @@ class GeneratedDocsTest(TestCase):
       grade_level = '-',
       employment_status = 'Kontraks',
       nama_di_rekening = 'karyawankeren2',
-      nama_bank = 'BCA',
+      nama_bank = 'BNI',
       nomor_rekening = '4971235367',
       nomor_npwp = '247128658',
       alamat_npwp = 'Jl. Hj. Halimah Saerang I No. 9 RT. 004/03 Kukusan Beji Depok'
@@ -1304,19 +1304,20 @@ class GenerateFormDetailSuratTugasTest(TestCase):
       event_name=EVENT_NAME,
       start_date= self.start_date,
       end_date= self.end_date,
-      expense=20000
+      expense=30000
     )
     self.event.save()
+
     self.pegawai = Pegawai(
       email = EMAIL_PEGAWAI,
       employee_no = '123',
-      employee_name = 'Jonyz',
+      employee_name = 'Jonyzz',
       employee_category = 'Staff',
       job_status = 'Administrasi',
       grade_level = '-',
       employment_status = 'Kontrak',
       nama_di_rekening = 'karyawankeren',
-      nama_bank = 'Mandiri',
+      nama_bank = 'BTN',
       nomor_rekening = '4971335367',
       nomor_npwp = '247128658',
       alamat_npwp = ALAMAT_NPWP
@@ -1334,7 +1335,7 @@ class GenerateFormDetailSuratTugasTest(TestCase):
       nama_di_rekening = 'karyawankeren',
       nama_bank = 'Mandiri',
       nomor_rekening = '4971335367',
-      nomor_npwp = '247128658',
+      nomor_npwp = '247128659',
       alamat_npwp = ALAMAT_NPWP
     )
     self.pegawai1.save()
@@ -1350,7 +1351,7 @@ class GenerateFormDetailSuratTugasTest(TestCase):
       nama_di_rekening = 'karyawankeren2',
       nama_bank = 'BCA',
       nomor_rekening = '4971235367',
-      nomor_npwp = '247128658',
+      nomor_npwp = '247128628',
       alamat_npwp = 'Jl. Hj. Halimah Saerang I No. 9 RT. 004/03 Kukusan Beji Depok'
     )
     self.pegawai2.save()
