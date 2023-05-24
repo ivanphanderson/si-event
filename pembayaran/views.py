@@ -41,7 +41,8 @@ def filter(request):
             qs = EventEmployee.objects.all().filter(employee=employee)
 
     if is_valid_queryparam(event) and event != 'None':
-        ev = Event.objects.get(event_name=event)
+        ev_name = event.partition('GENAP')[0] or event.partition('GANJIL')[0]
+        ev = Event.objects.get(event_name=ev_name.strip())
         if qs is not None:
             qs = qs.filter(event=ev.id)
         else:
@@ -78,7 +79,7 @@ def filter_honor_view(request):
             'date_max': date_max,
             'pegawai': pegawai,
             'event': event,
-            'categories': Event.objects.all(),
+            'categories': Event.objects.all().filter(status='Validated'),
             'employees': Pegawai.objects.all(),
             'total_bruto': total_bruto,
             'total_pph': int(total_pph_in_rp),

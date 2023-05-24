@@ -20,10 +20,7 @@ All Events
 {% block meta %}
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<link
-    rel="stylesheet"
-    href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css"
-/>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css" />
 
 {% endblock meta %}
 {% block content %}
@@ -44,13 +41,7 @@ All Events
             <div class="modal-content">
                 <div class="modal-header custom-modal">
                     <h5 class="modal-title">Success</h5>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Close"
-                        id="dismiss0"
-                    >
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="dismiss0">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -58,12 +49,7 @@ All Events
                     Event data has been successfully added
                 </div>
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary custom-button"
-                        data-dismiss="modal"
-                        id="dismiss1"
-                    >
+                    <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal" id="dismiss1">
                         OK
                     </button>
                 </div>
@@ -75,31 +61,16 @@ All Events
     <div style="text-align: center">
         <br />
         {% if role == 'User' %}
-        <a
-            href="{% url 'riwayat_events' %}"
-            role="button"
-            class="btn btn-primary"
-            style="margin-right: 1vw"
-        >
+        <a href="{% url 'riwayat_events' %}" role="button" class="btn btn-primary" style="margin-right: 1vw">
             My Events
         </a>
         <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                class="bi bi-cloud-upload"
-                viewBox="0 0 16 16"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
-                />
-                <path
-                    fill-rule="evenodd"
-                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
-                />
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-cloud-upload" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
+                <path fill-rule="evenodd"
+                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
             </svg>
             Create Event
         </a>
@@ -122,6 +93,7 @@ All Events
                 </tr>
             </thead>
             <tbody>
+                {% if role == 'Admin' or role == 'User' %}
                 {% for event in event_data %}
                 <tr>
                     <td style="vertical-align: middle">{{ event.event_name }}</td>
@@ -134,79 +106,79 @@ All Events
                     {% if event.event_name in owner_data or role == 'Admin' or role == 'Staff Keuangan' %}
                     <td style="vertical-align: middle">
                         {% if event.event_name in owner_data and event.status != 'Validated' %}
-                        <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
-                            >Update</a
-                        >
-                            {% if role == 'Admin' or event.event_name in owner_data %}
-                            <button class="btn btn-danger" type="button" id="delete-event" data-toggle="modal" data-target="#deleteEventModal{{event.id}}">Delete</button>
-                            <div class="modal fade" id="deleteEventModal{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
+                        <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning">Update</a>
+                        {% if role == 'Admin' or event.event_name in owner_data %}
+                        <button class="btn btn-danger" type="button" id="delete-event" data-toggle="modal"
+                            data-target="#deleteEventModal{{event.id}}">Delete</button>
+                        <div class="modal fade" id="deleteEventModal{{event.id}}" tabindex="-1" role="dialog"
+                            aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
                                         <h5 class="modal-title" id="deleteEventModalLabel">Delete Event</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
-                                        </div>
-                                        <div class="modal-body">
+                                    </div>
+                                    <div class="modal-body">
                                         Are you sure to delete {{event.event_name}} from this list?
-                                        </div>
-                                        <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">Cancel</button>
                                         <form method="POST" action="{% url 'delete_event' event.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
+                        </div>
                         {% endif %}
-                        <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
-                            >Detail</a
-                        >
+                        {% endif %}
+                        <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark">Detail</a>
                     </td>
                     {% else %}
                     <td>
-                        <a href="{% url 'update_event' id=event.id %}" class="btn disabled"
-                            >Update</a
-                        >
-                        <a href="{% url 'delete_event' id=event.id %}" class="btn disabled"
-                            >Delete</a
-                        >
-                        <a href="{% url 'detail_event' id=event.id %}" class="btn disabled"
-                            >Detail</a
-                        >
+                        <a href="{% url 'update_event' id=event.id %}" class="btn disabled">Update</a>
+                        <a href="{% url 'delete_event' id=event.id %}" class="btn disabled">Delete</a>
+                        <a href="{% url 'detail_event' id=event.id %}" class="btn disabled">Detail</a>
                     </td>
                     {% endif %}
                 </tr>
                 {%endfor%}
+                {% else %}
+                {% for event in event_data %}
+                {% if event.status == 'Validated' %}
+                <tr>
+                    <td style="vertical-align: middle">{{ event.event_name }}</td>
+                    <td style="vertical-align: middle">{{ event.terms }}</td>
+                    <td style="vertical-align: middle">{{ event.start_date }}</td>
+                    <td style="vertical-align: middle">{{ event.end_date }}</td>
+                    <td style="vertical-align: middle">
+                        {% include 'event_status_badge.html' with status=event.status %}
+                    </td>
+                    <td>
+                        <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark">Detail</a>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     </div>
     {% else %}
     <div style="text-align: center">
-        <img src="{% static 'img/no_event.png' %}" width=400 height=300
-        class="img-fluid" alt="Search image">
+        <img src="{% static 'img/no_event.png' %}" width=400 height=300 class="img-fluid" alt="Search image">
         <br />
         <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                class="bi bi-cloud-upload"
-                viewBox="0 0 16 16"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
-                />
-                <path
-                    fill-rule="evenodd"
-                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
-                />
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-cloud-upload" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
+                <path fill-rule="evenodd"
+                    d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
             </svg>
             Create an Event
         </a>
@@ -214,11 +186,8 @@ All Events
     </div>
     {% endif %}
 </div>
-<script
-    src="https://code.jquery.com/jquery-3.6.4.min.js"
-    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
-    crossorigin="anonymous"
-></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
 <script>
