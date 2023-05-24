@@ -132,7 +132,6 @@ class FilterHonorTest(TestCase):
         }
 
         response = self.client.get(URL, data=filter_employee)
-        print(response)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, FILTER_FORM)
         employee = Pegawai.objects.get(employee_name='Test User')

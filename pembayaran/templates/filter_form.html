@@ -115,15 +115,15 @@ Honors and Payments
     <br /><br />
 
     <form method="GET" action="." class="row">
-        <div class="form-group col-md-2">
+        <div class="form-group col-lg-2">
             <label for="publishDateMin"> Starting Date</label>
             <input type="date" class="form-control" id="publishDateMin" name="publishDateMin" value="{{date_min}}">
         </div>
-        <div class="form-group col-md-2">
+        <div class="form-group col-lg-2">
             <label for="publishDateMax"> Ending Date</label>
             <input type="date" class="form-control" id="publishDateMax" name="publishDateMax" value="{{date_max}}">
         </div>
-        <div class="form-group col-md-3">
+        <div class="form-group col-;g-3">
             <label for="pegawai"> Employee Name</label>
             <div class="select-box">
                 <div class="select-option">
@@ -142,7 +142,7 @@ Honors and Payments
                 </div>
             </div>
         </div>
-        <div class="form-group col-md-3">
+        <div class="form-group col-lg-3">
             <label for="event"> Event Name</label>
             <div class="select-box-event">
                 <div class="select-option-event">
@@ -155,7 +155,7 @@ Honors and Payments
                     <ul class="options-event">
                         <li value=" ">None</li>
                         {% for cat in categories %}
-                        <li value="{{ cat.event_name }}">{{ cat.event_name }}</li>
+                        <li value="{{ cat.event_name }}">{{ cat.event_name }}  {{cat.terms}}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -177,7 +177,7 @@ Honors and Payments
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -186,7 +186,7 @@ Honors and Payments
                         <p>Please switch the input for the starting date with the ending date.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
@@ -196,7 +196,7 @@ Honors and Payments
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -205,7 +205,7 @@ Honors and Payments
                         <p>Please fill the starting date input.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
@@ -215,7 +215,7 @@ Honors and Payments
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -224,7 +224,7 @@ Honors and Payments
                         <p>Please fill the ending date input.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
@@ -255,7 +255,7 @@ Honors and Payments
             <tr>
                 <th scope="row" id="number"></th>
                 <td>{{qs.employee.employee_name}}</td>
-                <td>{{qs.event.event_name}}</td>
+                <td>{{qs.event.event_name}} {{ qs.event.terms }}</td>
                 <td>{{qs.role}}</td>
                 <td>{{qs.honor}}</td>
                 <td>{{qs.pph|convert:qs.honor}}</td>
