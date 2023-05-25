@@ -49,7 +49,7 @@ All Events
                     Event data has been successfully added
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal" id="dismiss1">
+                    <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal" id="dismiss9">
                         OK
                     </button>
                 </div>
@@ -85,7 +85,6 @@ All Events
             <thead style="background-color: #2a3990; color: white">
                 <tr>
                     <th scope="col">Event Name</th>
-                    <th scope="col">Term</th>
                     <th scope="col">Start Date</th>
                     <th scope="col">End Date</th>
                     <th scope="col">Event Status</th>
@@ -96,8 +95,7 @@ All Events
                 {% if role == 'Admin' or role == 'User' %}
                 {% for event in event_data %}
                 <tr>
-                    <td style="vertical-align: middle">{{ event.event_name }}</td>
-                    <td style="vertical-align: middle">{{ event.terms }}</td>
+                    <td style="vertical-align: middle">{{ event.event_name }} ({{ event.terms }})</td>
                     <td style="vertical-align: middle">{{ event.start_date }}</td>
                     <td style="vertical-align: middle">{{ event.end_date }}</td>
                     <td style="vertical-align: middle">
@@ -121,7 +119,7 @@ All Events
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        Are you sure to delete {{event.event_name}} from this list?
+                                        Are you sure to delete {{event.event_name}} ({{ event.terms }}) from this list?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
@@ -151,8 +149,7 @@ All Events
                 {% for event in event_data %}
                 {% if event.status == 'Validated' %}
                 <tr>
-                    <td style="vertical-align: middle">{{ event.event_name }}</td>
-                    <td style="vertical-align: middle">{{ event.terms }}</td>
+                    <td style="vertical-align: middle">{{ event.event_name }} ({{ event.terms }})</td>
                     <td style="vertical-align: middle">{{ event.start_date }}</td>
                     <td style="vertical-align: middle">{{ event.end_date }}</td>
                     <td style="vertical-align: middle">
@@ -203,7 +200,7 @@ All Events
         .addEventListener("click", dismissModal);
 
     document
-        .getElementById("dismiss1")
+        .getElementById("dismiss9")
         .addEventListener("click", dismissModal);
 
     function dismissModal() {
