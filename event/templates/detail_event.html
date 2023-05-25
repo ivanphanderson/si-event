@@ -27,7 +27,7 @@
 
 
 <div class="text-center position-relative">
-    <h1 class="font-weight-bold d-inline-block">{{event.event_name}}</h1>
+    <h2 class="font-weight-bold d-inline-block">{{event.event_name}} ({{event.terms}})</h2>
     {% if event.status == 'Validated' %}
         <span class="badge badge-success d-inline-block position-absolute top-0">
 
@@ -112,7 +112,7 @@
         </div>
     </div>
     {% endif %}
-    <h5>{{event.terms}}</h5>
+    <h5>Creator: {{event.creator.username}}</h5>
     
     {% if messages %}
     <div style="padding-left: 7vw; padding-right: 7vw;" class="text-left">
@@ -238,10 +238,10 @@
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                             </div>
-                                            <div class="modal-body">
+                                            <div class="modal-body b">
                                             Are you sure to delete {{event_employee.employee.employee_name}} from this event?
                                             </div>
-                                            <div class="modal-footer">
+                                            <div class="modal-footer a">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                             <form method="POST" action="/event/delete-employee/{{event_employee.id}}">
                                                 {% csrf_token %}

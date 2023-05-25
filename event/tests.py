@@ -32,6 +32,7 @@ from unittest.mock import MagicMock
 
 CREATE_EVENT = 'create_event.html'
 EVENT_LIST = 'event_list.html'
+RIWAYAT_EVENT = 'riwayat_event.html'
 DELETE_EVENT = 'delete_event'
 FORBIDDEN_URL = '/home/forbidden/'
 DATE_FORMAT = "%Y-%m-%d"
@@ -142,7 +143,7 @@ class EventCreateViewTestCase(TestCase):
 
     response = self.client.post(url, data=sess_data)
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, EVENT_LIST)
+    self.assertTemplateUsed(response, RIWAYAT_EVENT)
 
     event = Event.objects.last()
     self.assertEqual(event.start_date, start_dt_obj)
@@ -186,7 +187,7 @@ class EventCreateViewTestCase(TestCase):
     
     response = self.client.post(reverse('input_employee_to_event'), data)
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, EVENT_LIST)
+    self.assertTemplateUsed(response, RIWAYAT_EVENT)
 
     event = Event.objects.last()
     self.assertEqual(event.creator, self.account)
@@ -392,10 +393,13 @@ class ShowEventListViewTestCase(TestCase):
       start_date='2022-04-23',
       end_date='2022-05-29',
       expense=10000,
-      sk_file=self.binary_data
+      sk_file=self.binary_data,
+      status='Validated'
     )
+
+    self.event_name_2 = 'Event 2'
     self.event2 = Event.objects.create(
-      event_name='Event 2',
+      event_name=self.event_name_2,
       start_date='2022-04-24',
       end_date='2022-05-30',
       expense=12000,
@@ -406,10 +410,17 @@ class ShowEventListViewTestCase(TestCase):
     self.client.login(username='admin', password='admin123')
     response = self.client.get(reverse('get_events'))
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, EVENT_LIST)
+    self.assertTemplateUsed(response, RIWAYAT_EVENT)
     self.assertContains(response, self.event_name_1)
-    self.assertContains(response, 'Event 2')
-    self.assertDictEqual(response.context['owner_data'], {self.event_name_1: True})
+    self.assertNotContains(response, self.event_name_2)
+
+  def test_get_events_staff_keuangan(self):
+    set_up_login(self, 'Staff Keuangan')
+    response = self.client.get(reverse('get_events'))
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'event_list.html')
+    self.assertContains(response, self.event_name_1)
+    self.assertNotContains(response, self.event_name_2)
 
   def test_get_events_unauthenticated(self):
     response = self.client.get(reverse('get_events'))
@@ -687,12 +698,6 @@ class RUDEventLoggedInAdminTest(TestCase):
     )
     self.pegawai.save()
                 
-  
-
-  def test_riwayat_event_valid(self):
-    response = self.client.get('/event/my-event')
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, 'riwayat_event.html')
 
   def test_detail_event_valid(self):
     response = self.client.get(f'/event/detail/{self.event.id}')
@@ -1151,10 +1156,7 @@ class CEventLoggedInAdminExtraTest(TestCase):
   def test_create_event_invalid_role(self):
     response = self.client.get('/event/create')
     self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
-    
-  def test_riwayat_event_invalid_role(self):
-    response = self.client.get('/event/my-event')
-    self.assertRedirects(response, FORBIDDEN_URL, status_code=302, target_status_code=200)
+
     
 class GeneratedDocsTest(TestCase):
   def setUp(self):

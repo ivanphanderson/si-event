@@ -37,17 +37,16 @@ My Events
         </ol>
     </nav>
     <h4 style="text-align: center">My Events</h4>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %} 
     {% if event_data %}
     <div style="text-align: center">
         <br />
-        <a
-            href="{% url 'get_events' %}"
-            role="button"
-            class="btn btn-primary"
-            style="margin-right: 1vw"
-        >
-            All Events
-        </a>
         <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
             <svg
                 xmlns="http://www.w3.org/2000/svg"

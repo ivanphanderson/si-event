@@ -49,12 +49,13 @@ def create_event(request):
         start_date = body.get("start_date")
         end_date = body.get("end_date")
         action = body.get("action")
+        account = Account.objects.get(user=request.user)
 
         if action == "add_roles":
             request.session["event_name"] = event_name
             request.session["start_date"] = start_date
             request.session["end_date"] = end_date
-            return render(request, "input_employee.html")
+            return render(request, "input_employee.html", {"role": account.role})
         else:
             account = Account.objects.get(user=request.user)
             event = Event.objects.create(
@@ -72,7 +73,7 @@ def create_event(request):
             return get_events(request, action)
     account = Account.objects.get(user=request.user)
     if account.role == "User":
-        return render(request, CREATE_EVENT)
+        return render(request, CREATE_EVENT, {"role": account.role})
     else:
         return redirect(FORBIDDEN_URL)
 
@@ -141,22 +142,10 @@ def get_events(request, success_message=None):
     account = Account.objects.get(user=request.user)
     event_data = Event.objects.all().order_by("event_name")
     owner_data = dict()
-
-    for event in event_data:
-        if event.creator == account:
-            owner_data[f"{event.event_name}"] = True
-
-    if success_message is not None:
-        return render(
-            request,
-            EVENT_LIST,
-            {
-                "event_data": event_data,
-                "owner_data": owner_data,
-                "success_message": success_message,
-                "role": account.role,
-            },
-        )
+    if account.role == 'User':
+        return riwayat_events(request, success_message)
+    if account.role == 'Staff Keuangan':
+        event_data = Event.objects.filter(status='Validated').order_by("event_name")
 
     return render(
         request,
@@ -166,18 +155,17 @@ def get_events(request, success_message=None):
 
 
 @login_required(login_url=LOGIN_URL)
-@require_http_methods(["GET"])
-def riwayat_events(request):
+@require_http_methods(["GET", "POST"])
+def riwayat_events(request, msg=None):
     account = Account.objects.get(user=request.user)
-    if account.role == "User":
-        event_data = Event.objects.filter(creator=account).order_by("event_name")
-        return render(
-            request,
-            "riwayat_event.html",
-            {"event_data": event_data, "role": account.role},
-        )
-    else:
-        return redirect(FORBIDDEN_URL)
+    event_data = Event.objects.filter(creator=account).order_by("event_name")
+    if msg:
+        messages.success(request, msg)
+    return render(
+        request,
+        "riwayat_event.html",
+        {"event_data": event_data, "role": account.role},
+    )
 
 
 @login_required(login_url=LOGIN_URL)
@@ -752,3 +740,4 @@ def reupload_surat_tugas(request, id, file_id):
             return redirect(reverse('detail_event', args=[event.id]))
 
         return render(request, 'reupload_surat_tugas.html', context)
+    
