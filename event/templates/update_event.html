@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}
-Update {{event.event_name}} ({{ event.terms }})
+{% block title %}Create Event
 {% endblock %}
 {% block head %}
 <style>
@@ -125,29 +124,6 @@ Update {{event.event_name}} ({{ event.terms }})
                 <button type="submit" class="btn btn-primary" id="create_event">
                     Update Event
                 </button>
-                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#deleteEventModal{{event.id}}">Delete</button>
-                <div class="modal fade" id="deleteEventModal{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel3" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                            <h5 class="modal-title" id="deleteEventModalLabel3">Delete Event</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            </div>
-                            <div class="modal-body">
-                            Are you sure to delete {{event.event_name}} ({{ event.terms }}) from your list?
-                            </div>
-                            <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <form method="POST" action="{% url 'delete_event' event.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </form>
         </div>
     </div>

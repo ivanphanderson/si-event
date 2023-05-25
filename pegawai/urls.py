@@ -5,7 +5,6 @@ from .views import (
     DisplayPegawai,
     UpdatePegawaiView,
     SaveUpdatePegawai,
-    cetak_data_pegawai
 )
 
 
@@ -18,8 +17,5 @@ urlpatterns = [
     path("update/", UpdatePegawaiView.as_view(), name="update_pegawai"),
     path(
         "save-update-pegawai/", SaveUpdatePegawai.as_view(), name="save_update_pegawai"
-    ),
-    path(
-        "cetak-data-pegawai/", cetak_data_pegawai, name="cetak_data_pegawai"
     ),
 ]

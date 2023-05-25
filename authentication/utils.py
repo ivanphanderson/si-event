@@ -13,7 +13,7 @@ def create_otp(username):
 
 def send_forget_password_email(username, recipient_email):
     OTP = create_otp(username)
-    subject = "Change Password Si-Event"
+    subject = "Change Password SI-Event"
     message = f"This is your OTP code: {OTP}. Don't share it!"
     send_email(recipient_email, subject, message)
 
