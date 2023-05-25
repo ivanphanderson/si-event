@@ -73,14 +73,18 @@ def filter_honor_view(request):
             for emp in qs:
                 total_pph_in_rp += emp.pph/100.0 * emp.honor
 
+        cat = Event.objects.all().filter(status='Validated')
+        emp = EventEmployee.objects.all().filter(event__in = cat).values('employee').distinct()
+
         context = {
             'queryset': qs,
+
             'date_min': date_min,
             'date_max': date_max,
             'pegawai': pegawai,
             'event': event,
-            'categories': Event.objects.all().filter(status='Validated'),
-            'employees': Pegawai.objects.all(),
+            'categories': cat,
+            'employees': Pegawai.objects.all().filter(email__in = emp),
             'total_bruto': total_bruto,
             'total_pph': int(total_pph_in_rp),
             'total_netto': total_netto,
