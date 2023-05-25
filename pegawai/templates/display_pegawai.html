@@ -74,6 +74,14 @@ Employee List
                     <th scope="col">Employee Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Job Status</th>
+                    <th scope="col">Employee Category</th>
+                    <th scope="col">Grade Level</th>
+                    <th scope="col">Employment Status</th>
+                    <th scope="col">Nama di Rekening</th>
+                    <th scope="col">Nama Bank</th>
+                    <th scope="col">Nomor Rekening</th>
+                    <th scope="col">Nomor NPWP</th>
+                    <th scope="col">Alamat NPWP</th>
                 </tr>
             </thead>
             <tbody>
@@ -83,6 +91,14 @@ Employee List
                     <td>{{emp.employee_name}}</td>
                     <td>{{emp.email}}</td>
                     <td>{{emp.get_job_status_display}}</td>
+                    <td>{{emp.get_employee_category_display}}</td>
+                    <td>{{emp.grade_level}}</td>
+                    <td>{{emp.employment_status}}</td>
+                    <td>{{emp.nama_di_rekening}}</td>
+                    <td>{{emp.nama_bank}}</td>
+                    <td>{{emp.nomor_rekening}}</td>
+                    <td>{{emp.nomor_npwp}}</td>
+                    <td>{{emp.alamat_npwp}}</td>
                 </tr>
                 {% endfor %}
             </tbody>

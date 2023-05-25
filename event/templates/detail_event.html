@@ -300,6 +300,7 @@
                         </svg>
                         Download BTR/Memo
                     </a>
+                    {% if event.creator == account %}
                     <a
                     id="tombolDownloadDocx"
                     href="{% url 'form_surat_tugas'  event_id=event.id%}"
@@ -323,6 +324,7 @@
                     </svg>
                     Create Surat Tugas
                   </a>
+                  {% endif %}
 
                   {% if event.status == 'Waiting for validation' %}
                     {% if event.signed_file %}
