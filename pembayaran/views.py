@@ -9,36 +9,51 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 import json
 from .excel_downloader import excel_factory
+from django.db.models import Q
 
 
 def is_valid_queryparam(param):
     return param != '' and param is not None
 
+def is_valid_queryparams(param1, param2):
+    return param1 != '' and param2 != '' and param1 is not None and param2 is not None
+
 def filter(request):
-    qs = EventEmployee.objects.all()
+    qs = None
 
     pegawai = request.GET.get('pegawai')
     date_min = request.GET.get('publishDateMin')
     date_max = request.GET.get('publishDateMax')
     event = request.GET.get('event')
 
-    if is_valid_queryparam(date_min):
-        e = Event.objects.filter(end_date__gte=date_min)
-        qs = qs.filter(event__in=e)
-
-    if is_valid_queryparam(date_max):
-        ev = Event.objects.filter(end_date__lte=date_max)
-        qs = qs.filter(event__in=ev)
+    if is_valid_queryparams(date_min, date_max):
+        e = Event.objects.filter(start_date__lte=date_min, end_date__gte=date_max)
+        ev = Event.objects.filter(start_date__gte=date_min, end_date__lte=date_max)
+        evt = Event.objects.filter(end_date__gte=date_min, end_date__lte=date_max)
+        evnt = Event.objects.filter(start_date__gte=date_min, start_date__lte=date_max)
+        qs = EventEmployee.objects.all().filter(Q(event__in=e) | Q(event__in=ev) | Q(event__in=evt) | Q(event__in=evnt))
 
     if is_valid_queryparam(pegawai) and pegawai != 'None':
         employee = Pegawai.objects.get(employee_name=pegawai)
-        qs = qs.filter(employee=employee)
+        if qs is not None:
+            qs = qs.filter(employee=employee)
+        else:
+            qs = EventEmployee.objects.all().filter(employee=employee)
 
     if is_valid_queryparam(event) and event != 'None':
-        ev = Event.objects.get(event_name=event)
-        qs = qs.filter(event=ev.id)
+        ev_name = event.partition('GENAP')[0] or event.partition('GANJIL')[0]
+        ev = Event.objects.get(event_name=ev_name.strip())
+        if qs is not None:
+            qs = qs.filter(event=ev.id)
+        else:
+            qs = EventEmployee.objects.all().filter(event=ev.id)
+
+    if qs is not None:
+        event_validated = Event.objects.all().filter(status='Validated')
+        qs = qs.filter(event__in = event_validated)
 
     return qs, date_min, date_max, pegawai, event
+
 
 @require_GET
 @login_required(login_url='/login')
@@ -49,9 +64,14 @@ def filter_honor_view(request):
     if account.role == 'Staff Keuangan':
         qs, date_min, date_max, pegawai, event = filter(request)
 
+        total_bruto = 0
+        total_netto = 0
         total_pph_in_rp = 0
-        for emp in qs:
-            total_pph_in_rp += emp.pph/100.0 * emp.honor
+        if qs is not None:
+            total_bruto = qs.aggregate(Sum('honor'))['honor__sum']
+            total_netto = qs.aggregate(Sum('netto'))['netto__sum']
+            for emp in qs:
+                total_pph_in_rp += emp.pph/100.0 * emp.honor
 
         context = {
             'queryset': qs,
@@ -59,12 +79,11 @@ def filter_honor_view(request):
             'date_max': date_max,
             'pegawai': pegawai,
             'event': event,
-            'categories': Event.objects.all(),
+            'categories': Event.objects.all().filter(status='Validated'),
             'employees': Pegawai.objects.all(),
-            'total_bruto': qs.aggregate(Sum('honor'))['honor__sum'],
-            # 'total_pph': qs.aggregate(Sum('pph'))['pph__sum'],
+            'total_bruto': total_bruto,
             'total_pph': int(total_pph_in_rp),
-            'total_netto': qs.aggregate(Sum('netto'))['netto__sum'],
+            'total_netto': total_netto,
             'role': account.role,
         }
         return render(request, "filter_form.html", context) 

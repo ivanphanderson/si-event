@@ -1,0 +1,71 @@
+{% if event.status == 'Validated' %}
+    <span class="badge badge-success">
+
+        
+        <svg fill="#000000" height="16" width="16" version="1.1" id="Filled_Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+        y="0px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+        <g id="Validation-Filled">
+            <path d="M20.32,8.56c-0.51-1.22,0.38-3.41-0.54-4.33c-0.92-0.92-3.11-0.03-4.33-0.54C14.27,3.19,13.36,1,12,1S9.73,3.19,8.56,3.68
+                C7.33,4.19,5.14,3.3,4.22,4.22C3.3,5.14,4.19,7.33,3.68,8.56C3.19,9.73,1,10.64,1,12s2.19,2.27,2.68,3.44
+                c0.51,1.22-0.38,3.41,0.54,4.33c0.92,0.92,3.11,0.03,4.33,0.54C9.73,20.81,10.64,23,12,23s2.27-2.19,3.44-2.68
+                c1.22-0.51,3.41,0.38,4.33-0.54c0.92-0.92,0.03-3.11,0.54-4.33C20.81,14.27,23,13.36,23,12S20.81,9.73,20.32,8.56z M11,16.41
+                l-3.71-3.71l1.41-1.41L11,13.59l5.29-5.29l1.41,1.41L11,16.41z"/>
+        </g>
+    </svg>
+
+        {{event.status}}
+    </span>
+{% endif %}
+
+{% if event.status == 'Not validated yet' %}
+    <span class="badge badge-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+            <rect x="0" fill="none" width="16" height="16"/>
+            
+            <g>
+            
+            <path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 13h-2v2h2v-2zm-2-2h2l.5-6h-3l.5 6z"/>
+            
+            </g>
+            
+            </svg>
+
+        {{event.status}}
+    </span>
+{% endif %}
+
+{% if event.status == 'Waiting for validation' %}
+    <span class="badge badge-secondary">
+        <svg fill="#000000" width="16" height="16" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-clock"><path d='M11 9h4a1 1 0 0 1 0 2h-5a1 1 0 0 1-1-1V4a1 1 0 1 1 2 0v5zm-1 11C4.477 20 0 15.523 0 10S4.477 0 10 0s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z'/></svg>
+
+        {{event.status}}
+    </span>
+{% endif %}
+
+{% if event.status == 'Rejected' %}
+    <span class="badge badge-danger">
+        <svg width="16" height="16" viewBox="0 0 512 512" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+            <style type="text/css">
+                .st0{fill:#333333;}
+                .st1{fill:none;stroke:#333333;stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+            </style>
+            
+            <g id="Layer_1"/>
+            
+            <g id="Layer_2">
+            
+            <g>
+            
+            <path class="st0" d="M263.24,43.5c-117.36,0-212.5,95.14-212.5,212.5s95.14,212.5,212.5,212.5s212.5-95.14,212.5-212.5    S380.6,43.5,263.24,43.5z M367.83,298.36c17.18,17.18,17.18,45.04,0,62.23v0c-17.18,17.18-45.04,17.18-62.23,0l-42.36-42.36    l-42.36,42.36c-17.18,17.18-45.04,17.18-62.23,0v0c-17.18-17.18-17.18-45.04,0-62.23L201.01,256l-42.36-42.36    c-17.18-17.18-17.18-45.04,0-62.23v0c17.18-17.18,45.04-17.18,62.23,0l42.36,42.36l42.36-42.36c17.18-17.18,45.04-17.18,62.23,0v0    c17.18,17.18,17.18,45.04,0,62.23L325.46,256L367.83,298.36z"/>
+            
+            </g>
+            
+            </g>
+            
+            </svg>
+
+        {{event.status}}
+    </span>
+{% endif %}

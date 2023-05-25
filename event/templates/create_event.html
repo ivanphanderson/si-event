@@ -13,10 +13,10 @@ Create Event
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="container">
+            <div class="container  bc">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-white">
-                        <li class="breadcrumb-item">
+                        <li class="breadcrumb-item  bci">
                             <a href="{% url 'home:home' %}">Home</a>
                         </li>
                         <li class="breadcrumb-item">
@@ -43,6 +43,7 @@ Create Event
                                 class="close"
                                 data-dismiss="modal"
                                 aria-label="Close"
+                                id="dismiss4"
                             >
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -55,6 +56,7 @@ Create Event
                                 type="button"
                                 class="btn btn-secondary"
                                 data-dismiss="modal"
+                                id="dismiss5"
                             >
                                 I understood
                             </button>
@@ -72,6 +74,7 @@ Create Event
                                 class="close"
                                 data-dismiss="modal"
                                 aria-label="Close"
+                                id="dismiss6"
                             >
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -84,6 +87,7 @@ Create Event
                                 type="button"
                                 class="btn btn-secondary"
                                 data-dismiss="modal"
+                                id="dismiss7"
                             >
                                 I understood
                             </button>
@@ -146,13 +150,6 @@ Create Event
     crossorigin="anonymous"
 ></script>
 <script>
-    $(document).ready(function () {
-        var successMessage = "{{ success_message }}";
-        if (successMessage) {
-            $("#succModal").modal("show");
-        }
-    });
-
     const nextBtn = document.getElementById("add_role");
     const createBtn = document.getElementById("create_event");
     const formAction = document.getElementById("form_action");
@@ -187,5 +184,31 @@ Create Event
         event.preventDefault();
         validateForm("create_event");
     });
+
+    document
+        .getElementById("dismiss4")
+        .addEventListener("click", dismissErrDateModal);
+
+    document
+        .getElementById("dismiss5")
+        .addEventListener("click", dismissErrDateModal);
+
+    document
+        .getElementById("dismiss6")
+        .addEventListener("click", dismissErrFormModal);
+
+    document
+        .getElementById("dismiss7")
+        .addEventListener("click", dismissErrFormModal);
+
+    function dismissErrDateModal() {
+        var modal = document.getElementById('errDateModal');
+        $("#errDateModal").modal("hide");
+    }
+
+    function dismissErrFormModal() {
+        var modal = document.getElementById('errEmpModal');
+        $("#errEmpModal").modal("hide");
+    }
 </script>
 {% endblock %}

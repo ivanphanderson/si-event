@@ -114,17 +114,17 @@ Honors and Payments
     <h4 style="text-align: center">Honors and Payments</h4>
     <br /><br />
 
-    <form method="GET" action=".">
-        <div class="form-group col-md-2 col-lg-2">
-            <label for="publishDateMin">From Date</label>
+    <form method="GET" action="." class="row">
+        <div class="form-group col-lg-2">
+            <label for="publishDateMin"> Starting Date</label>
             <input type="date" class="form-control" id="publishDateMin" name="publishDateMin" value="{{date_min}}">
         </div>
-        <div class="form-group col-md-2 col-lg-2">
-            <label for="publishDateMax">Until Date</label>
+        <div class="form-group col-lg-2">
+            <label for="publishDateMax"> Ending Date</label>
             <input type="date" class="form-control" id="publishDateMax" name="publishDateMax" value="{{date_max}}">
         </div>
-        <div class="form-group col-md-4">
-            <label for="pegawai">Employee</label>
+        <div class="form-group col-;g-3">
+            <label for="pegawai"> Employee Name</label>
             <div class="select-box">
                 <div class="select-option">
                     <input type="text" placeholder="Choose.." id="soValue" readonly name="pegawai" value="{{pegawai}}">
@@ -142,8 +142,8 @@ Honors and Payments
                 </div>
             </div>
         </div>
-        <div class="form-group col-md-4">
-            <label for="event">Event</label>
+        <div class="form-group col-lg-3">
+            <label for="event"> Event Name</label>
             <div class="select-box-event">
                 <div class="select-option-event">
                     <input type="text" placeholder="Choose.." id="soValueEvent" readonly name="event" value="{{event}}">
@@ -155,30 +155,38 @@ Honors and Payments
                     <ul class="options-event">
                         <li value=" ">None</li>
                         {% for cat in categories %}
-                        <li value="{{ cat.event_name }}">{{ cat.event_name }}</li>
+                        <li value="{{ cat.event_name }}">{{ cat.event_name }}  {{cat.terms}}</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="myBtn">Search</button>
-        <p id="demo"></p>
+        <div style="text-align: center" class="form-group col-md-2">
+            <br />
+            <button type="submit" class="btn btn-primary" id="myBtn"><svg xmlns="http://www.w3.org/2000/svg"
+                    width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                </svg> Search</button>
+            <p id="demo"></p>
+        </div>
 
         <div class="modal" id="errDateModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        The from date cannot be later than the until date
+                        <p>The starting date cannot be later than the ending date.</p>
+                        <p>Please switch the input for the starting date with the ending date.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
@@ -188,15 +196,16 @@ Honors and Payments
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        The from date cannot be empty
+                        <p>The starting date cannot be empty.</p>
+                        <p>Please fill the starting date input.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
@@ -206,28 +215,31 @@ Honors and Payments
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="warningMsg">Warning</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        The until date cannot be empty
+                        <p>The ending date cannot be empty.</p>
+                        <p>Please fill the ending date input.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">I understood</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I understood</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
 
-    <br><br><br>
+    <br><br>
 
+     {% if not queryset == None %}
     <table class="table table-striped" id="table" aria-describedby="Filter Honors and Payments">
         <thead style="background-color: #2A3990; color: white;">
             <tr>
                 <th scope="col">No</th>
                 <th scope="col">Nama</th>
+                 <th scope="col">Event</th>
                 <th scope="col">Tugas</th>
                 <th scope="col">Bruto(Rp.)</th>
                 <th scope="col">Pph (Rp.)</th>
@@ -243,6 +255,7 @@ Honors and Payments
             <tr>
                 <th scope="row" id="number"></th>
                 <td>{{qs.employee.employee_name}}</td>
+                <td>{{qs.event.event_name}} {{ qs.event.terms }}</td>
                 <td>{{qs.role}}</td>
                 <td>{{qs.honor}}</td>
                 <td>{{qs.pph|convert:qs.honor}}</td>
@@ -278,6 +291,7 @@ Honors and Payments
         </a>
         <br /><br />
     </div>
+     {% endif %}
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
