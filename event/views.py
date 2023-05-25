@@ -57,13 +57,13 @@ def create_event(request):
             return render(request, "input_employee.html")
         else:
             account = Account.objects.get(user=request.user)
-            Event.objects.create(
+            event = Event.objects.create(
                 creator=account,
                 event_name=event_name,
                 start_date=start_date,
                 end_date=end_date,
             )
-            action = "Create " + event_name + " event"
+            action = f"Create {event_name} ({event.terms}) event"
             add_log(account, action)
 
             request.session.pop("event_name", None)
@@ -92,16 +92,17 @@ def input_employee_to_event(request):
     for idx in range(num_fields):
         if form_data[f"honor_field_{idx}"] != "":
             total_honor += abs(int(form_data[f"honor_field_{idx}"]))
-
+    
+    event_name = request.session['event_name']
     new_event = Event.objects.create(
         creator=account,
-        event_name=request.session["event_name"],
+        event_name=event_name,
         start_date=request.session["start_date"],
         end_date=request.session["end_date"],
         expense=total_honor,
     )
 
-    action = "Create " + request.session["event_name"] + " event"
+    action = f"Create {event_name} ({new_event.terms}) event"
     add_log(Account.objects.get(user=request.user), action)
 
     for idx in range(num_fields):
@@ -256,7 +257,7 @@ def submit_update_event(request, id):
         event.end_date = body.get("end_date")
         event.save()
 
-        action = f"Updated {event.event_name} event"
+        action = f"Updated {event.event_name} ({event.terms}) event"
         add_log(Account.objects.get(user=request.user), action)
         messages.success(request, "Event is updated successfully.")
         return redirect(f"/event/detail/{id}")
@@ -298,7 +299,7 @@ def submit_input_employee_to_existing_event(request, id):
         event.expense += total_honor
         event.save()
 
-        action = f"Added Employee to {event.event_name} event"
+        action = f"Added Employee to {event.event_name} ({event.terms}) event"
         add_log(Account.objects.get(user=request.user), action)
 
         for idx in range(num_fields):
@@ -377,7 +378,7 @@ def update_employee_to_event_by_id(request, id):
             event_employee.pph = pph
             event_employee.save()
 
-        action = f"Updated {event_employee.employee.employee_name} in {event.event_name} event"
+        action = f"Updated {event_employee.employee.employee_name} in {event.event_name} ({event.terms}) event"
         add_log(Account.objects.get(user=request.user), action)
 
         messages.success(
@@ -398,7 +399,7 @@ def delete_event_employee_by_id(request, id):
             return redirect(FORBIDDEN_URL)
         event_employee.delete()
 
-        action = f"Deleted {event_employee.employee.employee_name} from {event.event_name} event"
+        action = f"Deleted {event_employee.employee.employee_name} from {event.event_name} ({event.terms}) event"
         add_log(Account.objects.get(user=request.user), action)
 
         messages.success(
@@ -650,6 +651,9 @@ def validate_event(request, id):
         context["total_pph"] = total_pph
         context["total_netto"] = total_netto
 
+        action = f'Validate {event.event_name} ({event.terms}) event'
+        add_log(account, action)
+
         return render(request, DETAIL_EVENT_HTML, context)
     return redirect(FORBIDDEN_URL)
 
@@ -679,6 +683,9 @@ def reject_event(request, id):
         context["total_bruto"] = total_bruto
         context["total_pph"] = total_pph
         context["total_netto"] = total_netto
+
+        action = f'Reject {event.event_name} ({event.terms}) event'
+        add_log(account, action)
 
         return render(request, DETAIL_EVENT_HTML, context)
     return redirect(FORBIDDEN_URL)

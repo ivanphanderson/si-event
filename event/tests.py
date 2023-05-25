@@ -323,7 +323,7 @@ class EventModelTest(TestCase):
     self.client.post(reverse('create_event'), data=sess_data)
     self.assertEqual(len(Log.objects.all()), 1)
     
-    action = 'Create ' + self.event_name + ' event'
+    action = 'Create ' + self.event_name + ' (GENAP-2021/2022) event'
     self.assertTrue(Log.objects.filter(action=action).first())
 
   def test_create_event_employee(self):
