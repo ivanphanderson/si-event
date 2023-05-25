@@ -79,7 +79,6 @@ My Events
         <thead style="background-color: #2a3990; color: white">
             <tr>
                 <th scope="col">Event Name</th>
-                <th scope="col">Term</th>
                 <th scope="col">Start Date</th>
                 <th scope="col">End Date</th>
                 <th scope="col">Expense (Total Bruto)</th>
@@ -90,8 +89,7 @@ My Events
         <tbody>
             {% for event in event_data %}
             <tr>
-                <td style="vertical-align: middle">{{event.event_name}}</td>
-                <td style="vertical-align: middle">{{ event.terms }}</td>
+                <td style="vertical-align: middle">{{ event.event_name }} ({{ event.terms }})</td>
                 <td style="vertical-align: middle">{{event.start_date}}</td>
                 <td style="vertical-align: middle">{{event.end_date}}</td>
                 <td style="vertical-align: middle">
@@ -123,7 +121,7 @@ My Events
                                 </button>
                                 </div>
                                 <div class="modal-body">
-                                Are you sure to delete {{event.event_name}} from your list?
+                                Are you sure to delete {{event.event_name}} ({{ event.terms }}) from your list?
                                 </div>
                                 <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

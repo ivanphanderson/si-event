@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-Update {{event.event_name}}
+Update {{event.event_name}} ({{ event.terms }})
 {% endblock %}
 {% block head %}
 <style>
@@ -136,7 +136,7 @@ Update {{event.event_name}}
                             </button>
                             </div>
                             <div class="modal-body">
-                            Are you sure to delete {{event.event_name}} from your list?
+                            Are you sure to delete {{event.event_name}} ({{ event.terms }}) from your list?
                             </div>
                             <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
