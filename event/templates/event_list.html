@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
+{% if role == 'Admin' %}
 All Events
+{% else %}
+All Validated Events
+{% endif %}
 {%endblock title%}
 {% block head %}
 <style>
@@ -35,7 +39,11 @@ All Events
             <li class="breadcrumb-item active" aria-current="page">All Events</li>
         </ol>
     </nav>
+    {% if role == 'Admin' %}
     <h4 style="text-align: center">All Events</h4>
+    {% else %}
+    <h4 style="text-align: center">All Validated Events</h4>
+    {% endif %}
     <div class="modal" id="succModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -138,9 +146,6 @@ All Events
                     </td>
                     {% else %}
                     <td>
-                        <a href="{% url 'update_event' id=event.id %}" class="btn disabled">Update</a>
-                        <a href="{% url 'delete_event' id=event.id %}" class="btn disabled">Delete</a>
-                        <a href="{% url 'detail_event' id=event.id %}" class="btn disabled">Detail</a>
                     </td>
                     {% endif %}
                 </tr>

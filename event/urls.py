@@ -4,7 +4,6 @@ from .views import (
     input_employee_to_event,
     get_options,
     get_events,
-    riwayat_events,
     detail_event,
     update_event,
     delete_event,
@@ -25,9 +24,8 @@ from .views import (
 urlpatterns = [
     path("", get_events, name="get_events"),
     path("create", create_event, name="create_event"),
-    path("input_employee", input_employee_to_event, name="input_employee_to_event"),
+    path("input-employee", input_employee_to_event, name="input_employee_to_event"),
     path("get-options/", get_options, name="get_options"),
-    path("my-event", riwayat_events, name="riwayat_events"),
     path("detail/<id>", detail_event, name="detail_event"),
     path("update/<id>", update_event, name="update_event"),
     path("delete/<id>", delete_event, name="delete_event"),
