@@ -1356,6 +1356,24 @@ class GenerateFormDetailSuratTugasTest(TestCase):
     )
     self.pegawai2.save()
 
+    self.data1 = {
+      'nomor_surat_tugas': '12345',
+      'nama_pj': 'Mirna',
+      'jabatan_pj': 'Dekan',
+      'perihal_event': 'Wisuda',
+      'tugas_panitia': 'Memastikan event lancar',
+      'target_anggaran': 'Anggaran fasilkom 2020'
+    }
+
+    self.data2 = {
+      'nomor_surat_tugas': '1234567',
+      'nama_pj': 'Petrus Mursanto',
+      'jabatan_pj': 'Dekan Fasilkom',
+      'perihal_event': 'MBKM',
+      'tugas_panitia': 'Memastikan event berjalan dengan baik\n\n\nMemastikan semua anggota terlibat',
+      'target_anggaran': 'Anggaran fasilkom UI 2022'
+    }
+
   def test_event_creator_can_post(self):
     EventEmployee.objects.create(
       employee=self.pegawai1,
@@ -1365,15 +1383,8 @@ class GenerateFormDetailSuratTugasTest(TestCase):
       employee=self.pegawai2,
       event=self.event
     )
-    data = {
-      'nomor_surat_tugas': '12345',
-      'nama_pj': 'Mirna',
-      'jabatan_pj': 'Dekan',
-      'perihal_event': 'Wisuda',
-      'tugas_panitia': 'Memastikan event lancar',
-      'target_anggaran': 'Anggaran fasilkom 2020'
-    }
-    response = self.client.post(FORM_SURAT_TUGAS, data)
+    
+    response = self.client.post(FORM_SURAT_TUGAS, self.data1)
     self.assertEqual(response.status_code, 200)
 
   def test_event_creator_can_get(self):
@@ -1424,6 +1435,19 @@ class GenerateFormDetailSuratTugasTest(TestCase):
 
     response = self.client.get(f'/event/form-surat-tugas/{self.event.id}')
     self.assertEqual(response.status_code, 302)
+
+  def test_event_tugas_panitia_skipped_list(self):
+    EventEmployee.objects.create(
+      employee=self.pegawai1,
+      event=self.event
+    )
+    EventEmployee.objects.create(
+      employee=self.pegawai2,
+      event=self.event
+    )
+    
+    response = self.client.post(FORM_SURAT_TUGAS, self.data2)
+    self.assertEqual(response.status_code, 200)
 
 class EventValidationTestCase(TestCase):
   
