@@ -210,10 +210,6 @@ def ganti_status_akun(request):
             user = account_delete.user
             user.is_active = not user.is_active
             user.save()
-            msg1 = "activated"
-            if not user.is_active:
-                msg1 = "deactivated"
-            messages.info(request, f"{account_delete.username}'s account has been {msg1} successfully.")
             return redirect("account:read_akun")
         else:
             return redirect(FORBIDDEN_URL)

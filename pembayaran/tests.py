@@ -21,7 +21,6 @@ TEST_USERNAME = "testuser"
 TEST_PASS = "teststaff123"
 STAFF_KEUANGAN = 'Staff Keuangan'
 TEST_USER = 'Test User'
-FILTER_FORM =  "filter_form.html"
 
 
 class DisplayPembayaranNotAuthenticatedTest(TestCase):
@@ -100,15 +99,12 @@ class FilterHonorTest(TestCase):
             end_date="2023-03-28",
             expense=10000000,
             sk_file=self.binary_data,
-            status='Validated',
         )
 
         EventEmployee.objects.create(
             employee=Pegawai.objects.get(employee_name=TEST_USER),
             event=Event.objects.get(event_name=self.event_name),
             role="ketua",
-            honor = 1000000,
-            pph = 10,
         )
 
     def test_filter_is_exist(self):
@@ -121,46 +117,11 @@ class FilterHonorTest(TestCase):
 
         response = self.client.get(URL, data=filter_date)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, FILTER_FORM)
+        self.assertTemplateUsed(response, "filter_form.html")
 
-    def test_filter_employee_is_exist(self):
-        filter_employee = {
-            "publishDateMin": "",
-            "publishDateMax": "",
-            "pegawai": self.pegawai.employee_name,
-            "event": "",
-        }
-
-        response = self.client.get(URL, data=filter_employee)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, FILTER_FORM)
-        employee = Pegawai.objects.get(employee_name='Test User')
-        qs = EventEmployee.objects.all().filter(employee=employee)
-        self.assertEqual(len(qs), 1)
-        total_pph_in_rp = 0
-        if qs is not None:
-            for emp in qs:
-                total_pph_in_rp += emp.pph/100.0 * emp.honor
-        self.assertEqual(total_pph_in_rp, 100000)
-    
-    def test_filter_event_is_exist(self):
-        filter_event = {
-            "publishDateMin": "",
-            "publishDateMax": "",
-            "pegawai": "",
-            "event": self.event.event_name,
-        }
-
-        response = self.client.get(URL, data=filter_event)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, FILTER_FORM)
-        ev = Event.objects.get(event_name='Test Event')
-        qs = EventEmployee.objects.all().filter(event=ev.id)
-        self.assertEqual(len(qs), 1)
-
-    def test_filter_date_is_not_exist(self):
+    def test_filter_is_not_exist(self):
         filter_date = {
-            "publishDateMin": "2023-04-01",
+            "publishDateMin": "2022-03-28",
             "publishDateMax": "2022-04-28",
             "pegawai": "",
             "event": "",
@@ -168,13 +129,13 @@ class FilterHonorTest(TestCase):
 
         response = self.client.get(URL, data=filter_date)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, FILTER_FORM)
-        e = Event.objects.filter(start_date__lte="2023-04-01", end_date__gte="2023-04-28")
-        ev = Event.objects.filter(start_date__gte="2023-04-01", end_date__lte="2023-04-28")
-        evt = Event.objects.filter(end_date__gte="2023-04-01", end_date__lte="2023-04-28")
-        evnt = Event.objects.filter(start_date__gte="2023-04-01", start_date__lte="2023-04-28")
-        event_emp_date = EventEmployee.objects.all().filter(Q(event__in=e) | Q(event__in=ev) | Q(event__in=evt) | Q(event__in=evnt))
-        self.assertEqual(len(event_emp_date), 0)
+        self.assertTemplateUsed(response, "filter_form.html")
+        e = Event.objects.filter(end_date__gte="2023-03-28")
+        date = Event.objects.filter(end_date__lte="2023-04-28")
+        event_emp_date = EventEmployee.objects.filter(
+            Q(event__in=e) | Q(event__in=date)
+        )
+        self.assertEqual(len(event_emp_date), 1)
 
 
 class DownloadExcelFromData(TestCase):

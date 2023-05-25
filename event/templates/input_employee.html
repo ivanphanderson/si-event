@@ -39,7 +39,6 @@ Add Employee
                                 class="close"
                                 data-dismiss="modal"
                                 aria-label="Close"
-                                id="dismiss7"
                             >
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -55,7 +54,7 @@ Add Employee
                             - Any negative value for pph and honor will be
                             converted automatically to non negative value.
                             <br />
-                            - Any empty role name will be named by default
+                            - Any empty role name will be named as Role_idx
                             <br />
                             - Any empty employee target will not be input as a
                             staff
@@ -65,7 +64,6 @@ Add Employee
                                 type="button"
                                 class="btn btn-secondary"
                                 data-dismiss="modal"
-                                id="dismiss8"
                             >
                                 Cancel
                             </button>
@@ -115,19 +113,6 @@ Add Employee
     const submitBtn = document.getElementById("submitBtn");
     const confirmBtn = document.getElementById("confirmBtn");
 
-    document
-        .getElementById("dismiss7")
-        .addEventListener("click", dismissModal);
-
-    document
-        .getElementById("dismiss8")
-        .addEventListener("click", dismissModal);
-
-    function dismissModal() {
-        var modal = document.getElementById('confirmModal');
-        $("#confirmModal").modal("hide");
-    }
-
     submitBtn.addEventListener("click", function (event) {
         event.preventDefault();
         $("#confirmModal").modal("show");
@@ -157,7 +142,7 @@ Add Employee
             const searchTerm = document.createElement("input");
             const dropdown = document.createElement("select");
 
-            wrapper.className = "border border-light-subtle rounded p-4";
+            wrapper.className = "border border-primary rounded p-3";
 
             label.for = `field_${i}`;
             label.innerText = `Role ${i + 1}:  `;
