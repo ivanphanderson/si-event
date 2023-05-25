@@ -23,6 +23,9 @@ Add Employee
                         <li class="breadcrumb-item">
                             <a href="{% url 'get_events' %}">Event</a>
                         </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'detail_event' id=event.id %}">Detail</a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             Generate
                         </li>
@@ -35,14 +38,14 @@ Add Employee
                 </div>
             </div>
 
-            <form method="post" action="">
+            <form id="suratTugasForm" method="post" action="">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="validationCustom03" class="form-label">Nomor Surat Tugas</label>
-                    <input name="nomor_surat_tugas" type="text" class="form-control" id="validationCustom03" 
-                    placeholder="Nomor Surat Tugas yang sesuai dengan format" required>
+                    <input name="nomor_surat_tugas" type="text" class="form-control" id="validationCustom03"
+                        placeholder="Nomor Surat Tugas yang sesuai dengan format" required>
                     <div class="invalid-feedback">
-                      Masukkan Nomor Tugas.
+                        Masukkan Nomor Tugas.
                     </div>
                 </div>
 
@@ -51,7 +54,7 @@ Add Employee
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Nama</label>
                         <input name="nama_pj" type="text" class="form-control" id="exampleFormControlInput1"
-                            placeholder="e.g. Mirna Adriani, Ph.D." required>
+                            placeholder="e.g. Dr. Ir. Petrus Mursanto, M.Sc." required>
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Jabatan</label>
@@ -69,9 +72,9 @@ Add Employee
                 <div class="mb-3">
                     <label for="exampleFormControlTextarea1" class="form-label">Tugas Panitia</label>
                     <textarea name="tugas_panitia" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        placeholder="Berkoordinasi dengan pihak eksternal
-Memastikan event berjalan pada waktunya
-Memastikan event berjalan dengan lancar" required></textarea>
+                        placeholder="Melaksanakan persiapan teknis dan non teknis terkait administrasi, protokol dan sarana prasarana.
+Melaksanakan koordinasi dengan pihak terkait di Universitas Indonesia.
+Melaksanakan acara {{event.event_name}} dengan sebaik-baiknya sesuai ketentuan yang berlaku" required></textarea>
                 </div>
 
                 <div class="mb-3">
@@ -80,11 +83,21 @@ Memastikan event berjalan dengan lancar" required></textarea>
                         placeholder="e.g. Anggaran Fasilkom UI tahun 2019" required>
                 </div>
 
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Ditetapkan di</label>
+                    <input name="ditetapkan_di" type="text" class="form-control" id="exampleFormControlInput1"
+                        placeholder="e.g. Jakarta" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_date">Pada Tanggal - Bulan:</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required />
+                </div>
+
                 <div>
                     <div class="downloadBtn" style="text-align: center">
                         <br />
-                        <button type="submit" id="tombolDownloadDocx" role="button"
-                            class="btn btn-info">
+                        <button type="submit" id="tombolDownloadDocx" role="button" class="btn btn-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-cloud-download" viewBox="0 0 16 16">
                                 <path
@@ -104,5 +117,44 @@ Memastikan event berjalan dengan lancar" required></textarea>
 </div>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    document.getElementById("tombolDownloadDocx").addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var form = document.getElementById("suratTugasForm");
+        var event_id = "{{event.id}}"
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Submit the form asynchronously using Fetch API or XMLHttpRequest
+        fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+        })
+            .then(function (response) {
+                // Start the file download
+                response.blob().then(function (blob) {
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.download = "SURAT TUGAS.docx";
+                    a.click();
+
+                    // Delay the redirection after 1 second
+                    setTimeout(function () {
+                        var eventId = event_id; // Replace with the actual event ID
+                        var redirectUrl = "/event/detail/" + eventId;
+                        window.location.href = redirectUrl;
+                    }, 0);
+                });
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+    });
+</script>
 
 {% endblock %}

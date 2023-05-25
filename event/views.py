@@ -430,6 +430,8 @@ class GenerateDocs:
         perihal_event = body.get("perihal_event")
         tugas_panitia = body.get("tugas_panitia")
         target_anggaran = body.get("target_anggaran")
+        ditetapkan_di = body.get("ditetapkan_di")
+        pada_tanggal = body.get("start_date")
 
         paragraph1 = document.add_paragraph("SURAT TUGAS")
         self.set_font(paragraph1.runs[0], True, True)
@@ -463,11 +465,14 @@ class GenerateDocs:
         paragraph8 = document.add_paragraph("Tugas Panitia", style = LIST_NUMBER)
         self.set_font(paragraph8.runs[0])
 
-        list_tugas_panitia = tugas_panitia.split('\n')
+        list_tugas_panitia = tugas_panitia.splitlines()
 
         for i in range(len(list_tugas_panitia)):
-            paragraph8_3 = document.add_paragraph(f"{list_tugas_panitia[i].strip()}", style = 'List Number 2')
-            self.set_font(paragraph8_3.runs[0])
+            if list_tugas_panitia[i] == '':
+                continue
+            else:
+                paragraph8_3 = document.add_paragraph(f"{list_tugas_panitia[i].strip()}", style = 'List Number 2')
+                self.set_font(paragraph8_3.runs[0])
         
         paragraph9 = document.add_paragraph(f"Pengeluaran biaya yang ditimbulkan akibat pemberlakuan Surat Tugas ini dibebankan secara proporsional pada {target_anggaran}", style = LIST_NUMBER)
         self.set_font(paragraph9.runs[0])
@@ -480,13 +485,13 @@ class GenerateDocs:
 
         document.add_paragraph()
 
-        paragraph12 = document.add_paragraph("Ditetapkan di	:	Jakarta")
+        paragraph12 = document.add_paragraph(f"Ditetapkan di	: {ditetapkan_di}")
         self.set_font(paragraph12.runs[0])
         self.set_paragraph_format(paragraph12, left_indent=216)
 
         run12 = paragraph12.add_run() 
         run12.add_break(docx.text.run.WD_BREAK.LINE)
-        run12_1 = paragraph12.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
+        run12_1 = paragraph12.add_run(f'Pada Tanggal	: {pada_tanggal}')
         self.set_font(run12_1)
 
         paragraph13 = document.add_paragraph(f"{jabatan_pj}")
@@ -529,13 +534,13 @@ class GenerateDocs:
                 
         document.add_paragraph()
 
-        paragraph9_2 = document.add_paragraph("Ditetapkan di	:	Jakarta")
+        paragraph9_2 = document.add_paragraph(f"Ditetapkan di	: {ditetapkan_di}")
         self.set_font(paragraph9_2.runs[0])
         self.set_paragraph_format(paragraph9_2, left_indent=216)
 
         run12 = paragraph9_2.add_run() 
         run12.add_break(docx.text.run.WD_BREAK.LINE)
-        run12_1 = paragraph9_2.add_run('Pada Tanggal	: Tanggal   Bulan   Tahun')
+        run12_1 = paragraph9_2.add_run(f'Pada Tanggal	: {pada_tanggal}')
         self.set_font(run12_1)
 
         paragraph10_2 = document.add_paragraph(f"{jabatan_pj}")
