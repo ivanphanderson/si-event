@@ -174,6 +174,7 @@ All Validated Events
     <div style="text-align: center">
         <img src="{% static 'img/no_event.png' %}" width=400 height=300 class="img-fluid" alt="Search image">
         <br />
+        {% if role == 'User' %}
         <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                 class="bi bi-cloud-upload" viewBox="0 0 16 16">
@@ -184,6 +185,7 @@ All Validated Events
             </svg>
             Create an Event
         </a>
+        {% endif %}
         <br /><br />
     </div>
     {% endif %}
