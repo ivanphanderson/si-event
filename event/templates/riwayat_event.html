@@ -37,17 +37,16 @@ My Events
         </ol>
     </nav>
     <h4 style="text-align: center">My Events</h4>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %} 
     {% if event_data %}
     <div style="text-align: center">
         <br />
-        <a
-            href="{% url 'get_events' %}"
-            role="button"
-            class="btn btn-primary"
-            style="margin-right: 1vw"
-        >
-            All Events
-        </a>
         <a href="{% url 'create_event' %}" role="button" class="btn btn-warning">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -82,13 +81,14 @@ My Events
                 <th scope="col">Start Date</th>
                 <th scope="col">End Date</th>
                 <th scope="col">Expense (Total Bruto)</th>
+                <th scope="col">Event Status</th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for event in event_data %}
             <tr>
-                <td style="vertical-align: middle">{{event.event_name}}</td>
+                <td style="vertical-align: middle">{{ event.event_name }} ({{ event.terms }})</td>
                 <td style="vertical-align: middle">{{event.start_date}}</td>
                 <td style="vertical-align: middle">{{event.end_date}}</td>
                 <td style="vertical-align: middle">
@@ -101,10 +101,38 @@ My Events
                         document.write(expense_format.slice(0,2) + expense_format.slice(3));
                     </script>
                 </td>
+                <td style="vertical-align: middle">
+                    {% include 'event_status_badge.html' with status=event.status %}
+                </td>
                 <td>
+                    {% if event.status != 'Validated' %}
                     <a href="{% url 'update_event' id=event.id %}" class="btn btn-warning"
                         >Update</a
                     >
+                    <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#deleteEventModal{{event.id}}">Delete</button>
+                    <div class="modal fade" id="deleteEventModal{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel2" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header a">
+                                <h5 class="modal-title" id="deleteEventModalLabel2">Delete Event</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-body b">
+                                Are you sure to delete {{event.event_name}} ({{ event.terms }}) from your list?
+                                </div>
+                                <div class="modal-footer c">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <form method="POST" action="{% url 'delete_event' event.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     <a href="{% url 'detail_event' id=event.id %}" class="btn btn-dark"
                         >Detail</a
                     >

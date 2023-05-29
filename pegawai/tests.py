@@ -25,6 +25,7 @@ EMAIL_UNTUK_TEST = "test@gmail.com"
 URL_PEGAWAI = "/pegawai/"
 URL_ADD_PEGAWAI = "pegawai:add_pegawai"
 URL_UPDATE_PEGAWAI = "pegawai:update_pegawai"
+URL_CETAK_DATA_PEGAWAI = "pegawai:cetak_data_pegawai"
 URL_FORBIDDEN_PAGE = "forbidden.html"
 DATA_PEGAWAI = b"Employee Information\nNo,Employee No.,Employee Name,\
             Employee Category,Job Status,Grade Level,Employment Status,Email,\
@@ -80,21 +81,39 @@ class AddPegawaiTest(BaseTestCase):
         Pegawai.objects.create(
             email="emailtest@gmail.com",
             employee_no="196709052014091003",
-            employee_name="pegawai tes",
+            employee_name="pegawai redirected",
             employment_status="PNS",
-            nama_di_rekening="pegawai tes",
+            nama_di_rekening="pegawai redirected",
             nama_bank="bank tes123",
-            nomor_rekening="1255555533",
-            nomor_npwp="222222222333",
-            alamat_npwp="alamat tes",
+            nomor_rekening="1255552342312",
+            nomor_npwp="2288382222333",
+            alamat_npwp="alamat redirected uji",
         )
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
-
         self.assertEqual(response.status_code, 302)
+
     def test_add_pegawai_not_logged_in_no_template(self):
         self.client.logout()
         response = self.client.get(reverse(URL_ADD_PEGAWAI))
         self.assertEqual(response.status_code, 302)
+
+    def test_download_data_pegawai(self):
+        Pegawai.objects.create(
+            email="pegawaiujicetak@gmail.com",
+            employee_no="1967090435345345343",
+            employee_name="pegawai uji cetak data",
+            employment_status="PNS",
+            nama_di_rekening="pegawai uji cetak data",
+            nama_bank="bank uji cetak data",
+            nomor_rekening="12558843433",
+            nomor_npwp="26666622333",
+            alamat_npwp="alamat uji cetak data",
+        )
+        response = self.client.post(reverse(URL_CETAK_DATA_PEGAWAI))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Content-Dispotition"], "attachment; filename=data_pegawai.xlsx"
+        )
 
     def test_add_pegawai_not_authorized(self):
         self.client.logout()
@@ -356,6 +375,7 @@ class UpdatePegawaiTest(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertTemplateUsed(response, UPDATE_PEGAWAI_ERROR_HTML)
         self.assertEqual(len(Pegawai.objects.all()), 0)
+
     def test_update_pegawai_empty(self):
         """
         Make sure system handle empty file with correct status code and nothing changed in database

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %} 
 {% block title %}
-Update Event Employee
+Update {{event_employee.event.event_name}} {{event_employee.event.terms}} Employee 
 {% endblock title %}
 {% block meta %}
 {% endblock meta %}
@@ -129,7 +129,7 @@ Update Event Employee
         const xhr = new XMLHttpRequest();
         const searchTerm = input.value;
         xhr.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
+            if (this.readyState === 4 && this.status === 200) {
                 const options = JSON.parse(this.responseText);
                 dropdown.innerHTML = "";
                 const defaultOptions = document.createElement("option");

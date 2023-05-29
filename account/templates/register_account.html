@@ -176,7 +176,7 @@ Register User
     passwordInput2.addEventListener("input", function () {
         const password1 = passwordInput1.value;
         const password2 = passwordInput2.value;
-        if (password1 != password2) {
+        if (password1 !== password2) {
             passwordValidationMessage2.textContent = "Passwords do not match.";
         } else {
             passwordValidationMessage2.textContent = "";

@@ -2,7 +2,7 @@
 {% load static %}
 {% load convert_pph %}
 {% block title %}
-Update Account
+{{event.event_name}} ({{ event.terms }})
 {% endblock title %}
 {% block meta %}
 <link
@@ -25,9 +25,101 @@ Update Account
     </ol>
 </nav>
 
-<div class="text-center">
-    <h1 class="font-weight-bold">{{event.event_name}}</h1>
+
+<div class="text-center position-relative">
+    <h2 class="font-weight-bold d-inline-block">{{event.event_name}} ({{event.terms}})</h2>
+    {% if event.status == 'Validated' %}
+        <span class="badge badge-success d-inline-block position-absolute top-0" title="Event is validated!">
+              <svg fill="#000000" height="16" width="16" version="1.1" id="Filled_Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+              y="0px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+              <g id="Validation-Filled">
+                  <path d="M20.32,8.56c-0.51-1.22,0.38-3.41-0.54-4.33c-0.92-0.92-3.11-0.03-4.33-0.54C14.27,3.19,13.36,1,12,1S9.73,3.19,8.56,3.68
+                      C7.33,4.19,5.14,3.3,4.22,4.22C3.3,5.14,4.19,7.33,3.68,8.56C3.19,9.73,1,10.64,1,12s2.19,2.27,2.68,3.44
+                      c0.51,1.22-0.38,3.41,0.54,4.33c0.92,0.92,3.11,0.03,4.33,0.54C9.73,20.81,10.64,23,12,23s2.27-2.19,3.44-2.68
+                      c1.22-0.51,3.41,0.38,4.33-0.54c0.92-0.92,0.03-3.11,0.54-4.33C20.81,14.27,23,13.36,23,12S20.81,9.73,20.32,8.56z M11,16.41
+                      l-3.71-3.71l1.41-1.41L11,13.59l5.29-5.29l1.41,1.41L11,16.41z"/>
+              </g>
+          </svg>
+            {{event.status}}
+        </span>
+    {% endif %}
+    {% if event.status == 'Not validated yet' %}
+        <span class="badge badge-info d-inline-block position-absolute top-0" title="To validate event, please create Surat Tugas and upload it!">
+            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                <rect x="0" fill="none" width="16" height="16"/>
+                
+                <g>
+                
+                <path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 13h-2v2h2v-2zm-2-2h2l.5-6h-3l.5 6z"/>
+                
+                </g>
+                
+                </svg>
+
+            {{event.status}}
+        </span>
+    {% endif %}
+    
+    {% if event.status == 'Waiting for validation' %}
+        <span class="badge badge-secondary d-inline-block position-absolute top-0" title="Waiting for Admin to validate this event.">
+            <svg fill="#000000" width="16" height="16" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-clock"><path d='M11 9h4a1 1 0 0 1 0 2h-5a1 1 0 0 1-1-1V4a1 1 0 1 1 2 0v5zm-1 11C4.477 20 0 15.523 0 10S4.477 0 10 0s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z'/></svg>
+            {{event.status}}
+        </span>
+    {% endif %}
+    
+    {% if event.status == 'Rejected' %}
+    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#rejectionModal">
+        <span class="badge badge-danger d-inline-block position-absolute top-0" title="Event is rejected, click the badge to see the reason!">
+            <svg width="16" height="16" viewBox="0 0 512 512" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <style type="text/css">
+                    .st0{fill:#333333;}
+                    .st1{fill:none;stroke:#333333;stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+                </style>
+                <g id="Layer_1"/>
+                <g id="Layer_2">
+                    <g>
+                        <path class="st0" d="M263.24,43.5c-117.36,0-212.5,95.14-212.5,212.5s95.14,212.5,212.5,212.5s212.5-95.14,212.5-212.5    S380.6,43.5,263.24,43.5z M367.83,298.36c17.18,17.18,17.18,45.04,0,62.23v0c-17.18,17.18-45.04,17.18-62.23,0l-42.36-42.36    l-42.36,42.36c-17.18,17.18-45.04,17.18-62.23,0v0c-17.18-17.18-17.18-45.04,0-62.23L201.01,256l-42.36-42.36    c-17.18-17.18-17.18-45.04,0-62.23v0c17.18-17.18,45.04-17.18,62.23,0l42.36,42.36l42.36-42.36c17.18-17.18,45.04-17.18,62.23,0v0    c17.18,17.18,17.18,45.04,0,62.23L325.46,256L367.83,298.36z"/>
+                    </g>
+                </g>
+            </svg>
+            {{ event.status }}
+        </span>
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1" role="dialog" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectionModalLabel">Reason of Rejection</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-left">
+                    {{ event.rejection_reason}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <h5>Creator: {{event.creator.username}}</h5>
+    
+    {% if messages %}
+    <div style="padding-left: 7vw; padding-right: 7vw;" class="text-left">
+    {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    </div>
+    {% endif %} 
 </div>
+
 <br />
 
 <div style="padding-left: 7vw; padding-right: 7vw;">
@@ -35,6 +127,33 @@ Update Account
         <div class="col-md-12">
             <h5>Start date: {{event.start_date}}</h5>
             <h5>End date: {{event.end_date}}</h5>
+            <br />
+            {% if role == 'Admin' or role == 'User' %}
+                {% if event.signed_file %}
+                    <a href="{{ event.signed_file.url }}" target="_blank" class="pdf-link">
+
+
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4V20C4 21.1046 4.89543 22 6 22L18 22C19.1046 22 20 21.1046 20 20V8.34162C20 7.8034 19.7831 7.28789 19.3982 6.91161L14.9579 2.56999C14.5842 2.20459 14.0824 2 13.5597 2L6 2C4.89543 2 4 2.89543 4 4Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 13H15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 17H12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V6C14 7.10457 14.8954 8 16 8H20" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+
+                        Preview/Download Signed Surat Tugas File
+                    </a>
+                {% else %}
+                    <p>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4V20C4 21.1046 4.89543 22 6 22L18 22C19.1046 22 20 21.1046 20 20V8.34162C20 7.8034 19.7831 7.28789 19.3982 6.91161L14.9579 2.56999C14.5842 2.20459 14.0824 2 13.5597 2L6 2C4.89543 2 4 2.89543 4 4Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 13H15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 17H12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V6C14 7.10457 14.8954 8 16 8H20" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+                        No signed Surat Tugas file uploaded.</p>
+                {% endif %}
+                <br />
+            {% endif %}
             <br />
             <br />
         </div>
@@ -46,18 +165,11 @@ Update Account
             <h3 class="heading-section">Event Employee</h3>
         </div>
     </div>
-    {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-warning" role="alert">
-            {{ message }}
-        </div>
-    {% endfor %}
-    {% endif %} 
     <div class="row">
         <div class="col-md-12">
             <div class="table-wrap">
                 {% if event_employees %}
-                {% if event.creator == account %}
+                {% if event.creator == account and event.status != 'Validated' %}
                 <div
                     style="
                         display: flex;
@@ -88,7 +200,9 @@ Update Account
                             <th scope="col">Nama di rekening</th>
                             <th scope="col">Bank</th>
                             <th scope="col">No Rekening</th>
-                            <th scope="col">Action</th>
+                            {% if event.creator == account and event.status != 'Validated' %}
+                                <th scope="col">Action</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -105,8 +219,9 @@ Update Account
                             </td>
                             <td>{{event_employee.employee.nama_bank}}</td>
                             <td>{{event_employee.employee.nomor_rekening}}</td>
+                            
+                            {% if event.creator == account and event.status != 'Validated' %}
                             <td>
-                                {% if event.creator == account %}
                                 <a href="{% url 'update_event_employee_by_id' id=event_employee.id %}" class="btn btn-warning">Update</a>
                                 <button class="btn btn-danger" type="button" id="delete-event-employee" data-toggle="modal" data-target="#deleteEventEmployeeModal{{event_employee.id}}">Delete</button>
                                 <div class="modal fade" id="deleteEventEmployeeModal{{event_employee.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventEmployeeModalLabel" aria-hidden="true">
@@ -118,10 +233,10 @@ Update Account
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                             </div>
-                                            <div class="modal-body">
+                                            <div class="modal-body b">
                                             Are you sure to delete {{event_employee.employee.employee_name}} from this event?
                                             </div>
-                                            <div class="modal-footer">
+                                            <div class="modal-footer a">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                             <form method="POST" action="/event/delete-employee/{{event_employee.id}}">
                                                 {% csrf_token %}
@@ -131,8 +246,9 @@ Update Account
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                             </td>
+                            {% endif %}
+                            
                         </tr>
                         {% endfor %}
                         <div class="rowTotal">
@@ -179,9 +295,10 @@ Update Account
                         </svg>
                         Download BTR/Memo
                     </a>
+                    {% if event.creator == account %}
                     <a
                     id="tombolDownloadDocx"
-                    href="{% url 'download_as_docx' event_id=event.id  %}"
+                    href="{% url 'form_surat_tugas'  event_id=event.id%}"
                     role="button"
                     class="btn btn-info"
                   >
@@ -200,8 +317,180 @@ Update Account
                         d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"
                       />
                     </svg>
-                    Download Surat Tugas
+                    Create Surat Tugas
                   </a>
+                  {% endif %}
+
+                  {% if event.status == 'Waiting for validation' %}
+                    {% if event.signed_file %}
+                        {% if role == 'Admin'%}
+                        <button
+                            id="validateEvent"
+                            type="button"
+                            class="btn btn-success"
+                            data-toggle="modal"
+                            data-target="#confirmationModal"
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="none" stroke="#fff" stroke-width="2" d="M20,15 C19,16 21.25,18.75 20,20 C18.75,21.25 16,19 15,20 C14,21 13.5,23 12,23 C10.5,23 10,21 9,20 C8,19 5.25,21.25 4,20 C2.75,18.75 5,16 4,15 C3,14 1,13.5 1,12 C1,10.5 3,10 4,9 C5,8 2.75,5.25 4,4 C5.25,2.75 8,5 9,4 C10,3 10.5,1 12,1 C13.5,1 14,3 15,4 C16,5 18.75,2.75 20,4 C21.25,5.25 19,8 20,9 C21,10 23,10.5 23,12 C23,13.5 21,14 20,15 Z M7,12 L10,15 L17,8"/>
+                                </svg>
+                            Validate Event
+                        </button>
+
+                        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="confirmationModalLabel">Validate Confirmation</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  Are you sure you want to validate event {{event.event_name}} ({{ event.terms }})?
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                  <a href="/event/validate-event/{{event.id}}" class="btn btn-success">Validate</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                        <button
+                            id="rejectEvent"
+                            type="button"
+                            class="btn btn-danger"
+                            data-toggle="modal"
+                            data-target="#rejectionConfirmationModal"
+                            >
+                            
+                            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16" height="16"
+                                viewBox="0 0 330 330" style="enable-background:new 0 0 330 330;" xml:space="preserve">
+                                <g id="XMLID_28_">
+                                    <path id="XMLID_29_" d="M165,0C120.926,0,79.492,17.163,48.328,48.327c-64.334,64.333-64.334,169.011-0.002,233.345
+                                        C79.49,312.837,120.926,330,165,330c44.072,0,85.508-17.163,116.672-48.328c64.334-64.334,64.334-169.012,0-233.345
+                                        C250.508,17.163,209.072,0,165,0z M239.246,239.245c-2.93,2.929-6.768,4.394-10.607,4.394c-3.838,0-7.678-1.465-10.605-4.394
+                                        L165,186.213l-53.033,53.033c-2.93,2.929-6.768,4.394-10.607,4.394c-3.838,0-7.678-1.465-10.605-4.394
+                                        c-5.859-5.857-5.859-15.355,0-21.213L143.787,165l-53.033-53.033c-5.859-5.857-5.859-15.355,0-21.213
+                                        c5.857-5.857,15.355-5.857,21.213,0L165,143.787l53.031-53.033c5.857-5.857,15.355-5.857,21.213,0
+                                        c5.859,5.857,5.859,15.355,0,21.213L186.213,165l53.033,53.032C245.104,223.89,245.104,233.388,239.246,239.245z"/>
+                                </g>
+                            </svg>
+                            Reject Event
+                        </button>
+
+                          <div class="modal fade" id="rejectionConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="rejectionConfirmationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="rejectionConfirmationModalLabel">Reject Confirmation</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to reject event {{ event.event_name }} ({{ event.terms }})?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal" data-toggle="modal" data-target="#rejectionReasonModal">Reject</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal fade" id="rejectionReasonModal" tabindex="-1" role="dialog" aria-labelledby="rejectionReasonModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="rejectionReasonModalLabel">Reason of Rejection</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="rejectionReasonForm" action="/event/reject-event/{{event.id}}" method="POST">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="rejectionReason">Reason:</label>
+                                                <textarea class="form-control" id="rejectionReason" name="rejection_reason" rows="4" required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-danger">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                {% if event.status != 'Validated' %}        
+                    {% if account == event.creator %}
+                        {% if event.signed_file %}
+                            <a
+                            id="reuploadSuratTugas"
+                            href="/event/reupload-surat-tugas/{{event.id}}/{{file_id}}"
+                            role="button"
+                            class="btn btn-success"
+                            >
+                            
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                class="bi bi-cloud-upload"
+                                viewBox="0 0 16 16"
+                                >
+                                <path
+                                fill-rule="evenodd"
+                                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                />
+                                <path
+                                fill-rule="evenodd"
+                                d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                />
+                                </svg>
+                                
+                                
+                                Reupload Surat Tugas
+                            </a>
+                        {% else %}
+                            <a
+                            id="uploadSuratTugas"
+                            href="/event/upload-surat-tugas/{{event.id}}"
+                            role="button"
+                            class="btn btn-success"
+                            >
+                            
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                class="bi bi-cloud-upload"
+                                viewBox="0 0 16 16"
+                                >
+                                <path
+                                fill-rule="evenodd"
+                                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                />
+                                <path
+                                fill-rule="evenodd"
+                                d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                />
+                                </svg>
+                                
+                                
+                                Upload Surat Tugas
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                
+                {% endif %}
                     <br /><br />
                 </div>
                 {% else %}
