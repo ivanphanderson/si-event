@@ -363,7 +363,7 @@ class ShowEventListViewTestCase(TestCase):
 
         non_sso_acc = NonSSOAccount.objects.create(
             user=self.user,
-            username="jonikeren",
+            username="jonikerenn",
             email=email,
             role="User",
             is_first_login=True,
@@ -372,7 +372,7 @@ class ShowEventListViewTestCase(TestCase):
         self.account = Account.objects.create(
             user=self.user,
             accNonSSO=non_sso_acc,
-            username="jonikeren",
+            username="jonikeren2",
             email=email,
             role="User",
             accountType=NON_SSO_UI,
@@ -898,13 +898,13 @@ class RUDEventLoggedInAdminTest(TestCase):
         role = "Ketua"
         honor = 100000
         pph = 5
-        employee_no = "123"
+        employee_no = "1234"
         data = {
             "num_fields": "1",
             "role_field_0": role,
             "honor_field_0": honor,
-            "pph_field_0": pph,
             "dropdown-select_0": employee_no,
+            "pph_field_0": pph,
         }
         response = self.client.post("/event/submit-add-employee/asd", data)
         event = Event.objects.get(id=self.event.id)
@@ -921,13 +921,13 @@ class RUDEventLoggedInAdminTest(TestCase):
         role = "Ketua"
         honor = 100000
         pph = 5
-        employee_no = "123"
+        employee_no = "1235"
         data = {
             "num_fields": "1",
             "role_field_0": role,
             "honor_field_0": honor,
-            "pph_field_0": pph,
             "dropdown-select_0": employee_no,
+            "pph_field_0": pph,
         }
         response = self.client.post(f"/event/submit-add-employee/{self.event.id}", data)
         event = Event.objects.get(id=self.event.id)
