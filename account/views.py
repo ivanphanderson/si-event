@@ -23,6 +23,7 @@ NO_ACCESS_TO_READ_ACCOUNT = "You don't have access to read account!"
 NO_ACCESS_TO_UPDATE_ACCOUNT = "You don't have access to update account!"
 LOGIN_URL = "authentication:login"
 
+
 @login_required(login_url=LOGIN_URL)
 @require_http_methods(["GET", "POST"])
 def register_account(request):
@@ -54,18 +55,15 @@ def register_account(request):
                     username=username, password=password, email=email
                 )
                 account_non_sso = NonSSOAccount(
-                    user = user,
-                    username = username,
-                    email = email,
-                    role = role
+                    user=user, username=username, email=email, role=role
                 )
                 acc = Account(
-                    user = user,
-                    accNonSSO = account_non_sso,
-                    username = username,
-                    email = email,
-                    role = role,
-                    accountType = 'Non SSO'
+                    user=user,
+                    accNonSSO=account_non_sso,
+                    username=username,
+                    email=email,
+                    role=role,
+                    accountType="Non SSO",
                 )
                 if role == "Admin":
                     user.is_staff = True
@@ -181,14 +179,21 @@ def submit_update_akun(request):
             account_update.role = role_baru
             account_update.save()
             if account_update.accNonSSO != None:
-                acc_non_sso = NonSSOAccount.objects.filter(username=account_update.username).first()
+                acc_non_sso = NonSSOAccount.objects.filter(
+                    username=account_update.username
+                ).first()
                 acc_non_sso.role = role_baru
                 acc_non_sso.save()
             else:
-                acc_sso = SSOUIAccount.objects.filter(username=account_update.username).first()
+                acc_sso = SSOUIAccount.objects.filter(
+                    username=account_update.username
+                ).first()
                 acc_sso.role = role_baru
                 acc_sso.save()
-            messages.success(request, f"Role of {account_update.username}'s account has been changed successfully.")
+            messages.success(
+                request,
+                f"Role of {account_update.username}'s account has been changed successfully.",
+            )
             return redirect("account:read_akun")
         else:
             return redirect(FORBIDDEN_URL)
@@ -213,7 +218,10 @@ def ganti_status_akun(request):
             msg1 = "activated"
             if not user.is_active:
                 msg1 = "deactivated"
-            messages.info(request, f"{account_delete.username}'s account has been {msg1} successfully.")
+            messages.info(
+                request,
+                f"{account_delete.username}'s account has been {msg1} successfully.",
+            )
             return redirect("account:read_akun")
         else:
             return redirect(FORBIDDEN_URL)
