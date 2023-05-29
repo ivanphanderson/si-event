@@ -29,9 +29,7 @@
 <div class="text-center position-relative">
     <h2 class="font-weight-bold d-inline-block">{{event.event_name}} ({{event.terms}})</h2>
     {% if event.status == 'Validated' %}
-        <span class="badge badge-success d-inline-block position-absolute top-0">
-
-              
+        <span class="badge badge-success d-inline-block position-absolute top-0" title="Event is validated!">
               <svg fill="#000000" height="16" width="16" version="1.1" id="Filled_Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
               y="0px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
               <g id="Validation-Filled">
@@ -42,13 +40,11 @@
                       l-3.71-3.71l1.41-1.41L11,13.59l5.29-5.29l1.41,1.41L11,16.41z"/>
               </g>
           </svg>
-
             {{event.status}}
         </span>
     {% endif %}
-    
     {% if event.status == 'Not validated yet' %}
-        <span class="badge badge-info d-inline-block position-absolute top-0">
+        <span class="badge badge-info d-inline-block position-absolute top-0" title="To validate event, please create Surat Tugas and upload it!">
             <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 
                 <rect x="0" fill="none" width="16" height="16"/>
@@ -66,16 +62,15 @@
     {% endif %}
     
     {% if event.status == 'Waiting for validation' %}
-        <span class="badge badge-secondary d-inline-block position-absolute top-0">
+        <span class="badge badge-secondary d-inline-block position-absolute top-0" title="Waiting for Admin to validate this event.">
             <svg fill="#000000" width="16" height="16" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-clock"><path d='M11 9h4a1 1 0 0 1 0 2h-5a1 1 0 0 1-1-1V4a1 1 0 1 1 2 0v5zm-1 11C4.477 20 0 15.523 0 10S4.477 0 10 0s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z'/></svg>
-
             {{event.status}}
         </span>
     {% endif %}
     
     {% if event.status == 'Rejected' %}
     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#rejectionModal">
-        <span class="badge badge-danger d-inline-block position-absolute top-0">
+        <span class="badge badge-danger d-inline-block position-absolute top-0" title="Event is rejected, click the badge to see the reason!">
             <svg width="16" height="16" viewBox="0 0 512 512" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <style type="text/css">
                     .st0{fill:#333333;}
