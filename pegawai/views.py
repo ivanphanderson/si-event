@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
@@ -10,10 +10,29 @@ from .handler import DataCleaner, ValidColumnNameChecker, UniqueEmailInFileCheck
 from django.contrib.auth.mixins import LoginRequiredMixin
 from log.views import add_log
 from account.models import Account
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from pembayaran.excel_downloader import excel_factory
 
 
 URL_AUTH = "authentication:login"
 FORBIDDEN_PAGE = "forbidden.html"
+
+data_pegawai_cols = [
+    "No",
+    "Employee No.",
+    "Employee Name",
+    "Employee Category",
+    "Job Status",
+    "Grade Level",
+    "Employment Status",
+    "Email",
+    "NAMA DI REKENING",
+    "NAMA BANK",
+    "NO REKENING",
+    "Nomor NPWP",
+    "Alamat NPWP",
+]
 
 
 class AddPegawaiView(LoginRequiredMixin, TemplateView):
@@ -259,3 +278,56 @@ class SaveUpdatePegawai(TemplateView):
         else:
             pegawai.job_status = pegawai.ADMINISTRASI
         pegawai.save()
+
+
+@require_POST
+@login_required(login_url="/login")
+def cetak_data_pegawai(request):
+    pegawais = Pegawai.objects.all()
+    data_pegawai = {
+        "header": {
+            data_pegawai_cols[0]: data_pegawai_cols[0],
+            data_pegawai_cols[1]: data_pegawai_cols[1],
+            data_pegawai_cols[2]: data_pegawai_cols[2],
+            data_pegawai_cols[3]: data_pegawai_cols[3],
+            data_pegawai_cols[4]: data_pegawai_cols[4],
+            data_pegawai_cols[5]: data_pegawai_cols[5],
+            data_pegawai_cols[6]: data_pegawai_cols[6],
+            data_pegawai_cols[7]: data_pegawai_cols[7],
+            data_pegawai_cols[8]: data_pegawai_cols[8],
+            data_pegawai_cols[9]: data_pegawai_cols[9],
+            data_pegawai_cols[10]: data_pegawai_cols[10],
+            data_pegawai_cols[11]: data_pegawai_cols[11],
+            data_pegawai_cols[12]: data_pegawai_cols[12],
+        }
+    }
+
+    employee_index = 1
+    for pegawai in pegawais:
+        data_pegawai[str(pegawai.employee_no)] = {
+            data_pegawai_cols[0]: str(employee_index),
+            data_pegawai_cols[1]: str(pegawai.employee_no),
+            data_pegawai_cols[2]: str(pegawai.employee_name),
+            data_pegawai_cols[3]: str(pegawai.employee_category),
+            data_pegawai_cols[4]: str(pegawai.job_status),
+            data_pegawai_cols[5]: str(pegawai.grade_level),
+            data_pegawai_cols[6]: str(pegawai.employment_status),
+            data_pegawai_cols[7]: str(pegawai.email),
+            data_pegawai_cols[8]: str(pegawai.nama_di_rekening),
+            data_pegawai_cols[9]: str(pegawai.nama_bank),
+            data_pegawai_cols[10]: str(pegawai.nomor_rekening),
+            data_pegawai_cols[11]: str(pegawai.nomor_npwp),
+            data_pegawai_cols[12]: str(pegawai.alamat_npwp),
+        }
+        employee_index += 1
+
+    excel_content = "attachment; filename=data_pegawai.xlsx"
+    excel_file = excel_factory("standard").get_excel(data_pegawai)
+
+    response = HttpResponse(
+        excel_file.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Dispotition"] = excel_content
+
+    return response

@@ -28,6 +28,68 @@ Home
     class="u-body u-xl-mode"
     data-lang="en"
 >
+<div class="container p-5 d-lg-none">
+    <div class="row rounded" style="background-image: url('/static/img/back.png'); background-size: 100%;">
+        <h1 class="ml-2" style="color: #263f6b">Welcome {{user}}</h1>
+    </div>
+    {% if role == 'Admin' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/account';">
+        <h1 class="mr-3">Account</h1>
+        <img
+            src="/static/homecss/icons/account.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/pegawai';">
+        <h1 class="mr-3">Employee</h1>
+        <img
+            src="/static/homecss/icons/employee.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    {% endif %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/event';">
+        <h1 class="mr-3">Event</h1>
+        <img
+            src="/static/homecss/icons/event.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    {% if role == 'Admin' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/log';">
+        <h1 class="mr-3">Logs</h1>
+        <img
+            src="/static/homecss/icons/log.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    {% endif %}
+    {% if role == 'Staff Keuangan' %}
+    <div class="row rounded mt-3 d-flex justify-content-end bg-light pr-3" onclick="window.location.href = '/pembayaran';">
+        <h1 class="mr-3">Remuneration</h1>
+        <img
+            src="/static/homecss/icons/payment.png"
+            alt=""
+            width="60"
+            height="60"
+            class="mt-2"
+        />
+    </div>
+    {% endif %}
+</div>
+<div class="d-none d-lg-block">
     <section class="u-clearfix u-section-1" id="sec-d6a4">
         <div class="u-clearfix u-layout-wrap u-layout-wrap-1">
             <div class="u-layout">
@@ -139,11 +201,19 @@ Home
             >
                 <div class="u-container-layout u-container-layout-2">
                     <div class="u-list u-list-1">
-                        <div class="u-repeater u-repeater-1">
-                            <div
+                        {% if role == 'Staff Keuangan' %}
+                            <div class="u-repeater u-repeater-1" style="padding-top: 107px; padding-bottom: 107px;">
+                                <div
                                 class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1"
                                 onclick="window.location.href = '/event';"
-                            >
+                                >
+                        {% else %}
+                            <div class="u-repeater u-repeater-1" style="padding-top: 107px; padding-bottom: 107px; margin-left: 200px;">
+                                <div
+                                class="u-container-style u-list-item u-repeater-item u-video-cover u-white u-list-item-1"
+                                onclick="window.location.href = '/event';" style="margin-left: -100px;"
+                                >
+                        {% endif %}
                                 <div
                                     class="u-container-layout u-similar-container u-valign-top u-container-layout-3"
                                 >
@@ -175,63 +245,11 @@ Home
                                             <h4
                                                 class="u-align-center u-text u-text-3"
                                             >
-                                                Honors
+                                                Remuneration
                                             </h4>
                                         </div>
                                     </div>
-                            {% else %}
-                                <div
-                                    class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-2"
-                                >
-                                    <div
-                                        class="u-container-layout u-similar-container u-valign-top u-container-layout-4"
-                                    >
-                                        <span
-                                            class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-2"
-                                            ><img
-                                                src="/static/homecss/icons/coming-soon.png"
-                                                alt=""
-                                        /></span>
-                                        <h4 class="u-align-center u-text u-text-3">
-                                            Coming Soon
-                                        </h4>
-                                    </div>
-                                </div>
                             {% endif %}
-                            <div
-                                class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-3"
-                            >
-                                <div
-                                    class="u-container-layout u-similar-container u-valign-top u-container-layout-5"
-                                >
-                                    <span
-                                        class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-3"
-                                        ><img
-                                            src="/static/homecss/icons/coming-soon.png"
-                                            alt=""
-                                    /></span>
-                                    <h4 class="u-align-center u-text u-text-4">
-                                        Coming Soon
-                                    </h4>
-                                </div>
-                            </div>
-                            <div
-                                class="u-align-center u-container-style u-list-item-a u-repeater-item u-video-cover u-white u-list-item-4"
-                            >
-                                <div
-                                    class="u-container-layout u-similar-container u-valign-top u-container-layout-6"
-                                >
-                                    <span
-                                        class="u-file-icon u-icon u-icon-circle u-palette-5-light-2 u-icon-4"
-                                        ><img
-                                            src="/static/homecss/icons/coming-soon.png"
-                                            alt=""
-                                    /></span>
-                                    <h4 class="u-align-center u-text u-text-5">
-                                        Coming Soon
-                                    </h4>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -239,6 +257,7 @@ Home
             {% endif %}
         </div>
     </section>
+</div>
 </body>
 
 <script type="application/ld+json">
