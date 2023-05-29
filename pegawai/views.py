@@ -283,14 +283,6 @@ class SaveUpdatePegawai(TemplateView):
 @require_POST
 @login_required(login_url="/login")
 def cetak_data_pegawai(request):
-    dict_of_abbr = {
-        "S": "Staff",
-        "L": "Lecturer",
-        "D": "Dosen",
-        "A": "Administrasi",
-        "FT": "Fungsional Tertentu",
-    }
-
     pegawais = Pegawai.objects.all()
     data_pegawai = {
         "header": {
@@ -316,8 +308,8 @@ def cetak_data_pegawai(request):
             data_pegawai_cols[0]: str(employee_index),
             data_pegawai_cols[1]: str(pegawai.employee_no),
             data_pegawai_cols[2]: str(pegawai.employee_name),
-            data_pegawai_cols[3]: dict_of_abbr[pegawai.employee_category],
-            data_pegawai_cols[4]: dict_of_abbr[pegawai.job_status],
+            data_pegawai_cols[3]: str(pegawai.employee_category),
+            data_pegawai_cols[4]: str(pegawai.job_status),
             data_pegawai_cols[5]: str(pegawai.grade_level),
             data_pegawai_cols[6]: str(pegawai.employment_status),
             data_pegawai_cols[7]: str(pegawai.email),
