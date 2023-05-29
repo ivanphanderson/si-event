@@ -167,11 +167,11 @@ Update {{event.event_name}} ({{ event.terms }})
         const endDate = document.getElementById("end_date");
         const eventName = document.getElementById("event_name");
         if (
-            eventName.value == "" ||
+            eventName.value === "" ||
             eventName.value == null ||
-            startDate.value == "" ||
+            startDate.value === "" ||
             startDate.value == null ||
-            endDate.value == "" ||
+            endDate.value === "" ||
             endDate.value == null
         ) {
             $("#errEmpModal").modal("show");

@@ -18,7 +18,7 @@ from .views import (
     validate_event,
     reject_event,
     upload_surat_tugas,
-    reupload_surat_tugas
+    reupload_surat_tugas,
 )
 
 urlpatterns = [

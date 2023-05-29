@@ -3,15 +3,15 @@ from pegawai.models import Pegawai
 from account.models import Account
 from django.core.validators import MinValueValidator
 
-NOT_VALIDATED_YET = 'Not validated yet'
+NOT_VALIDATED_YET = "Not validated yet"
+
 
 class Event(models.Model):
     STATUS_CHOICES = [
-        ('Validated','Validated'),
-        (NOT_VALIDATED_YET,NOT_VALIDATED_YET),
-        ('Waiting for validation','Waiting for validation'),
-        ('Rejected','Rejected'),
-
+        ("Validated", "Validated"),
+        (NOT_VALIDATED_YET, NOT_VALIDATED_YET),
+        ("Waiting for validation", "Waiting for validation"),
+        ("Rejected", "Rejected"),
     ]
 
     creator = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
@@ -20,20 +20,23 @@ class Event(models.Model):
     end_date = models.DateField()
     expense = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     sk_file = models.BinaryField(null=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=NOT_VALIDATED_YET)
-    signed_file = models.FileField(upload_to='pdfs/', null=True, blank=True)
-    rejection_reason = models.TextField(default='', blank=True, null=True)
-    terms = models.CharField(max_length=50, default='GASAL-XXXX/XXXX')
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default=NOT_VALIDATED_YET
+    )
+    signed_file = models.FileField(upload_to="pdfs/", null=True, blank=True)
+    rejection_reason = models.TextField(default="", blank=True, null=True)
+    terms = models.CharField(max_length=50, default="GASAL-XXXX/XXXX")
 
     def save(self, *args, **kwargs):
-        year  = int(str(self.start_date)[:4])
+        year = int(str(self.start_date)[:4])
         month = int(str(self.start_date)[5:7])
 
         if month >= 8 and month <= 12:
-            self.terms = f'GASAL-{year}/{year+1}'
+            self.terms = f"GASAL-{year}/{year+1}"
         else:
-            self.terms = f'GENAP-{year-1}/{year}'
+            self.terms = f"GENAP-{year-1}/{year}"
         super().save(*args, **kwargs)
+
 
 class EventEmployee(models.Model):
     employee = models.ForeignKey(Pegawai, on_delete=models.CASCADE)
@@ -47,9 +50,10 @@ class EventEmployee(models.Model):
         self.netto = ((100 - int(self.pph)) / 100) * int(self.honor)
         super().save(*args, **kwargs)
 
+
 class ValidationFile(models.Model):
     creator = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
-    surat_tugas = models.FileField(upload_to='pdfs/', null=True, blank=True)
+    surat_tugas = models.FileField(upload_to="pdfs/", null=True, blank=True)

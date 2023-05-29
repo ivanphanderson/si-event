@@ -159,11 +159,11 @@ Create Event
         const endDt = document.getElementById("end_date");
         const eventName = document.getElementById("event_name");
         if (
-            eventName.value == "" ||
+            eventName.value === "" ||
             eventName.value == null ||
-            startDt.value == "" ||
+            startDt.value === "" ||
             startDt.value == null ||
-            endDt.value == "" ||
+            endDt.value === "" ||
             endDt.value == null
         ) {
             $("#errEmpModal").modal("show");
